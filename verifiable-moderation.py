@@ -21,7 +21,7 @@ def get_block_hash(block):
     else:
         transactions_merkle_root = get_transactions_hash(block["transactions"])
         timestamp = block["timestamp"]
-        return pedersen_hash(int(transactions_merkle_root, 16), timestamp)
+        return pedersen_hash(transactions_merkle_root, timestamp)
 
 def get_command_hash(command):
     # return hash of array
@@ -239,7 +239,7 @@ def apply_transaction_to_state(state, transaction):
     prev_block_hash = state["block_hash"]
 
     command_hash = get_command_hash(commandInt)
-    msg_hash = pedersen_hash(command_hash, prev_block_hash)
+    msg_hash = pedersen_hash(command_hash, int(prev_block_hash, 16))
     correct_signature = verify(msg_hash, int(signature_r,16), int(signature_s, 16), int(pubkey, 16))
     if not correct_signature:
         raise Exception("transaction signature is incorrect: " + json.dumps(transaction))
@@ -279,7 +279,7 @@ def category_id_exists(state, category):
 # this function decides if given `category` has `pubkey` in its leaves.
 # you cannot check if you can create currently non-existent `category` using this function.
 def check_category_pubkey_authority(state, category, pubkey):
-    result_dict = category_id_exists(state, category_id)
+    result_dict = category_id_exists(state, category)
     exists = result_dict["exists"]
     index = result_dict["result"]
 
@@ -336,14 +336,14 @@ def make_initial_state(initial_block):
 
     all_category_hash = compute_hash_chain([category_block_hash, category_category_hash])
 
-    root_pubkey = initial_block["root_message"]["root_pubkey"]
+    root_pubkey = initial_block["root_message"][0]["root_pubkey"]
 
-    all_hash = pedersen_hash(root_pubkey, all_category_hash)
+    all_hash = pedersen_hash(int(root_pubkey,16), all_category_hash)
 
     state = {
         "state": {
             "root_pubkey": root_pubkey,
-            "all_category_hash": all_category_hash
+            "all_category_hash": all_category_hash,
             "all_category": [
                 {
                     "hash": category_category_hash, # hash consists of `category_type` and `category_elements_child`
@@ -393,7 +393,7 @@ def main():
     blocks = all_blocks[1:]
     initial_block = all_blocks[0]
     initial_state, initial_hash = make_initial_state(initial_block)
-    final_state, final_hash = make_final_state(blocks)
+    final_state, final_hash = make_final_state(initial_state, blocks)
 
     input_data = {
         "blocks": blocks,
