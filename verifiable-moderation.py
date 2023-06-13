@@ -13,9 +13,6 @@ COMMAND_NODE_REMOVE = 4
 CATEGORY_BLOCK = FIELD_PRIME - 1 # = -1 in cairo
 CATEGORY_CATEGORY = FIELD_PRIME - 2 # = -2 in cairo
 
-MERKLE_TREE_TYPE_LEAF = 1
-MERKLE_TREE_TYPE_NODE = 2
-
 def get_block_hash(block):
     root_messages = block["root_message"]
     if len(root_messages):
@@ -133,19 +130,17 @@ def apply_command_node_create(state, command, pubkey):
     if not pubkey_auth["exists"] and not pubkey_auth["root"]:
         raise Exception(f"this pubkey {pubkey} does not have authority over category {category_id}")
     elif not pubkey_auth["exists"] and pubkey_auth["root"]:
+        index = pubkey_auth["result"]
         # root is trying to add first node in this category.
-        path = pubkey_auth["result"]["path"]
-        # new_state["state"]["all_category_merkle_tree"]["left" or "right"]
-        target = new_state["state"]["all_category_merkle_tree"]
-        for i in range(path):
-            target = target[path[i]]
         # this line also updates new_state because of python object reference
-        target["data"]["category_elements_child"] = [{
+        child = {
             "category_elements_child": [],
             "depth": depth,
             "width": width,
             "pubkey": node_pubkey,
-        }]
+        }
+        new_state["state"]["all_category"][index]["data"]["category_elements_child"] = [child]
+        # @todo update hash
 
     # elif pubkey_auth.exists:
     else:
@@ -165,14 +160,11 @@ def apply_command_node_remove(state, command, pubkey):
     if not pubkey_auth["exists"]:
         raise Exception(f"this pubkey {pubkey} does not have authority over category {category_id}")
     elif pubkey_auth["root"]:
-        path = pubkey_auth["result"]["path"]
-        target = new_state["state"]["all_category_merkle_tree"]
-        for i in range(path):
-            target = target[path[i]]
-        # remove node from target["data"]["category_elements_child"] too
-        # this line also updates new_state because of python object reference
-        target["data"]["category_elements_child"] = list(filter(lambda node: node["pubkey"] != node_pubkey, target["data"]["category_elements_child"]))
-
+        index = pubkey_auth["result"]
+        # remove node from category root
+        f = lambda node: node["pubkey"] != node_pubkey
+        new_state["state"]["all_category"][index]["data"]["category_elements_child"] = list(filter(f, new_state["state"]["all_category"][index]["data"]["category_elements_child"]))
+        # @todo update hash
     else:
         # search pubkey from tree object.
         raise Exception(f"not implemented")
@@ -197,19 +189,45 @@ def apply_command_category_create(state, command, pubkey):
 
     new_state = state.copy()
 
+    # empty at first
+    category_category_data_hash = pedersen_hash(0)
+    category_hash = pedersen_hash(category_id, category_category_data_hash)
+
+    new_state["state"]["all_category"].append({
+        "hash": category_hash, # hash consists of `category_type` and `category_elements_child`
+        "data": {
+            "category_type": category_id,
+            "category_elements_child": None, # this could be another merkle tree
+        }
+    })
+    # @todo update hash
+
     return new_state
 
 def apply_command_category_remove(state, command, pubkey):
+    if len(command) != 2:
+        raise Exception("invalid argument number for COMMAND_CATEGORY_REMOVE")
+    category_id = command[1]
+
     # verify transaction. does it have correct authority in current state?
     pubkey_auth = check_category_pubkey_authority(state, CATEGORY_CATEGORY, pubkey)
     if not pubkey_auth["exists"]:
         raise Exception(f"this pubkey {pubkey} does not have authority over category {CATEGORY_CATEGORY}")
 
-    if len(command) != 2:
-        raise Exception("invalid argument number for COMMAND_CATEGORY_REMOVE")
-    category_id = command[1]
+    result_dict = category_id_exists(state, category_id)
+    if not result_dict["exists"]:
+        raise Exception(f"category id {category_id} does not exist")
 
-    return state
+    new_state = state.copy()
+
+    index = pubkey_auth["result"]
+    # remove element from new_state
+    f = lambda element: element["data"]["category_type"] != category_id
+    new_state["state"]["all_category"] = list(filter(f, new_state["state"]["all_category"]))
+    # @todo update hash
+    
+
+    return new_state
 
 def apply_transaction_to_state(state, transaction):
     # check if the transaction has correct signature of author.
@@ -244,44 +262,18 @@ def apply_transaction_to_state(state, transaction):
     
     return new_state
 
-TREE_PATH_LEFT = 0
-TREE_PATH_RIGHT = 1
-
-def flatten_all_leaves_recursive(merkle_tree, path):
-    if merkle_tree["type"] == MERKLE_TREE_TYPE_LEAF:
-        return [{"leaf": merkle_tree["data"], "path": path}]
-    elif merkle_tree["type"] == MERKLE_TREE_TYPE_NODE:
-        left = merkle_tree["left"]
-        right = merkle_tree["right"]
-
-        left_path = path + [TREE_PATH_LEFT]
-        left_leaves = flatten_all_leaves_recursive(left, left_path)
-        right_path = path + [TREE_PATH_RIGHT]
-        right_leaves = flatten_all_leaves_recursive(right, right_path)
-
-        # join lists
-        return left_leaves + right_leaves
-    
-    # empty leaf or something
-    return []
-
-def flatten_all_leaves(merkle_tree):
-    return flatten_all_leaves_recursive(merkle_tree, [])
-
 def category_id_exists(state, category):
     # check if category exists in this state
     # flatten this tree and get all leaves
-    leaves = flatten_all_leaves(state["state"]["all_category_merkle_tree"])
     exists = False
     result = {}
-    for i in range(len(leaves)):
-        leaf = leaves[i]["leaf"]
-        if leaf["category_type"] == category:
+    for i in range(len(state["state"]["all_category"])):
+        if state["state"]["all_category"][i]["data"]["category_type"] == category:
             exists = True
-            result = leaves[i]
+            result = i
             break
 
-    return {"exists": exists, "result": result}
+    return {"exists": exists, "result": i}
 
 
 # this function decides if given `category` has `pubkey` in its leaves.
@@ -289,7 +281,7 @@ def category_id_exists(state, category):
 def check_category_pubkey_authority(state, category, pubkey):
     result_dict = category_id_exists(state, category_id)
     exists = result_dict["exists"]
-    result = result_dict["result"]
+    index = result_dict["result"]
 
     # if exists:
     #     return {"exists": True, "result": result, "root": False}
@@ -298,8 +290,8 @@ def check_category_pubkey_authority(state, category, pubkey):
 
     # it is possible that no nodes exist in leaf.
     # in that case, only root can add its first leaves.
-    if exists and state["state"]["root_pubkey"] == pubkey and result["category_elements_child"] is None:
-        return {"exists": exists, "result": result, "root": True}
+    if exists and state["state"]["root_pubkey"] == pubkey and state["state"]["all_category"][index]["data"]["category_elements_child"] is None:
+        return {"exists": exists, "result": index, "root": True}
 
     # check if leaf data has pubkey in it, if leaf has any `category_elements_child`.
     raise Exception("not implemented")
@@ -333,55 +325,65 @@ def apply_block_to_state(state, block):
 # calculate merkle root of first state
 def make_initial_state(initial_block):
     # empty at first
-    category_block_merkle_tree_hash = pedersen_hash(0)
+    category_block_data_hash = pedersen_hash(0)
     category_block_node = CATEGORY_BLOCK
-    category_block_hash = pedersen_hash(category_block_node, category_block_merkle_tree_hash)
+    category_block_hash = pedersen_hash(category_block_node, category_block_data_hash)
 
     # empty at first
-    category_category_merkle_tree_hash = pedersen_hash(0)
+    category_category_data_hash = pedersen_hash(0)
     category_category_node = CATEGORY_CATEGORY
-    category_category_hash = pedersen_hash(category_category_node, category_category_merkle_tree_hash)
+    category_category_hash = pedersen_hash(category_category_node, category_category_data_hash)
 
-    all_category_merkle_tree_hash = pedersen_hash(category_block_hash, category_category_hash)
+    all_category_hash = compute_hash_chain([category_block_hash, category_category_hash])
 
     root_pubkey = initial_block["root_message"]["root_pubkey"]
 
-    all_hash = pedersen_hash(root_pubkey, all_category_merkle_tree_hash)
+    all_hash = pedersen_hash(root_pubkey, all_category_hash)
 
     state = {
         "state": {
             "root_pubkey": root_pubkey,
-            "all_category_merkle_tree_hash": all_category_merkle_tree_hash
-            "all_category_merkle_tree": { # a merkle tree that consists of category. all categories belong to merkle leaf.
-                "type": MERKLE_TREE_TYPE_NODE, # it has child elements
-                "left": {
+            "all_category_hash": all_category_hash
+            "all_category": [
+                {
                     "hash": category_category_hash, # hash consists of `category_type` and `category_elements_child`
-                    "type": MERKLE_TREE_TYPE_LEAF, # it has no child elements
                     "data": {
                         "category_type": category_category_node,
                         "category_elements_child": None, # this could be another merkle tree
                     }
                 },
-                "right": {
+                {
                     "hash": category_block_hash,
-                    "type": MERKLE_TREE_TYPE_LEAF,
                     "data": {
                         "category_type": category_block_node,
                         "category_elements_child": None,
                     }
                 }
-            }
+            ]
         },
         "block_hash": hex(get_block_hash(initial_block))
     }
-    return state
+    return state, all_hash
+
+def recompute_state_hash(state):
+    # each category hash is recomputed
+    # now compute updated state hash
+    category_hash_list = list(map(lambda category: category["hash"], state["state"]["all_category"]))
+    all_category_hash = compute_hash_chain(category_hash_list)
+    state["state"]["all_category_hash"] = hex(all_category_hash)
+    all_hash = pedersen_hash(int(state["state"]["root_pubkey"], 16), all_category_hash)
+
+    return state, all_hash
 
 # calculate merkle root of last state
 def make_final_state(initial_state, blocks):
     new_state = initial_state
     for i in range(len(blocks)):
         new_state = apply_block_to_state(new_state, blocks[i])
-    return new_state
+
+    new_state, all_hash = recompute_state_hash(new_state)
+
+    return new_state, all_hash
 
 def main():
 
@@ -390,13 +392,15 @@ def main():
     all_blocks = generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key)
     blocks = all_blocks[1:]
     initial_block = all_blocks[0]
-    initial_state = make_initial_state(initial_block)
-    final_state = make_final_state(blocks)
+    initial_state, initial_hash = make_initial_state(initial_block)
+    final_state, final_hash = make_final_state(blocks)
 
     input_data = {
         "blocks": blocks,
         "initial_state": initial_state,
+        "initial_hash": initial_hash,
         "final_state": final_state,
+        "final_hash": final_hash,
     }
 
     with open('verifiable-moderation-input.json', 'w') as f:
