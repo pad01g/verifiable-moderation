@@ -74,19 +74,75 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
         "signature_s": None,
     }
     blocks = [initial_block]
-    blocks_num = 3 # initial block is included in count
-    txs_num = 2
+    blocks_num = 4 # initial block is included in count
+    txs_num = 4
+    new_category_id = 1
     for i in range(1,blocks_num):
         transactions = []
         for j in range(txs_num):
-            commandInt = [COMMAND_NODE_CREATE, CATEGORY_BLOCK, 0, 1, pub_keys[i*txs_num + j]]
+            if i == 1: # first block
+                if j == 0:
+                    # create new category
+                    commandInt = [COMMAND_CATEGORY_CREATE, new_category_id]
+                elif j == 1:
+                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_BLOCK, 2, 3, pub_keys[0]]
+                elif j == 2:
+                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_CATEGORY, 1, 2, pub_keys[1]]
+                else:
+                    commandInt = [COMMAND_NODE_CREATE, new_category_id, 1, 2, pub_keys[2]]
+
+            elif i == 2: # second block
+                # add nodes under category
+                if j == 0:
+                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_BLOCK, 1, 2, pub_keys[3]]
+                elif j == 1:
+                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_BLOCK, 0, 1, pub_keys[4]]
+                elif j == 2:
+                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_CATEGORY, 0, 1, pub_keys[5]]
+                else:
+                    commandInt = [COMMAND_NODE_CREATE, new_category_id, 0, 1, pub_keys[6]]
+
+            else: # third block
+                # remove nodes and categories
+                if j == 0:
+                    commandInt = [COMMAND_NODE_REMOVE, CATEGORY_BLOCK, pub_keys[4]]
+                elif j == 1:
+                    commandInt = [COMMAND_NODE_REMOVE, CATEGORY_BLOCK, pub_keys[3]]
+                elif j == 2:
+                    commandInt = [COMMAND_NODE_REMOVE, CATEGORY_CATEGORY, pub_keys[5]]
+                else:
+                    commandInt = [COMMAND_CATEGORY_REMOVE, new_category_id]
+
             commandHex = [hex(x) for x in commandInt]
             prev_block_hash = get_block_hash(blocks[i-1])
             command_hash = get_command_hash(commandInt)
             msg_hash = pedersen_hash(command_hash, prev_block_hash)
+            if i == 1: # first block
+                priv_key = root_priv_key
+
+            elif i == 2: # second block
+                if j == 0:
+                    priv_key = priv_keys[0]
+                elif j == 1:
+                    priv_key = priv_keys[3]
+                elif j == 2:
+                    priv_key = priv_keys[1]
+                else:
+                    priv_key = priv_keys[2]
+
+            else: # third block
+                if j == 0:
+                    priv_key = priv_keys[3] # remove node 4
+                elif j == 1:
+                    priv_key = priv_keys[0] # remove node 3
+                elif j == 2:
+                    priv_key = priv_keys[1] # remove node 5
+                else:
+                    priv_key = priv_keys[2] # node 1 can remove entire category `new_category_id`
+
             r, s = sign(
                 msg_hash=msg_hash,
-                priv_key=root_priv_key
+                priv_key=priv_key
             )
 
             transactions.append({
@@ -108,13 +164,24 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
             "signature_r": None,
             "signature_s": None,
         }
+        # block signing is done by non-root node after second block
+        if i == 1: # first block
+            block_priv_key = root_priv_key
+            block_pub_key = root_pub_key
+        elif i == 2: # second block
+            block_priv_key = priv_keys[0]
+            block_pub_key = pub_keys[0]
+        else: # third block
+            block_priv_key = priv_keys[0]
+            block_pub_key = pub_keys[0]
+
         r, s = sign(
             msg_hash=get_block_hash(block),
-            priv_key=root_priv_key
+            priv_key=block_priv_key
         )
         block["signature_r"] = hex(r)
         block["signature_s"] = hex(s)
-        block["pubkey"] = hex(root_pub_key)
+        block["pubkey"] = hex(block_pub_key)
 
         blocks.append(block)
 
@@ -134,7 +201,7 @@ def apply_command_node_create(state, command: [int], pubkey: str):
     pubkey_auth = check_category_pubkey_authority(state, category_id, pubkey)
     new_state = copy.deepcopy(state)
     if not pubkey_auth["exists"] and not pubkey_auth["root"]:
-        raise Exception(f"this pubkey {pubkey} does not have authority over category {category_id}")
+        raise Exception(f"node create: this pubkey {pubkey} does not have authority over category {hex(category_id)}")
     elif not pubkey_auth["exists"] and pubkey_auth["root"] and pubkey_auth["result"] is not None:
         # nobody exists in category, and root is trying to add first node.
         # or maybe category does not exist at all
@@ -153,13 +220,13 @@ def apply_command_node_create(state, command: [int], pubkey: str):
         # even root should first create category by himself.
         raise Exception(f"not implemented, unreachable code")
     elif not pubkey_auth["root"]:
-        # category already exists and non-root pubkey is trying to add node
+        # category pubkey already exists and non-root pubkey is trying to add node
         print(json.dumps(new_state))
         raise Exception(f"not implemented")
     else:
-        # category already exists and root pubkey is trying to add node
+        # category pubkey already exists and root pubkey is trying to add node to category
+        # @todo this index may not be correct...?
         index = pubkey_auth["result"]
-        # root is trying to add first node in this category.
         # this line also updates new_state because of python object reference
         child = {
             "category_elements_child": [],
@@ -168,7 +235,7 @@ def apply_command_node_create(state, command: [int], pubkey: str):
             "pubkey": hex(node_pubkey),
         }
         # add pubkey to root of category
-        new_state["state"]["all_category"][index]["data"]["category_elements_child"] = [child]
+        new_state["state"]["all_category"][index]["data"]["category_elements_child"].append(child)
         # @todo update hash
 
     return new_state
@@ -183,7 +250,7 @@ def apply_command_node_remove(state, command, pubkey):
     pubkey_auth = check_category_pubkey_authority(state, category_id, pubkey)
     new_state = copy.deepcopy(state)
     if not pubkey_auth["exists"]:
-        raise Exception(f"this pubkey {pubkey} does not have authority over category {category_id}")
+        raise Exception(f"node remove: this pubkey {pubkey} does not have authority over category {hex(category_id)}")
     elif pubkey_auth["root"]:
         index = pubkey_auth["result"]
         # remove node from category root
@@ -205,8 +272,11 @@ def apply_command_category_create(state, command, pubkey):
 
     # verify transaction. does it have correct authority in current state?
     pubkey_auth = check_category_pubkey_authority(state, CATEGORY_CATEGORY, pubkey)
-    if not pubkey_auth["exists"]:
-        raise Exception(f"this pubkey {pubkey} does not have authority over category {CATEGORY_CATEGORY}")
+    if not pubkey_auth["exists"] and not pubkey_auth["root"]:
+        raise Exception(f"category create: this pubkey {pubkey} does not have authority over category {hex(CATEGORY_CATEGORY)}")
+    elif not pubkey_auth["exists"] and pubkey_auth["root"]:
+        # root is trying to add new category. that's ok
+        pass
 
     result_dict = category_id_exists(state, category_id)
     if result_dict["exists"]:
@@ -222,7 +292,7 @@ def apply_command_category_create(state, command, pubkey):
         "hash": category_hash, # hash consists of `category_type` and `category_elements_child`
         "data": {
             "category_type": category_id,
-            "category_elements_child": None, # this could be another merkle tree
+            "category_elements_child": [], # this could be another merkle tree
         }
     })
     # @todo update hash
@@ -237,7 +307,7 @@ def apply_command_category_remove(state, command, pubkey):
     # verify transaction. does it have correct authority in current state?
     pubkey_auth = check_category_pubkey_authority(state, CATEGORY_CATEGORY, pubkey)
     if not pubkey_auth["exists"]:
-        raise Exception(f"this pubkey {pubkey} does not have authority over category {CATEGORY_CATEGORY}")
+        raise Exception(f"category remove: this pubkey {pubkey} does not have authority over category {hex(CATEGORY_CATEGORY)}")
 
     result_dict = category_id_exists(state, category_id)
     if not result_dict["exists"]:
@@ -285,6 +355,7 @@ def apply_transaction_to_state(state, transaction):
     else:
         raise Exception("unknown command type: "+ command_type)
     
+    # print("apply tx to state", json.dumps(new_state))
     return new_state
 
 def category_id_exists(state, category):
@@ -338,7 +409,7 @@ def apply_block_to_state(state, block):
     pubkey: str = block["pubkey"]
     correct_signature = verify(block_hash, int(signature_r,16), int(signature_s, 16), int(pubkey, 16))
     if not correct_signature:
-        raise Exception("block signature is incorrect: " + block_hash)
+        raise Exception("block signature is incorrect: " + hex(block_hash))
     
     # verify block first, does block producer have authority in CATEGORY_BLOCK?
     pubkey_auth = check_category_pubkey_authority(state, CATEGORY_BLOCK, pubkey)
@@ -349,7 +420,7 @@ def apply_block_to_state(state, block):
         # this is fine, block was produced by root
         pass
     else:
-        # this is also find, block is verified.
+        # this is also fine, block is verified.
         pass
 
 
@@ -422,6 +493,7 @@ def recompute_state_hash(state):
 def make_final_state(initial_state, blocks):
     new_state = copy.deepcopy(initial_state)
     for i in range(len(blocks)):
+        # print(i, json.dumps(new_state))
         new_state = apply_block_to_state(new_state, blocks[i])
 
     new_state, all_hash = recompute_state_hash(new_state)
