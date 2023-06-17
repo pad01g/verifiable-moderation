@@ -1,4 +1,5 @@
 import json
+import copy
 
 from starkware.crypto.signature.signature import (
     pedersen_hash, private_to_stark_key, sign, verify, FIELD_PRIME)
@@ -12,6 +13,11 @@ COMMAND_NODE_REMOVE = 4
 
 CATEGORY_BLOCK = FIELD_PRIME - 1 # = -1 in cairo
 CATEGORY_CATEGORY = FIELD_PRIME - 2 # = -2 in cairo
+
+# we prefer use of string over integer for ease of debugging.
+# for example, public keys can be expressed as integers and strings in python,
+# but we always use strings if possible.
+# function arguments are affected by this policy.
 
 def get_block_hash(block):
     root_messages = block["root_message"]
@@ -114,7 +120,7 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
 
     return blocks
 
-def apply_command_node_create(state, command, pubkey):
+def apply_command_node_create(state, command: [int], pubkey: str):
 
     if len(command) != 5:
         raise Exception("invalid argument number for COMMAND_NODE_CREATE")
@@ -126,10 +132,32 @@ def apply_command_node_create(state, command, pubkey):
 
     # verify transaction. does it have correct authority in current state?
     pubkey_auth = check_category_pubkey_authority(state, category_id, pubkey)
-    new_state = state.copy()
+    new_state = copy.deepcopy(state)
     if not pubkey_auth["exists"] and not pubkey_auth["root"]:
         raise Exception(f"this pubkey {pubkey} does not have authority over category {category_id}")
-    elif not pubkey_auth["exists"] and pubkey_auth["root"]:
+    elif not pubkey_auth["exists"] and pubkey_auth["root"] and pubkey_auth["result"] is not None:
+        # nobody exists in category, and root is trying to add first node.
+        # or maybe category does not exist at all
+        index = pubkey_auth["result"]
+        child = {
+            "category_elements_child": [],
+            "depth": depth,
+            "width": width,
+            "pubkey": hex(node_pubkey),
+        }
+        # add pubkey to root of category
+        new_state["state"]["all_category"][index]["data"]["category_elements_child"].append(child)
+
+    elif not pubkey_auth["exists"] and pubkey_auth["root"] and pubkey_auth["result"] is None:
+        # root is trying to add node to non-existent category.
+        # even root should first create category by himself.
+        raise Exception(f"not implemented, unreachable code")
+    elif not pubkey_auth["root"]:
+        # category already exists and non-root pubkey is trying to add node
+        print(json.dumps(new_state))
+        raise Exception(f"not implemented")
+    else:
+        # category already exists and root pubkey is trying to add node
         index = pubkey_auth["result"]
         # root is trying to add first node in this category.
         # this line also updates new_state because of python object reference
@@ -137,14 +165,11 @@ def apply_command_node_create(state, command, pubkey):
             "category_elements_child": [],
             "depth": depth,
             "width": width,
-            "pubkey": node_pubkey,
+            "pubkey": hex(node_pubkey),
         }
+        # add pubkey to root of category
         new_state["state"]["all_category"][index]["data"]["category_elements_child"] = [child]
         # @todo update hash
-
-    # elif pubkey_auth.exists:
-    else:
-        raise Exception(f"not implemented")
 
     return new_state
 
@@ -156,7 +181,7 @@ def apply_command_node_remove(state, command, pubkey):
 
     # verify transaction. does it have correct authority in current state?
     pubkey_auth = check_category_pubkey_authority(state, category_id, pubkey)
-    new_state = state.copy()
+    new_state = copy.deepcopy(state)
     if not pubkey_auth["exists"]:
         raise Exception(f"this pubkey {pubkey} does not have authority over category {category_id}")
     elif pubkey_auth["root"]:
@@ -187,7 +212,7 @@ def apply_command_category_create(state, command, pubkey):
     if result_dict["exists"]:
         raise Exception(f"category id {category_id} already exists")
 
-    new_state = state.copy()
+    new_state = copy.deepcopy(state)
 
     # empty at first
     category_category_data_hash = pedersen_hash(0)
@@ -218,7 +243,7 @@ def apply_command_category_remove(state, command, pubkey):
     if not result_dict["exists"]:
         raise Exception(f"category id {category_id} does not exist")
 
-    new_state = state.copy()
+    new_state = copy.deepcopy(state)
 
     index = pubkey_auth["result"]
     # remove element from new_state
@@ -247,16 +272,16 @@ def apply_transaction_to_state(state, transaction):
     if len(commandInt) < 2:
         raise Exception("not enough command arguments")
 
-    new_state = {}
+    new_state = copy.deepcopy(state)
     command_type = commandInt[0]
     if command_type == COMMAND_NODE_CREATE:
-        new_state = apply_command_node_create(state, commandInt, pubkey)
+        new_state = apply_command_node_create(new_state, commandInt, pubkey)
     elif command_type == COMMAND_NODE_REMOVE:
-        new_state = apply_command_node_remove(state, commandInt, pubkey)
+        new_state = apply_command_node_remove(new_state, commandInt, pubkey)
     elif command_type == COMMAND_CATEGORY_CREATE:
-        new_state = apply_command_category_create(state, commandInt, pubkey)
+        new_state = apply_command_category_create(new_state, commandInt, pubkey)
     elif command_type == COMMAND_CATEGORY_REMOVE:
-        new_state = apply_command_category_remove(state, commandInt, pubkey)
+        new_state = apply_command_category_remove(new_state, commandInt, pubkey)
     else:
         raise Exception("unknown command type: "+ command_type)
     
@@ -278,7 +303,7 @@ def category_id_exists(state, category):
 
 # this function decides if given `category` has `pubkey` in its leaves.
 # you cannot check if you can create currently non-existent `category` using this function.
-def check_category_pubkey_authority(state, category, pubkey):
+def check_category_pubkey_authority(state, category, pubkey: str):
     result_dict = category_id_exists(state, category)
     exists = result_dict["exists"]
     index = result_dict["result"]
@@ -292,9 +317,17 @@ def check_category_pubkey_authority(state, category, pubkey):
     # in that case, only root can add its first leaves.
     if exists and state["state"]["root_pubkey"] == pubkey and state["state"]["all_category"][index]["data"]["category_elements_child"] is None:
         return {"exists": exists, "result": index, "root": True}
+    elif state["state"]["root_pubkey"] == pubkey:
+        # search root hierarchy, root is trying to add node on top level
+        return {"exists": exists, "result": index, "root": True}
+    elif exists:
+        # search whole tree, non-root pubkey is trying to add node on some level
+        # check if leaf data has pubkey in it, if leaf has any `category_elements_child`.
+        raise Exception("not implemented")
+    else:
+        # it does not have authority
+        return {"exists": exists, "result": None, "root": False}
 
-    # check if leaf data has pubkey in it, if leaf has any `category_elements_child`.
-    raise Exception("not implemented")
 
 
 def apply_block_to_state(state, block):
@@ -302,23 +335,31 @@ def apply_block_to_state(state, block):
     block_hash = get_block_hash(block)
     signature_r = block["signature_r"]
     signature_s = block["signature_s"]
-    pubkey = block["pubkey"]
+    pubkey: str = block["pubkey"]
     correct_signature = verify(block_hash, int(signature_r,16), int(signature_s, 16), int(pubkey, 16))
     if not correct_signature:
         raise Exception("block signature is incorrect: " + block_hash)
     
-    # verify block first, does block producer has authority in CATEGORY_BLOCK?
+    # verify block first, does block producer have authority in CATEGORY_BLOCK?
     pubkey_auth = check_category_pubkey_authority(state, CATEGORY_BLOCK, pubkey)
-    if not pubkey_auth["exists"]:
+    if not pubkey_auth["exists"] and not pubkey_auth["root"]:
+        print(json.dumps(pubkey), json.dumps(pubkey_auth), json.dumps(state))
         raise Exception("public key does not have authority over block creation")
+    elif not pubkey_auth["exists"] and pubkey_auth["root"]:
+        # this is fine, block was produced by root
+        pass
+    else:
+        # this is also find, block is verified.
+        pass
+
 
     # get transaction
     transactions = block["transactions"]
-    new_state = state
+    new_state = copy.deepcopy(state)
     for i in range(len(transactions)):
         new_state = apply_transaction_to_state(new_state, transactions[i])
 
-    new_state["block_hash"] = get_block_hash(block)
+    new_state["block_hash"] = hex(get_block_hash(block))
 
     return new_state
 
@@ -334,29 +375,30 @@ def make_initial_state(initial_block):
     category_category_node = CATEGORY_CATEGORY
     category_category_hash = pedersen_hash(category_category_node, category_category_data_hash)
 
-    all_category_hash = compute_hash_chain([category_block_hash, category_category_hash])
+    all_category_hash_int = compute_hash_chain([category_block_hash, category_category_hash])
+    all_category_hash_hex = hex(all_category_hash_int)
 
     root_pubkey = initial_block["root_message"][0]["root_pubkey"]
 
-    all_hash = pedersen_hash(int(root_pubkey,16), all_category_hash)
+    all_hash = hex(pedersen_hash(int(root_pubkey,16), all_category_hash_int))
 
     state = {
         "state": {
             "root_pubkey": root_pubkey,
-            "all_category_hash": all_category_hash,
+            "all_category_hash": all_category_hash_hex,
             "all_category": [
                 {
-                    "hash": category_category_hash, # hash consists of `category_type` and `category_elements_child`
+                    "hash": hex(category_category_hash), # hash consists of `category_type` and `category_elements_child`
                     "data": {
-                        "category_type": category_category_node,
-                        "category_elements_child": None, # this could be another merkle tree
+                        "category_type": hex(category_category_node),
+                        "category_elements_child": [], # this could be another merkle tree
                     }
                 },
                 {
-                    "hash": category_block_hash,
+                    "hash": hex(category_block_hash),
                     "data": {
-                        "category_type": category_block_node,
-                        "category_elements_child": None,
+                        "category_type": hex(category_block_node),
+                        "category_elements_child": [],
                     }
                 }
             ]
@@ -366,18 +408,19 @@ def make_initial_state(initial_block):
     return state, all_hash
 
 def recompute_state_hash(state):
+    new_state = copy.deepcopy(state)
     # each category hash is recomputed
     # now compute updated state hash
-    category_hash_list = list(map(lambda category: category["hash"], state["state"]["all_category"]))
+    category_hash_list = list(map(lambda category: int(category["hash"], 16), new_state["state"]["all_category"]))
     all_category_hash = compute_hash_chain(category_hash_list)
-    state["state"]["all_category_hash"] = hex(all_category_hash)
-    all_hash = pedersen_hash(int(state["state"]["root_pubkey"], 16), all_category_hash)
+    new_state["state"]["all_category_hash"] = hex(all_category_hash)
+    all_hash = hex(pedersen_hash(int(new_state["state"]["root_pubkey"], 16), all_category_hash))
 
     return state, all_hash
 
 # calculate merkle root of last state
 def make_final_state(initial_state, blocks):
-    new_state = initial_state
+    new_state = copy.deepcopy(initial_state)
     for i in range(len(blocks)):
         new_state = apply_block_to_state(new_state, blocks[i])
 
