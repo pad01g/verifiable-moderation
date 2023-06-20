@@ -543,9 +543,36 @@ def make_initial_state(initial_block):
     }
     return state, all_hash
 
+def recompute_child_hash(elements) -> int:
+    if len(elements) == 0:
+        return pedersen_hash(0)
+    else:
+        child_hashes = []
+        for element in elements:
+            dfs_hash = recompute_child_hash(element["category_elements_child"])
+            pubkey_int = int(element["pubkey"],16)
+            child_hash = compute_hash_chain([
+                dfs_hash,
+                element["depth"],
+                element["width"],
+                pubkey_int,
+            ])
+            child_hashes.append(child_hash)
+        return compute_hash_chain(child_hashes)
+
+# update `hash` in each category (only if marked as `updated`)
+def recompute_category_hash_by_reference(category):
+    # recursive depth first search to hash everything
+    category_type_int = int(category["data"]["category_type"], 16)
+    category_data_hash = recompute_child_hash(category["data"]["category_elements_child"])
+
+    category["hash"] = hex(pedersen_hash(category_type_int, category_data_hash))
+
 def recompute_state_hash(state):
     new_state = copy.deepcopy(state)
-    # each category hash is recomputed
+    # each category hash is recomputed if flagged
+    for category in new_state["state"]["all_category"]:
+        recompute_category_hash_by_reference(category)
     # now compute updated state hash
     category_hash_list = list(map(lambda category: int(category["hash"], 16), new_state["state"]["all_category"]))
     all_category_hash = compute_hash_chain(category_hash_list)
