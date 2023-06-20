@@ -48,7 +48,6 @@ def get_transactions_hash(transactions):
     # return pedersen_hash(*transaction_hashes)
     return compute_hash_chain(transaction_hashes)
 
-
 def generate_key_pair():
 
     # Generate key pairs.
@@ -212,7 +211,6 @@ def add_node_to_state_by_reference(data, pubkey: str, node) -> bool:
             if node_add_result:
                 return True
     return False
-            
 
 def apply_command_node_create(state, command: [int], pubkey: str):
 
@@ -277,7 +275,6 @@ def apply_command_node_create(state, command: [int], pubkey: str):
 
     return new_state
 
-
 def remove_node_from_state_by_reference(data, pubkey: str) -> bool:
     for child_index in range(len(data["category_elements_child"])):
         child = data["category_elements_child"][child_index]
@@ -290,7 +287,6 @@ def remove_node_from_state_by_reference(data, pubkey: str) -> bool:
             if node_remove_result:
                 return True
     return False
-            
 
 def apply_command_node_remove(state, command, pubkey):
     if len(command) != 3:
@@ -470,8 +466,6 @@ def check_category_pubkey_authority(state, category: str, pubkey: str):
         # it does not have authority
         return {"exists": exists, "result": None, "root": False}
 
-
-
 def apply_block_to_state(state, block):
     # also check if the block has correct signature of author.
     block_hash = get_block_hash(block)
@@ -599,7 +593,6 @@ def make_final_state(initial_state, blocks):
     return new_state, all_hash
 
 def main():
-
     priv_keys, pub_keys, root_priv_key, root_pub_key = generate_key_pair()
 
     all_blocks = generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key)
