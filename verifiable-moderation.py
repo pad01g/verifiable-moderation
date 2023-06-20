@@ -198,9 +198,15 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
 
 def add_node_to_state_by_reference(data, pubkey: str, node) -> bool:
     for child in data["category_elements_child"]:
-        if child["pubkey"] == pubkey:
-            child["category_elements_child"].append(node)
-            return True
+        # allowed depth needs decresing
+        if child["pubkey"] == pubkey and child["depth"] >= node["depth"] and node["depth"] >= 0:
+            # width sum must be less than parent width
+            current_width_sum = sum(map(lambda element: element["width"], child["category_elements_child"]))
+            if node["width"] >= 1 and current_width_sum + node["width"] <= child["width"]:
+                child["category_elements_child"].append(node)
+                return True
+            else:
+                return False
         else:
             node_add_result = add_node_to_state_by_reference(child, pubkey, node)
             if node_add_result:
