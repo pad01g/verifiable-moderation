@@ -29707,7 +29707,7 @@
                     {
                         "location": {
                             "end_col": 7,
-                            "end_line": 512,
+                            "end_line": 542,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
@@ -29726,12 +29726,12 @@
                     "parent_location": [
                         {
                             "end_col": 73,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 61,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While expanding the reference 'pedersen_ptr' in:"
                     ],
@@ -29777,12 +29777,12 @@
                             "parent_location": [
                                 {
                                     "end_col": 107,
-                                    "end_line": 513,
+                                    "end_line": 543,
                                     "input_file": {
                                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                     },
                                     "start_col": 27,
-                                    "start_line": 513
+                                    "start_line": 543
                                 },
                                 "While trying to retrieve the implicit argument 'ecdsa_ptr' in:"
                             ],
@@ -29826,12 +29826,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -29870,12 +29870,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -29914,12 +29914,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -29958,12 +29958,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -30002,12 +30002,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -30046,12 +30046,12 @@
                     "parent_location": [
                         {
                             "end_col": 98,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 90,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While expanding the reference 'n_blocks' in:"
                     ],
@@ -30090,12 +30090,12 @@
                     "parent_location": [
                         {
                             "end_col": 106,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 100,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While expanding the reference 'blocks' in:"
                     ],
@@ -30127,12 +30127,12 @@
                 "hints": [],
                 "inst": {
                     "end_col": 107,
-                    "end_line": 513,
+                    "end_line": 543,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "start_col": 27,
-                    "start_line": 513
+                    "start_line": 543
                 }
             },
             "933": {
@@ -30167,7 +30167,7 @@
                     "parent_location": [
                         {
                             "end_col": 107,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
@@ -30181,12 +30181,12 @@
                                     "parent_location": [
                                         {
                                             "end_col": 107,
-                                            "end_line": 513,
+                                            "end_line": 543,
                                             "input_file": {
                                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                             },
                                             "start_col": 27,
-                                            "start_line": 513
+                                            "start_line": 543
                                         },
                                         "While trying to update the implicit return value 'ecdsa_ptr' in:"
                                     ],
@@ -30196,7 +30196,7 @@
                                 "While auto generating local variable for 'ecdsa_ptr'."
                             ],
                             "start_col": 27,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While trying to update the implicit return value 'ecdsa_ptr' in:"
                     ],
@@ -30229,24 +30229,24 @@
                 "hints": [],
                 "inst": {
                     "end_col": 73,
-                    "end_line": 513,
+                    "end_line": 543,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 68,
-                            "end_line": 515,
+                            "end_line": 545,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 56,
-                            "start_line": 515
+                            "start_line": 545
                         },
                         "While expanding the reference 'pedersen_ptr' in:"
                     ],
                     "start_col": 61,
-                    "start_line": 513
+                    "start_line": 543
                 }
             },
             "935": {
@@ -30274,24 +30274,24 @@
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 513,
+                    "end_line": 543,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 515,
+                            "end_line": 545,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 515
+                            "start_line": 545
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 513
+                    "start_line": 543
                 }
             },
             "936": {
@@ -30319,24 +30319,24 @@
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 513,
+                    "end_line": 543,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 515,
+                            "end_line": 545,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 515
+                            "start_line": 545
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 513
+                    "start_line": 543
                 }
             },
             "937": {
@@ -30364,24 +30364,24 @@
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 513,
+                    "end_line": 543,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 515,
+                            "end_line": 545,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 515
+                            "start_line": 545
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 513
+                    "start_line": 543
                 }
             },
             "938": {
@@ -30409,24 +30409,24 @@
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 513,
+                    "end_line": 543,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 515,
+                            "end_line": 545,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 515
+                            "start_line": 545
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 513
+                    "start_line": 543
                 }
             },
             "939": {
@@ -30454,24 +30454,24 @@
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 513,
+                    "end_line": 543,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 515,
+                            "end_line": 545,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 515
+                            "start_line": 545
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 513
+                    "start_line": 543
                 }
             },
             "940": {
@@ -30499,12 +30499,12 @@
                 "hints": [],
                 "inst": {
                     "end_col": 84,
-                    "end_line": 515,
+                    "end_line": 545,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "start_col": 24,
-                    "start_line": 515
+                    "start_line": 545
                 }
             },
             "942": {
@@ -30533,12 +30533,12 @@
                 "hints": [],
                 "inst": {
                     "end_col": 38,
-                    "end_line": 516,
+                    "end_line": 546,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "start_col": 5,
-                    "start_line": 516
+                    "start_line": 546
                 }
             },
             "943": {
@@ -30567,7 +30567,7 @@
                 "hints": [],
                 "inst": {
                     "end_col": 68,
-                    "end_line": 515,
+                    "end_line": 545,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
@@ -30581,12 +30581,12 @@
                             "parent_location": [
                                 {
                                     "end_col": 15,
-                                    "end_line": 518,
+                                    "end_line": 548,
                                     "input_file": {
                                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                     },
                                     "start_col": 5,
-                                    "start_line": 518
+                                    "start_line": 548
                                 },
                                 "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
                             ],
@@ -30596,7 +30596,7 @@
                         "While expanding the reference 'pedersen_ptr' in:"
                     ],
                     "start_col": 56,
-                    "start_line": 515
+                    "start_line": 545
                 }
             },
             "944": {
@@ -30632,7 +30632,7 @@
                     "parent_location": [
                         {
                             "end_col": 107,
-                            "end_line": 513,
+                            "end_line": 543,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
@@ -30646,7 +30646,7 @@
                                     "parent_location": [
                                         {
                                             "end_col": 107,
-                                            "end_line": 513,
+                                            "end_line": 543,
                                             "input_file": {
                                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                             },
@@ -30660,12 +30660,12 @@
                                                     "parent_location": [
                                                         {
                                                             "end_col": 15,
-                                                            "end_line": 518,
+                                                            "end_line": 548,
                                                             "input_file": {
                                                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                                             },
                                                             "start_col": 5,
-                                                            "start_line": 518
+                                                            "start_line": 548
                                                         },
                                                         "While trying to retrieve the implicit argument 'ecdsa_ptr' in:"
                                                     ],
@@ -30675,7 +30675,7 @@
                                                 "While expanding the reference 'ecdsa_ptr' in:"
                                             ],
                                             "start_col": 27,
-                                            "start_line": 513
+                                            "start_line": 543
                                         },
                                         "While trying to update the implicit return value 'ecdsa_ptr' in:"
                                     ],
@@ -30685,7 +30685,7 @@
                                 "While auto generating local variable for 'ecdsa_ptr'."
                             ],
                             "start_col": 27,
-                            "start_line": 513
+                            "start_line": 543
                         },
                         "While trying to update the implicit return value 'ecdsa_ptr' in:"
                     ],
@@ -30719,12 +30719,12 @@
                 "hints": [],
                 "inst": {
                     "end_col": 15,
-                    "end_line": 518,
+                    "end_line": 548,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "start_col": 5,
-                    "start_line": 518
+                    "start_line": 548
                 }
             }
         }
@@ -30774,7 +30774,7 @@
                     "__main__",
                     "__main__.main"
                 ],
-                "code": "# assign state variable from input json. it could be initial state.\n# assign blocks variable from input json\nids.initial_hash = int(program_input[\"initial_hash\"], 16)\nids.final_hash = int(program_input[\"final_hash\"], 16)\n# blocks\nfor block_index in range(len(program_input[\"blocks\"])):\n    block = program_input[\"blocks\"][block_index]\n    ids.blocks[block_index].transactions_merkle_root = int(block[\"transactions_merkle_root\"], 16)\n    ids.blocks[block_index].timestamp = block[\"timestamp\"]\n    ids.blocks[block_index].root_message = block[\"transactions_merkle_root\"][\"root_message\"]\n    ids.blocks[block_index].signature_r = int(block[\"signature_r\"], 16)\n    ids.blocks[block_index].signature_s = int(block[\"signature_s\"], 16)\n    ids.blocks[block_index].pubkey = int(block[\"pubkey\"], 16)\n    ids.blocks[block_index].transactions = []\n    for tx_index in range(len(block[\"transactions\"])):\n        ids.blocks[block_index].n_transactions = len(block[\"transactions\"])\n        tx = block[\"transactions\"][tx_index]\n        ids.blocks[block_index].transactions[tx_index].prev_block_hash = int(tx[\"prev_block_hash\"], 16)\n        ids.blocks[block_index].transactions[tx_index].command_hash = int(tx[\"command_hash\"], 16)\n        ids.blocks[block_index].transactions[tx_index].msg_hash = int(tx[\"msg_hash\"], 16)\n        ids.blocks[block_index].transactions[tx_index].signature_r = int(tx[\"signature_r\"], 16)\n        ids.blocks[block_index].transactions[tx_index].signature_s = int(tx[\"signature_s\"], 16)\n        ids.blocks[block_index].transactions[tx_index].pubkey = int(tx[\"pubkey\"], 16)\n        ids.blocks[block_index].transactions[tx_index].command = map(lambda el: int(el, 16), tx[\"command\"])\nids.n_blocks = len(program_input[\"blocks\"])\n\ndef copy_category_elements_by_ref(category_elements, input_category_elements):\n    if len(input_category_elements) == 0:\n        return\n    else:\n        for element_index in range(len(input_category_elements)):\n            category_elements[element_index].depth = input_category_elements[element_index][\"depth\"]\n            category_elements[element_index].width = input_category_elements[element_index][\"width\"]\n            category_elements[element_index].pubkey = int(input_category_elements[element_index][\"pubkey\"], 16)\n            copy_category_elements_by_ref(\n                category_elements[element_index].category_elements_child,\n                input_category_elements[element_index][\"category_elements_child\"]\n            )\n# initial state\ninitial_state = program_input[\"initial_state\"]\nids.initial_state.root_pubkey = int(initial_state[\"state\"][\"root_pubkey\"], 16)\nids.initial_state.all_category_hash = int(initial_state[\"state\"][\"all_category_hash\"], 16)\nids.initial_state.block_hash = int(initial_state[\"block_hash\"], 16)\nids.initial_state.all_category = []\nfor category_index in range(len(initial_state[\"state\"][\"all_category\"])):\n    ids.initial_state.all_category[category_index].hash = initial_state[\"state\"][\"all_category\"][category_index][\"hash\"]\n    ids.initial_state.all_category[category_index].data.category_type = int(initial_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_type\"], 16)\n    copy_category_elements_by_ref(\n        ids.initial_state.all_category[category_index].data.category_elements_child,\n        initial_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_elements_child\"]\n    )\n\n# final state\nfinal_state = program_input[\"final_state\"]\nids.final_state.root_pubkey = int(final_state[\"state\"][\"root_pubkey\"], 16)\nids.final_state.all_category_hash = int(final_state[\"state\"][\"all_category_hash\"], 16)\nids.final_state.block_hash = int(final_state[\"block_hash\"], 16)\nids.final_state.all_category = []\nfor category_index in range(len(final_state[\"state\"][\"all_category\"])):\n    ids.final_state.all_category[category_index].hash = final_state[\"state\"][\"all_category\"][category_index][\"hash\"]\n    ids.final_state.all_category[category_index].data.category_type = int(final_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_type\"], 16)\n    copy_category_elements_by_ref(\n        ids.final_state.all_category[category_index].data.category_elements_child,\n        final_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_elements_child\"]\n    )",
+                "code": "# assign state variable from input json. it could be initial state.\n# assign blocks variable from input json\nids.initial_hash = int(program_input[\"initial_hash\"], 16)\nids.final_hash = int(program_input[\"final_hash\"], 16)\nids.n_blocks = len(program_input[\"blocks\"])\n# blocks\nfor block_index in range(len(program_input[\"blocks\"])):\n    base_addr = ids.blocks.address_ + ids.Block.SIZE * block_index\n    block = program_input[\"blocks\"][block_index]\n    memory[base_addr + ids.Block.n_transactions] = len(block.transactions)\n    memory[base_addr + ids.Block.transactions_merkle_root] = int(block[\"transactions_merkle_root\"], 16)\n    memory[base_addr + ids.Block.timestamp] = block[\"timestamp\"]\n    memory[base_addr + ids.Block.root_message] = block[\"transactions_merkle_root\"][\"root_message\"]\n    memory[base_addr + ids.Block.signature_r] = int(block[\"signature_r\"], 16)\n    memory[base_addr + ids.Block.signature_s] = int(block[\"signature_s\"], 16)\n    memory[base_addr + ids.Block.pubkey] = int(block[\"pubkey\"], 16)\n\n    # fill in transactions\n    for tx_index in range(len(block[\"transactions\"])):\n        tx_base_addr = base_addr + ids.Block.transactions + ids.Transaction.SIZE * tx_index\n        tx = block[\"transactions\"][tx_index]\n        memory[tx_base_addr + ids.Transaction.prev_block_hash] = int(tx[\"prev_block_hash\"], 16)\n        memory[tx_base_addr + ids.Transaction.command_hash] = int(tx[\"command_hash\"], 16)\n        memory[tx_base_addr + ids.Transaction.msg_hash] = int(tx[\"msg_hash\"], 16)\n        memory[tx_base_addr + ids.Transaction.signature_r] = int(tx[\"signature_r\"], 16)\n        memory[tx_base_addr + ids.Transaction.signature_s] = int(tx[\"signature_s\"], 16)\n        memory[tx_base_addr + ids.Transaction.pubkey] = int(tx[\"pubkey\"], 16)\n        memory[tx_base_addr + ids.Transaction.n_command] = len(tx[\"command\"])\n        # memory[tx_base_addr + ids.Transaction.command]\n        commands = map(lambda el: int(el, 16), tx[\"command\"])\n        for command_index in range(len(commands)):\n            command_base_addr = tx_base_addr + ids.Transaction.command + ids.felt.SIZE * command_index\n            command = commands[command_index]\n            memory[command_base_addr] = command\n\ndef copy_category_elements_by_ref(elements_base_addr: int, input_category_elements):\n    if len(input_category_elements) == 0:\n        return\n    else:\n        for element_index in range(len(input_category_elements)):\n            element_base_addr = elements_base_addr + ids.CategoryElement.SIZE * element_index\n            memoey[element_base_addr + CategoryElement.depth] = input_category_elements[element_index][\"depth\"]\n            memoey[element_base_addr + CategoryElement.width] = input_category_elements[element_index][\"width\"]\n            memoey[element_base_addr + CategoryElement.pubkey] = int(input_category_elements[element_index][\"pubkey\"], 16)\n\n            # category_elements[element_index].depth = input_category_elements[element_index][\"depth\"]\n            # category_elements[element_index].width = input_category_elements[element_index][\"width\"]\n            # category_elements[element_index].pubkey = int(input_category_elements[element_index][\"pubkey\"], 16)\n            copy_category_elements_by_ref(\n                element_base_addr + CategoryElement.category_elements_child,\n                # category_elements[element_index].category_elements_child,\n                input_category_elements[element_index][\"category_elements_child\"]\n            )\n\n# initial state\ninitial_state_addr = ids.initial_state.address_\ninitial_state = program_input[\"initial_state\"]\nmemory[initial_state_addr + ids.State.root_pubkey] = int(initial_state[\"state\"][\"root_pubkey\"], 16)\nmemory[initial_state_addr + ids.State.all_category_hash] = int(initial_state[\"state\"][\"all_category_hash\"], 16)\nmemory[initial_state_addr + ids.State.block_hash] = int(initial_state[\"block_hash\"], 16)\nmemory[initial_state_addr + ids.State.n_all_category] = len(initial_state[\"state\"][\"all_category\"])\n\n# ids.initial_state.all_category = []\nfor category_index in range(len(initial_state[\"state\"][\"all_category\"])):\n    category_base_addr = initial_state_addr + ids.State.all_category + ids.Category.SIZE * category_index\n    memory[category_base_addr + ids.Category.hash] = int(initial_state[\"state\"][\"all_category\"][category_index][\"hash\"], 16)\n    memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(initial_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_type\"], 16)\n\n    elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child\n    copy_category_elements_by_ref(\n        elements_base_addr,\n        # ids.initial_state.all_category[category_index].data.category_elements_child,\n        initial_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_elements_child\"]\n    )\n\n# final state\nfinal_state_addr = ids.final_state.address_\nfinal_state = program_input[\"final_state\"]\nmemory[final_state_addr + ids.State.root_pubkey] = int(final_state[\"state\"][\"root_pubkey\"], 16)\nmemory[final_state_addr + ids.State.all_category_hash] = int(final_state[\"state\"][\"all_category_hash\"], 16)\nmemory[final_state_addr + ids.State.block_hash] = int(final_state[\"block_hash\"], 16)\nmemory[final_state_addr + ids.State.n_all_category] = len(final_state[\"state\"][\"all_category\"])\n\n# ids.final_state.all_category = []\nfor category_index in range(len(final_state[\"state\"][\"all_category\"])):\n    category_base_addr = final_state_addr + ids.State.all_category + ids.Category.SIZE * category_index\n    memory[category_base_addr + ids.Category.hash] = int(final_state[\"state\"][\"all_category\"][category_index][\"hash\"], 16)\n    memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(final_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_type\"], 16)\n\n    elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child\n    copy_category_elements_by_ref(\n        # ids.final_state.all_category[category_index].data.category_elements_child,\n        elements_base_addr,\n        final_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_elements_child\"]\n    )",
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,

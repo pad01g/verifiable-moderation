@@ -447,65 +447,95 @@ func main{
         # assign blocks variable from input json
         ids.initial_hash = int(program_input["initial_hash"], 16)
         ids.final_hash = int(program_input["final_hash"], 16)
+        ids.n_blocks = len(program_input["blocks"])
         # blocks
         for block_index in range(len(program_input["blocks"])):
+            base_addr = ids.blocks.address_ + ids.Block.SIZE * block_index
             block = program_input["blocks"][block_index]
-            ids.blocks[block_index].transactions_merkle_root = int(block["transactions_merkle_root"], 16)
-            ids.blocks[block_index].timestamp = block["timestamp"]
-            ids.blocks[block_index].root_message = block["transactions_merkle_root"]["root_message"]
-            ids.blocks[block_index].signature_r = int(block["signature_r"], 16)
-            ids.blocks[block_index].signature_s = int(block["signature_s"], 16)
-            ids.blocks[block_index].pubkey = int(block["pubkey"], 16)
-            ids.blocks[block_index].transactions = []
-            for tx_index in range(len(block["transactions"])):
-                ids.blocks[block_index].n_transactions = len(block["transactions"])
-                tx = block["transactions"][tx_index]
-                ids.blocks[block_index].transactions[tx_index].prev_block_hash = int(tx["prev_block_hash"], 16)
-                ids.blocks[block_index].transactions[tx_index].command_hash = int(tx["command_hash"], 16)
-                ids.blocks[block_index].transactions[tx_index].msg_hash = int(tx["msg_hash"], 16)
-                ids.blocks[block_index].transactions[tx_index].signature_r = int(tx["signature_r"], 16)
-                ids.blocks[block_index].transactions[tx_index].signature_s = int(tx["signature_s"], 16)
-                ids.blocks[block_index].transactions[tx_index].pubkey = int(tx["pubkey"], 16)
-                ids.blocks[block_index].transactions[tx_index].command = map(lambda el: int(el, 16), tx["command"])
-        ids.n_blocks = len(program_input["blocks"])
+            memory[base_addr + ids.Block.n_transactions] = len(block.transactions)
+            memory[base_addr + ids.Block.transactions_merkle_root] = int(block["transactions_merkle_root"], 16)
+            memory[base_addr + ids.Block.timestamp] = block["timestamp"]
+            memory[base_addr + ids.Block.root_message] = block["transactions_merkle_root"]["root_message"]
+            memory[base_addr + ids.Block.signature_r] = int(block["signature_r"], 16)
+            memory[base_addr + ids.Block.signature_s] = int(block["signature_s"], 16)
+            memory[base_addr + ids.Block.pubkey] = int(block["pubkey"], 16)
 
-        def copy_category_elements_by_ref(category_elements, input_category_elements):
+            # fill in transactions
+            for tx_index in range(len(block["transactions"])):
+                tx_base_addr = base_addr + ids.Block.transactions + ids.Transaction.SIZE * tx_index
+                tx = block["transactions"][tx_index]
+                memory[tx_base_addr + ids.Transaction.prev_block_hash] = int(tx["prev_block_hash"], 16)
+                memory[tx_base_addr + ids.Transaction.command_hash] = int(tx["command_hash"], 16)
+                memory[tx_base_addr + ids.Transaction.msg_hash] = int(tx["msg_hash"], 16)
+                memory[tx_base_addr + ids.Transaction.signature_r] = int(tx["signature_r"], 16)
+                memory[tx_base_addr + ids.Transaction.signature_s] = int(tx["signature_s"], 16)
+                memory[tx_base_addr + ids.Transaction.pubkey] = int(tx["pubkey"], 16)
+                memory[tx_base_addr + ids.Transaction.n_command] = len(tx["command"])
+                # memory[tx_base_addr + ids.Transaction.command]
+                commands = map(lambda el: int(el, 16), tx["command"])
+                for command_index in range(len(commands)):
+                    command_base_addr = tx_base_addr + ids.Transaction.command + ids.felt.SIZE * command_index
+                    command = commands[command_index]
+                    memory[command_base_addr] = command
+
+        def copy_category_elements_by_ref(elements_base_addr: int, input_category_elements):
             if len(input_category_elements) == 0:
                 return
             else:
                 for element_index in range(len(input_category_elements)):
-                    category_elements[element_index].depth = input_category_elements[element_index]["depth"]
-                    category_elements[element_index].width = input_category_elements[element_index]["width"]
-                    category_elements[element_index].pubkey = int(input_category_elements[element_index]["pubkey"], 16)
+                    element_base_addr = elements_base_addr + ids.CategoryElement.SIZE * element_index
+                    memoey[element_base_addr + CategoryElement.depth] = input_category_elements[element_index]["depth"]
+                    memoey[element_base_addr + CategoryElement.width] = input_category_elements[element_index]["width"]
+                    memoey[element_base_addr + CategoryElement.pubkey] = int(input_category_elements[element_index]["pubkey"], 16)
+
+                    # category_elements[element_index].depth = input_category_elements[element_index]["depth"]
+                    # category_elements[element_index].width = input_category_elements[element_index]["width"]
+                    # category_elements[element_index].pubkey = int(input_category_elements[element_index]["pubkey"], 16)
                     copy_category_elements_by_ref(
-                        category_elements[element_index].category_elements_child,
+                        element_base_addr + CategoryElement.category_elements_child,
+                        # category_elements[element_index].category_elements_child,
                         input_category_elements[element_index]["category_elements_child"]
                     )
+
         # initial state
+        initial_state_addr = ids.initial_state.address_
         initial_state = program_input["initial_state"]
-        ids.initial_state.root_pubkey = int(initial_state["state"]["root_pubkey"], 16)
-        ids.initial_state.all_category_hash = int(initial_state["state"]["all_category_hash"], 16)
-        ids.initial_state.block_hash = int(initial_state["block_hash"], 16)
-        ids.initial_state.all_category = []
+        memory[initial_state_addr + ids.State.root_pubkey] = int(initial_state["state"]["root_pubkey"], 16)
+        memory[initial_state_addr + ids.State.all_category_hash] = int(initial_state["state"]["all_category_hash"], 16)
+        memory[initial_state_addr + ids.State.block_hash] = int(initial_state["block_hash"], 16)
+        memory[initial_state_addr + ids.State.n_all_category] = len(initial_state["state"]["all_category"])
+
+        # ids.initial_state.all_category = []
         for category_index in range(len(initial_state["state"]["all_category"])):
-            ids.initial_state.all_category[category_index].hash = initial_state["state"]["all_category"][category_index]["hash"]
-            ids.initial_state.all_category[category_index].data.category_type = int(initial_state["state"]["all_category"][category_index]["data"]["category_type"], 16)
+            category_base_addr = initial_state_addr + ids.State.all_category + ids.Category.SIZE * category_index
+            memory[category_base_addr + ids.Category.hash] = int(initial_state["state"]["all_category"][category_index]["hash"], 16)
+            memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(initial_state["state"]["all_category"][category_index]["data"]["category_type"], 16)
+
+            elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child
             copy_category_elements_by_ref(
-                ids.initial_state.all_category[category_index].data.category_elements_child,
+                elements_base_addr,
+                # ids.initial_state.all_category[category_index].data.category_elements_child,
                 initial_state["state"]["all_category"][category_index]["data"]["category_elements_child"]
             )
 
         # final state
+        final_state_addr = ids.final_state.address_
         final_state = program_input["final_state"]
-        ids.final_state.root_pubkey = int(final_state["state"]["root_pubkey"], 16)
-        ids.final_state.all_category_hash = int(final_state["state"]["all_category_hash"], 16)
-        ids.final_state.block_hash = int(final_state["block_hash"], 16)
-        ids.final_state.all_category = []
+        memory[final_state_addr + ids.State.root_pubkey] = int(final_state["state"]["root_pubkey"], 16)
+        memory[final_state_addr + ids.State.all_category_hash] = int(final_state["state"]["all_category_hash"], 16)
+        memory[final_state_addr + ids.State.block_hash] = int(final_state["block_hash"], 16)
+        memory[final_state_addr + ids.State.n_all_category] = len(final_state["state"]["all_category"])
+
+        # ids.final_state.all_category = []
         for category_index in range(len(final_state["state"]["all_category"])):
-            ids.final_state.all_category[category_index].hash = final_state["state"]["all_category"][category_index]["hash"]
-            ids.final_state.all_category[category_index].data.category_type = int(final_state["state"]["all_category"][category_index]["data"]["category_type"], 16)
+            category_base_addr = final_state_addr + ids.State.all_category + ids.Category.SIZE * category_index
+            memory[category_base_addr + ids.Category.hash] = int(final_state["state"]["all_category"][category_index]["hash"], 16)
+            memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(final_state["state"]["all_category"][category_index]["data"]["category_type"], 16)
+
+            elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child
             copy_category_elements_by_ref(
-                ids.final_state.all_category[category_index].data.category_elements_child,
+                # ids.final_state.all_category[category_index].data.category_elements_child,
+                elements_base_addr,
                 final_state["state"]["all_category"][category_index]["data"]["category_elements_child"]
             )
     
