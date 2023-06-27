@@ -7,6 +7,7 @@ from starkware.cairo.common.signature import (
 struct State {
     root_pubkey: felt,
     all_category_hash: felt,
+    n_all_category: felt,
     all_category: Category*,
     block_hash: felt,
 }
@@ -18,10 +19,12 @@ struct Category {
 
 struct CategoryData {
     category_type: felt,
+    n_category_elements_child: felt,
     category_elements_child: CategoryElement*,
 }
 
 struct CategoryElement {
+    n_category_elements_child: felt,
     category_elements_child: CategoryElement*,
     depth: felt,
     width: felt,
@@ -29,9 +32,11 @@ struct CategoryElement {
 }
 
 struct Block {
+    n_transactions: felt,
     transactions: Transaction*,
     transactions_merkle_root: felt,
     timestamp: felt,
+    n_root_message: felt,
     root_message: RootMessage*, // length could be zero or one
     signature_r: felt, // recover public key from message and signature.
     signature_s: felt,
@@ -46,6 +51,7 @@ struct RootMessage {
 }
 
 struct Transaction {
+    n_command: felt,
     command: felt*,
     prev_block_hash: felt,
     command_hash: felt,
@@ -132,6 +138,49 @@ func check_category_pubkey_authority(state: State, category_id: felt, pubkey: fe
     }
 }
 
+func add_node_to_state_by_reference_recursive(
+    n_category_elements_child: felt,
+    category_elements_child: CategoryElement*,
+    pubkey: felt,
+    node: CategoryElement
+) -> (result: felt) {
+    if (n_category_elements_child == 0){
+        return (result = 0);
+    }else{
+        if (category_elements_child.pubkey == pubkey){
+            category_elements_child.category_elements_child[category_elements_child.n_category_elements_child] = node;
+            return (result = 1);
+        }else{
+            tempvar result1 =  add_node_to_state_by_reference_recursive(
+                n_category_elements_child - 1,
+                category_elements_child + CategoryElement.SIZE,
+                pubkey,
+                node,
+            );
+            if (result1 == 1){
+                return (result = 1);
+            }
+            tempvar result2 =  add_node_to_state_by_reference_recursive(
+                category_elements_child.n_category_elements_child,
+                category_elements_child.category_elements_child,
+                pubkey,
+                node,
+            );
+            return (result = result2);
+        }
+    }
+}
+
+func add_node_to_state_by_reference(data: CategoryData, pubkey: felt, node: CategoryElement) -> (result: felt) {
+    tempvar (result) = add_node_to_state_by_reference_recursive(
+        data.n_category_elements_child,
+        data.category_elements_child,
+        pubkey,
+        node
+    );
+    return (result = result);
+}
+
 func verify_transaction_node_create(state: State, transaction: Transaction) -> (state: State) {
     local new_state: State = state;
     // apply_command_node_create
@@ -141,8 +190,43 @@ func verify_transaction_node_create(state: State, transaction: Transaction) -> (
     tempvar width = command[3];
     tempvar node_pubkey = command[4];
     tempvar pubkey = transaction.pubkey;
-    tempvar pubkey_auth: PubkeyAuth = check_category_pubkey_authority(state, category_id, pubkey);
-
+    tempvar (exists, result, root) = check_category_pubkey_authority(state, category_id, pubkey);
+    if (exists == 0 && root == 0){
+        // node create: this pubkey does not have authority over category
+        assert 1 == 2;
+    } else if (exists == 0 && root == 1 && result != -1) {
+        tempvar index = result;
+        tempvar child: CategoryElement;
+        child.depth = depth;
+        child.width = width;
+        child.pubkey = node_pubkey;
+        // @todo append to existing array
+        tempvar n_category_elements_child = new_state.all_category[index].data.n_category_elements_child;
+        new_state.all_category[index].data.category_elements_child[n_category_elements_child] = child;
+        new_state.all_category[index].data.n_category_elements_child = n_category_elements_child + 1;
+    } else if (exists == 0 && root == 1 && result == -1) {
+        // even root should first create category by himself.
+        assert 1 == 2;
+    } else if (root == 0) {
+        tempvar index = result;
+        tempvar child: CategoryElement;
+        child.depth = depth;
+        child.width = width;
+        child.pubkey = node_pubkey;
+        // @todo implement add_node_to_state_by_reference
+        tempvar node_add_result = add_node_to_state_by_reference(new_state.state.all_category.[index].data, pubkey, child)
+        // verify add result is true
+        assert node_add_result == 1;
+    } else {
+        tempvar index = result;
+        tempvar child: CategoryElement;
+        child.depth = depth;
+        child.width = width;
+        child.pubkey = node_pubkey;
+        // @todo add by reference
+        new_state.all_category[index].data.n_category_elements_child = 1;
+        new_state.all_category[index].data.category_elements_child[0] = child;
+    }
     return new_state;
 }
 func verify_transaction_node_remove(state: State, transaction: Transaction) -> (state: State) {
@@ -201,10 +285,14 @@ func verify_transaction(state: State, transaction: Transaction) -> (state: State
     return new_state;
 }
 
-func verify_transaction_recursive(state: State, transactions: Transaction*) -> (state: State) {
+func verify_transaction_recursive(state: State, n_transactions: felt, transactions: Transaction*) -> (state: State) {
     alloc_locals;
-    local new_state: State = verify_transaction(state, transactions);
-    return verify_transaction_recursive(new_state, transactions + Transaction.SIZE);
+    if (n_transactions == 0){
+        return state;
+    }else{
+        local new_state: State = verify_transaction(state, transactions);
+        return verify_transaction_recursive(new_state, n_transactions - 1, transactions + Transaction.SIZE);    
+    }
 }
 
 func calc_transactions_merkle_root_rec(transaction: Transaction*, transaction_hash: felt*, n_transaction: felt) -> felt* {
@@ -231,9 +319,9 @@ func calc_transactions_merkle_root_rec(transaction: Transaction*, transaction_ha
     return calc_transactions_merkle_root_rec(transaction + Transaction.SIZE, transaction_hash + 1, n_transaction - 1);
 }
 
-func calc_transactions_merkle_root(transactions: Transaction*, n_transaction: felt) -> felt {
+func calc_transactions_merkle_root(transactions: Transaction*, n_transactions: felt) -> felt {
     tempvar transaction_hashes: felt*;
-    calc_transactions_merkle_root_rec(transactions, transaction_hashes, n_transaction);
+    calc_transactions_merkle_root_rec(transactions, transaction_hashes, n_transactions);
     return hash_chain(transaction_hashes);
 }
 // verify block hash and signature.
@@ -244,11 +332,7 @@ func verify_block(state:State, block: Block){
     tempvar signature_s = block.signature_s;
     tempvar pubkey = block.pubkey;
     tempvar transactions_merkle_root = block.transactions_merkle_root;
-    tempvar n_transaction;
-    %{
-        ids.n_transaction = len(ids.block.transactions);
-    %}
-    tempvar transactions_merkle_root_recalc = calc_transactions_merkle_root(block.transactions, n_transaction);
+    tempvar transactions_merkle_root_recalc = calc_transactions_merkle_root(block.transactions, block.n_transactions);
     assert transactions_merkle_root == transactions_merkle_root_recalc;
     tempvar block_hash = hash2(transactions_merkle_root, timestamp);
     verify_ecdsa_signature(
@@ -266,14 +350,18 @@ func update_block(state: State, block: Block) -> (state: State) {
     // lookup CATEGORY_BLOCK table and if pubkey is correct.
     verify_block(state, block);
     // check contents of block (txs) are correct.
-    local new_state: State = verify_transaction_recursive(state, block.transactions);
+    local new_state: State = verify_transaction_recursive(state, block.n_transactions,  block.transactions);
     return new_state;
 }
 
-func update_block_recursive(state: State, blocks: Block*) -> (state: State) {
+func update_block_recursive(state: State, n_blocks: felt, blocks: Block*) -> (state: State) {
     alloc_locals;
-    local new_state: State = update_block(state, blocks);
-    return update_block_recursive(new_state, blocks + Block.SIZE);
+    if (n_blocks == 0){
+        return state;
+    }else{
+        local new_state: State = update_block(state, blocks);
+        return update_block_recursive(new_state, n_blocks - 1, blocks + Block.SIZE);    
+    }
 }
 
 func main() {
@@ -281,6 +369,7 @@ func main() {
     // given list of block, update state
     local initial_state: State;
     local initial_hash: felt;
+    local n_blocks: felt;
     local blocks: Block*;
     local final_state: State; // latest_state should be hardcoded, also get verified by verifier.
     local final_hash: felt;
@@ -300,6 +389,7 @@ func main() {
             ids.blocks[block_index].pubkey = int(block["pubkey"], 16)
             ids.blocks[block_index].transactions = []
             for tx_index in range(len(block["transactions"])):
+                ids.blocks[block_index].n_transactions = len(block["transactions"])
                 tx = block["transactions"][tx_index]
                 ids.blocks[block_index].transactions[tx_index].prev_block_hash = int(tx["prev_block_hash"], 16)
                 ids.blocks[block_index].transactions[tx_index].command_hash = int(tx["command_hash"], 16)
@@ -308,6 +398,7 @@ func main() {
                 ids.blocks[block_index].transactions[tx_index].signature_s = int(tx["signature_s"], 16)
                 ids.blocks[block_index].transactions[tx_index].pubkey = int(tx["pubkey"], 16)
                 ids.blocks[block_index].transactions[tx_index].command = map(lambda el: int(el, 16), tx["command"])
+        ids.n_blocks = len(program_input["blocks"])
 
         def copy_category_elements_by_ref(category_elements, input_category_elements):
             if len(input_category_elements) == 0:
@@ -350,7 +441,7 @@ func main() {
             )
     
     %}
-    tempvar updated_state = update_block_recursive(initial_state, blocks);
+    tempvar updated_state = update_block_recursive(initial_state, n_blocks, blocks);
     // assert that updated_state and latest_state match!
 
     return ();
