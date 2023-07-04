@@ -120,7 +120,44 @@ func check_category_pubkey_authority(state: State, category_id: felt, pubkey: fe
     alloc_locals;
     let (exists, index) = category_id_exists(state.all_category, state.n_all_category, category_id);
 
-    tempvar n_elements: felt = state.all_category[index].data.n_category_elements_child;
+    %{
+        if False:
+            print(f"exists: {ids.exists}, index: {ids.index}")
+            print(f"state.all_category value: {memory[ids.state.all_category.address_]}, state.all_category ref: {ids.state.all_category}")
+            category_hash = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.hash]
+            print(f"state.all_category hash: {hex(category_hash)}")
+            category_data = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.data + ids.CategoryData.SIZE * 0 + ids.CategoryData.category_type]
+            print(f"state.all_category data: {hex(category_data)}")
+    %}
+
+    // let n_: felt = [state.all_category + Category.SIZE * 0 + Category.data + CategoryData.SIZE * 0 + CategoryData.category_type];
+
+    tempvar cat: Category* = state.all_category + index * Category.SIZE;
+    // tempvar catdata: CategoryData = [cat + Category.data];
+    %{
+        if False:
+            print(f"cat: {ids.cat}")
+            print(f"cat: {ids.cat.address_}")
+            category_hash = memory[ids.cat.address_ + ids.Category.SIZE * 0 + ids.Category.hash]
+            print(f"cat hash: {hex(category_hash)}")
+            print(f"cat: {ids.cat.data}")
+            print(f"cat: {ids.cat.data.address_}")
+    %}
+
+    let catdata: CategoryData = cat.data;
+
+    %{
+        if False:
+            print(f"catdata: {ids.catdata}")
+            print(f"catdata addr: {ids.catdata.address_}")
+            category_type = memory[ids.catdata.address_ + ids.CategoryData.SIZE * 0 + ids.CategoryData.category_type]
+            n_category_elements_child = memory[ids.catdata.address_ + ids.CategoryData.SIZE * 0 + ids.CategoryData.n_category_elements_child]
+            print(f"catdata type hex: {hex(category_type)}")
+            print(f"catdata n_category_elements_child hex: {hex(n_category_elements_child)}")
+    %}
+
+    tempvar n_elements: felt = catdata.n_category_elements_child;
+    // tempvar n_elements: felt = [state.all_category + index * Category.SIZE + Category.data + CategoryData.n_category_elements_child];
     if (exists != 0 and state.root_pubkey == pubkey and n_elements == 0) {
         return (root = 1, exists = exists, result = index);
     }
@@ -251,19 +288,24 @@ func verify_transaction_category_remove(state: State, transaction: Transaction) 
 func verify_transaction(state: State, transaction: Transaction) -> (state: State) {
     // verify signature here.
     tempvar pubkey = transaction.pubkey;
-    if (transaction.command == COMMAND_NODE_CREATE) {
+    if ([transaction.command] == COMMAND_NODE_CREATE) {
         return verify_transaction_node_create(state, transaction);
     }else{
-        if (transaction.command == COMMAND_NODE_REMOVE){
+        if ([transaction.command] == COMMAND_NODE_REMOVE){
             return verify_transaction_node_remove(state, transaction);
         }else {
-            if (transaction.command == COMMAND_CATEGORY_CREATE){
+            if ([transaction.command] == COMMAND_CATEGORY_CREATE){
                 return verify_transaction_category_create(state, transaction);
             }else{
-                if (transaction.command == COMMAND_CATEGORY_REMOVE){
+                if ([transaction.command] == COMMAND_CATEGORY_REMOVE){
                     return verify_transaction_category_remove(state, transaction);
                 }else{
                     // raise error
+                    %{
+                        print(f"transaction.msg_hash: {hex(ids.transaction.msg_hash)}")
+                        print(f"transaction.command: {ids.transaction.command}")
+                        print(f"transaction.n_command: {ids.transaction.n_command}")
+                    %}
                     assert 0 = 1;
                 }
             } 
@@ -282,25 +324,51 @@ func verify_transaction_recursive(state: State, n_transactions: felt, transactio
     }
 }
 
+func assign_felt_array(addr: felt*, n_element: felt, element: felt*) -> felt* {
+    if (n_element == 0){
+        return addr;
+    }else{
+        assert [addr] = [element];
+        return assign_felt_array(addr + 1, n_element - 1, element + 1);
+    }
+}
+
 func calc_transactions_merkle_root_rec{hash_ptr: HashBuiltin*}(transaction: Transaction*, transaction_hash: felt*, n_transaction: felt) -> felt* {
     alloc_locals;
-    local felt_array: felt*;
+    // local felt_array: felt*;
+    let (felt_array: felt*) = alloc();
     if (n_transaction == 0){
         return (felt_array);
     }
     // verify transaction.msg_hash
-    let (command_hash) = hash_chain(transaction.command);
+
+    // allocate array for hash chain of command
+    let (command_ptr) = alloc();
+    assert [command_ptr] = transaction.n_command;
+    // assign transaction.command after [command_ptr + 1].
+    assign_felt_array(command_ptr+1, transaction.n_command, transaction.command);
+
+    let (command_hash) = hash_chain(command_ptr);
     let (msg_hash) = hash2(command_hash, transaction.prev_block_hash);
+    %{
+        if False:
+            print(f"command_ptr: {ids.command_ptr}")
+            print(f"command_ptr: {hex(memory[ids.command_ptr])}")
+            print(f"command_ptr: {hex(memory[ids.command_ptr + 1])}")
+            print(f"command_ptr: {hex(memory[ids.command_ptr + 2])}")
+            print(f"command_hash: {hex(ids.command_hash)}, msg_hash: {hex(ids.msg_hash)}, transaction.msg_hash: {hex(ids.transaction.msg_hash)}, transaction.prev_block_hash: {hex(ids.transaction.prev_block_hash)}")
+    %}
     assert msg_hash = transaction.msg_hash;
 
     // Allocate an array.
     let (ptr) = alloc();
 
     // Populate values in the array.
-    assert [ptr] = transaction.msg_hash;
-    assert [ptr + 1] = transaction.signature_r;
-    assert [ptr + 2] = transaction.signature_s;
-    assert [ptr + 3] = transaction.pubkey;
+    assert [ptr] = 4;
+    assert [ptr + 1] = transaction.msg_hash;
+    assert [ptr + 2] = transaction.signature_r;
+    assert [ptr + 3] = transaction.signature_s;
+    assert [ptr + 4] = transaction.pubkey;
 
     let (h) = hash_chain(ptr);
     assert transaction_hash[0] = h;
@@ -309,13 +377,18 @@ func calc_transactions_merkle_root_rec{hash_ptr: HashBuiltin*}(transaction: Tran
 
 func calc_transactions_merkle_root{hash_ptr: HashBuiltin*}(transactions: Transaction*, n_transactions: felt) -> felt {
     alloc_locals;
-    local transaction_hashes: felt*;
+    let (transaction_hashes: felt*) = alloc();
     calc_transactions_merkle_root_rec(transactions, transaction_hashes, n_transactions);
-    let (h) = hash_chain(transaction_hashes);
+
+    let (transaction_hashes_ptr) = alloc();
+    assert [transaction_hashes_ptr] = n_transactions;
+    assign_felt_array(transaction_hashes_ptr+1, n_transactions, transaction_hashes);
+
+    let (h) = hash_chain(transaction_hashes_ptr);
     return h;
 }
 // verify block hash and signature.
-func verify_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state:State, block: Block){
+func verify_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state:State, block: Block*){
     // check block authenticity except for transaction validity.
     let transactions_merkle_root_recalc = calc_transactions_merkle_root(block.transactions, block.n_transactions);
     assert block.transactions_merkle_root = transactions_merkle_root_recalc;
@@ -329,7 +402,7 @@ func verify_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state:St
     return ();
 }
 
-func update_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: State, block: Block) -> (state: State) {
+func update_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: State, block: Block*) -> (state: State) {
     alloc_locals;
     // check if block itself has correct signature, timestamp and block reference.
     // lookup CATEGORY_BLOCK table and if pubkey is correct.
@@ -344,7 +417,7 @@ func update_block_recursive{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*
     if (n_blocks == 0){
         return (state=state);
     }else{
-        let (new_state) = update_block(state, blocks[0]);
+        let (new_state) = update_block(state, blocks);
         return update_block_recursive(new_state, n_blocks - 1, blocks + Block.SIZE);    
     }
 }
@@ -572,6 +645,7 @@ func main{
             category_base_addr = ids.initial_state_categories.address_ + ids.Category.SIZE * category_index
             memory[category_base_addr + ids.Category.hash] = int(initial_state["state"]["all_category"][category_index]["hash"], 16)
             memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(initial_state["state"]["all_category"][category_index]["data"]["category_type"], 16)
+            memory[category_base_addr + ids.Category.data + ids.CategoryData.n_category_elements_child] = initial_state["state"]["all_category"][category_index]["data"]["n_category_elements_child"]
 
             memory[category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child] = ids.initial_state_category_elements.address_ + (initial_state_category_elements_count) * ids.CategoryElement.SIZE
             elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child
@@ -600,6 +674,7 @@ func main{
             category_base_addr = ids.final_state_categories.address_ + ids.Category.SIZE * category_index
             memory[category_base_addr + ids.Category.hash] = int(final_state["state"]["all_category"][category_index]["hash"], 16)
             memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(final_state["state"]["all_category"][category_index]["data"]["category_type"], 16)
+            memory[category_base_addr + ids.Category.data + ids.CategoryData.n_category_elements_child] = final_state["state"]["all_category"][category_index]["data"]["n_category_elements_child"]
 
             memory[category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child] = ids.final_state_category_elements.address_ + (final_state_category_elements_count) * ids.CategoryElement.SIZE
             elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child

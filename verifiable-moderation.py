@@ -29,12 +29,15 @@ def get_block_hash(block):
         timestamp = block["timestamp"]
         return pedersen_hash(transactions_merkle_root, timestamp)
 
+def compute_hash_chain_with_length(elements: [int]) -> int:
+    return compute_hash_chain([len(elements)] + elements)
+
 def get_command_hash(command):
     # return hash of array
     # https://stackoverflow.com/questions/36620025/pass-array-as-argument-in-python
     # print(command)
     # return pedersen_hash(*command)
-    return compute_hash_chain(command)
+    return compute_hash_chain_with_length(command)
 
 def get_transactions_hash(transactions):
     transaction_hashes = []
@@ -44,9 +47,9 @@ def get_transactions_hash(transactions):
         signature_s = transaction["signature_s"]
         pubkey = transaction["pubkey"]
         numlist = [int(msg_hash, 16), int(signature_r, 16), int(signature_s, 16), int(pubkey, 16)]
-        transaction_hashes.append(compute_hash_chain(numlist))
+        transaction_hashes.append(compute_hash_chain_with_length(numlist))
     # return pedersen_hash(*transaction_hashes)
-    return compute_hash_chain(transaction_hashes)
+    return compute_hash_chain_with_length(transaction_hashes)
 
 def generate_key_pair():
 
@@ -511,7 +514,7 @@ def make_initial_state(initial_block):
     category_category_node = CATEGORY_CATEGORY
     category_category_hash = pedersen_hash(category_category_node, category_category_data_hash)
 
-    all_category_hash_int = compute_hash_chain([category_block_hash, category_category_hash])
+    all_category_hash_int = compute_hash_chain_with_length([category_block_hash, category_category_hash])
     all_category_hash_hex = hex(all_category_hash_int)
 
     root_pubkey = initial_block["root_message"][0]["root_pubkey"]
@@ -527,6 +530,7 @@ def make_initial_state(initial_block):
                     "hash": hex(category_category_hash), # hash consists of `category_type` and `category_elements_child`
                     "data": {
                         "category_type": hex(category_category_node),
+                        "n_category_elements_child": 0,
                         "category_elements_child": [], # this could be another merkle tree
                     }
                 },
@@ -534,6 +538,7 @@ def make_initial_state(initial_block):
                     "hash": hex(category_block_hash),
                     "data": {
                         "category_type": hex(category_block_node),
+                        "n_category_elements_child": 0,
                         "category_elements_child": [],
                     }
                 }
@@ -551,14 +556,14 @@ def recompute_child_hash(elements) -> int:
         for element in elements:
             dfs_hash = recompute_child_hash(element["category_elements_child"])
             pubkey_int = int(element["pubkey"],16)
-            child_hash = compute_hash_chain([
+            child_hash = compute_hash_chain_with_length([
                 dfs_hash,
                 element["depth"],
                 element["width"],
                 pubkey_int,
             ])
             child_hashes.append(child_hash)
-        return compute_hash_chain(child_hashes)
+        return compute_hash_chain_with_length(child_hashes)
 
 # update `hash` in each category (only if marked as `updated`)
 def recompute_category_hash_by_reference(category):
@@ -575,7 +580,7 @@ def recompute_state_hash(state):
         recompute_category_hash_by_reference(category)
     # now compute updated state hash
     category_hash_list = list(map(lambda category: int(category["hash"], 16), new_state["state"]["all_category"]))
-    all_category_hash = compute_hash_chain(category_hash_list)
+    all_category_hash = compute_hash_chain_with_length(category_hash_list)
     new_state["state"]["all_category_hash"] = hex(all_category_hash)
     all_hash = hex(pedersen_hash(int(new_state["state"]["root_pubkey"], 16), all_category_hash))
 
