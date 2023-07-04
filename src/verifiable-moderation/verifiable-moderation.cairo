@@ -446,6 +446,11 @@ func main{
     let (root_messages: RootMessage*) = alloc();
     local commands: felt*;
 
+    let (initial_state_categories: Category*) = alloc();
+    let (initial_state_category_elements: CategoryElement*) = alloc();
+    let (final_state_categories: Category*) = alloc();
+    let (final_state_category_elements: CategoryElement*) = alloc();
+
     %{
         # assign state variable from input json. it could be initial state.
         # assign blocks variable from input json
@@ -520,24 +525,35 @@ func main{
     %}
     // states
     %{
-        def copy_category_elements_by_ref(elements_base_addr: int, input_category_elements):
+        # elements_base_addr is where reference is stored.
+        # input_category_elements is json data given as input.
+        # category_elements_address is a base address for elements memory location
+        # category_elements_count is maximum memory index where elements are located.
+        # return new category_elements_count
+        def copy_category_elements_by_ref(elements_base_addr: int, input_category_elements, category_elements_address:int, _category_elements_count: int) -> int:
+            category_elements_count = _category_elements_count
             if len(input_category_elements) == 0:
-                return
+                return category_elements_count
             else:
+                memory[elements_base_addr] = category_elements_address + ids.CategoryElement.SIZE * category_elements_count
                 for element_index in range(len(input_category_elements)):
-                    element_base_addr = elements_base_addr + ids.CategoryElement.SIZE * element_index
-                    memoey[element_base_addr + CategoryElement.depth] = input_category_elements[element_index]["depth"]
-                    memoey[element_base_addr + CategoryElement.width] = input_category_elements[element_index]["width"]
-                    memoey[element_base_addr + CategoryElement.pubkey] = int(input_category_elements[element_index]["pubkey"], 16)
+                    element_base_addr = category_elements_address + ids.CategoryElement.SIZE * (category_elements_count)
+                    memory[element_base_addr + ids.CategoryElement.depth] = input_category_elements[element_index]["depth"]
+                    memory[element_base_addr + ids.CategoryElement.width] = input_category_elements[element_index]["width"]
+                    memory[element_base_addr + ids.CategoryElement.pubkey] = int(input_category_elements[element_index]["pubkey"], 16)
+                    memory[element_base_addr + ids.CategoryElement.n_category_elements_child] = len(input_category_elements[element_index]["category_elements_child"])                    
 
-                    # category_elements[element_index].depth = input_category_elements[element_index]["depth"]
-                    # category_elements[element_index].width = input_category_elements[element_index]["width"]
-                    # category_elements[element_index].pubkey = int(input_category_elements[element_index]["pubkey"], 16)
-                    copy_category_elements_by_ref(
-                        element_base_addr + CategoryElement.category_elements_child,
+                    category_elements_count += 1
+
+                    category_elements_count = copy_category_elements_by_ref(
+                        element_base_addr + ids.CategoryElement.category_elements_child,
                         # category_elements[element_index].category_elements_child,
-                        input_category_elements[element_index]["category_elements_child"]
+                        input_category_elements[element_index]["category_elements_child"],
+                        category_elements_address,
+                        category_elements_count,
                     )
+
+                return category_elements_count
 
         # initial state
         initial_state_addr = ids.initial_state.address_
@@ -547,17 +563,24 @@ func main{
         memory[initial_state_addr + ids.State.block_hash] = int(initial_state["block_hash"], 16)
         memory[initial_state_addr + ids.State.n_all_category] = len(initial_state["state"]["all_category"])
 
+        # assign initial_state_categories address value to reference
+        memory[initial_state_addr + ids.State.all_category] = ids.initial_state_categories.address_
+        initial_state_category_elements_count = 0
+
         # ids.initial_state.all_category = []
         for category_index in range(len(initial_state["state"]["all_category"])):
-            category_base_addr = initial_state_addr + ids.State.all_category + ids.Category.SIZE * category_index
+            category_base_addr = ids.initial_state_categories.address_ + ids.Category.SIZE * category_index
             memory[category_base_addr + ids.Category.hash] = int(initial_state["state"]["all_category"][category_index]["hash"], 16)
             memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(initial_state["state"]["all_category"][category_index]["data"]["category_type"], 16)
 
+            memory[category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child] = ids.initial_state_category_elements.address_ + (initial_state_category_elements_count) * ids.CategoryElement.SIZE
             elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child
-            copy_category_elements_by_ref(
+            initial_state_category_elements_count = copy_category_elements_by_ref(
                 elements_base_addr,
                 # ids.initial_state.all_category[category_index].data.category_elements_child,
-                initial_state["state"]["all_category"][category_index]["data"]["category_elements_child"]
+                initial_state["state"]["all_category"][category_index]["data"]["category_elements_child"],
+                ids.initial_state_category_elements.address_,
+                initial_state_category_elements_count,
             )
 
         # final state
@@ -568,21 +591,28 @@ func main{
         memory[final_state_addr + ids.State.block_hash] = int(final_state["block_hash"], 16)
         memory[final_state_addr + ids.State.n_all_category] = len(final_state["state"]["all_category"])
 
+        # assign final_state_categories address value to reference
+        memory[final_state_addr + ids.State.all_category] = ids.final_state_categories.address_
+        final_state_category_elements_count = 0
+
         # ids.final_state.all_category = []
         for category_index in range(len(final_state["state"]["all_category"])):
-            category_base_addr = final_state_addr + ids.State.all_category + ids.Category.SIZE * category_index
+            category_base_addr = ids.final_state_categories.address_ + ids.Category.SIZE * category_index
             memory[category_base_addr + ids.Category.hash] = int(final_state["state"]["all_category"][category_index]["hash"], 16)
             memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(final_state["state"]["all_category"][category_index]["data"]["category_type"], 16)
 
+            memory[category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child] = ids.final_state_category_elements.address_ + (final_state_category_elements_count) * ids.CategoryElement.SIZE
             elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child
-            copy_category_elements_by_ref(
-                # ids.final_state.all_category[category_index].data.category_elements_child,
+            final_state_category_elements_count = copy_category_elements_by_ref(
                 elements_base_addr,
-                final_state["state"]["all_category"][category_index]["data"]["category_elements_child"]
+                # ids.final_state.all_category[category_index].data.category_elements_child,
+                final_state["state"]["all_category"][category_index]["data"]["category_elements_child"],
+                ids.final_state_category_elements.address_,
+                final_state_category_elements_count,
             )
-    
+
     %}
-    let (updated_state) = update_block_recursive{hash_ptr = pedersen_ptr}(initial_state, n_blocks, blocks);
+    let (updated_state: State) = update_block_recursive{hash_ptr = pedersen_ptr}(initial_state, n_blocks, blocks);
     // assert that updated_state and latest_state match!
     let updated_hash = recompute_state_hash{hash_ptr = pedersen_ptr}(updated_state);
     assert updated_hash = final_hash;

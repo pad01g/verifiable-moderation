@@ -934,6 +934,14 @@
         "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffc80",
         "0x1104800180018000",
         "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffc7e",
+        "0x1104800180018000",
+        "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffc7c",
+        "0x1104800180018000",
+        "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffc7a",
+        "0x1104800180018000",
+        "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffc78",
+        "0x1104800180018000",
+        "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffc76",
         "0x480a7ffc7fff8000",
         "0x480a7ffd7fff8000",
         "0x480a80007fff8000",
@@ -942,9 +950,9 @@
         "0x480a80037fff8000",
         "0x480a80047fff8000",
         "0x480a80067fff8000",
-        "0x48127ff17fff8000",
+        "0x48127fe57fff8000",
         "0x1104800180018000",
-        "0x800000000000010ffffffffffffffffffffffffffffffffffffffffffffff54",
+        "0x800000000000010ffffffffffffffffffffffffffffffffffffffffffffff4c",
         "0x40137ffa7fff800e",
         "0x48127ff97fff8000",
         "0x48127ffa7fff8000",
@@ -953,7 +961,7 @@
         "0x48127ffa7fff8000",
         "0x48127ffa7fff8000",
         "0x1104800180018000",
-        "0x800000000000010ffffffffffffffffffffffffffffffffffffffffffffffd0",
+        "0x800000000000010ffffffffffffffffffffffffffffffffffffffffffffffc8",
         "0x400a800c7fff7fff",
         "0x48127ffe7fff8000",
         "0x480a800e7fff8000",
@@ -29806,28 +29814,178 @@
                         "__main__.main.transactions": 330
                     }
                 },
+                "hints": [],
+                "inst": {
+                    "end_col": 56,
+                    "end_line": 449,
+                    "input_file": {
+                        "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
+                    },
+                    "start_col": 49,
+                    "start_line": 449
+                }
+            },
+            "930": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 67,
+                        "offset": 27
+                    },
+                    "reference_ids": {
+                        "__main__.main.blocks": 327,
+                        "__main__.main.commands": 332,
+                        "__main__.main.ecdsa_ptr": 323,
+                        "__main__.main.final_hash": 329,
+                        "__main__.main.final_state": 328,
+                        "__main__.main.initial_hash": 325,
+                        "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.n_blocks": 326,
+                        "__main__.main.pedersen_ptr": 322,
+                        "__main__.main.root_messages": 331,
+                        "__main__.main.transactions": 330
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 70,
+                    "end_line": 450,
+                    "input_file": {
+                        "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
+                    },
+                    "start_col": 63,
+                    "start_line": 450
+                }
+            },
+            "932": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 67,
+                        "offset": 30
+                    },
+                    "reference_ids": {
+                        "__main__.main.blocks": 327,
+                        "__main__.main.commands": 332,
+                        "__main__.main.ecdsa_ptr": 323,
+                        "__main__.main.final_hash": 329,
+                        "__main__.main.final_state": 328,
+                        "__main__.main.initial_hash": 325,
+                        "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
+                        "__main__.main.n_blocks": 326,
+                        "__main__.main.pedersen_ptr": 322,
+                        "__main__.main.root_messages": 331,
+                        "__main__.main.transactions": 330
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 54,
+                    "end_line": 451,
+                    "input_file": {
+                        "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
+                    },
+                    "start_col": 47,
+                    "start_line": 451
+                }
+            },
+            "934": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 67,
+                        "offset": 33
+                    },
+                    "reference_ids": {
+                        "__main__.main.blocks": 327,
+                        "__main__.main.commands": 332,
+                        "__main__.main.ecdsa_ptr": 323,
+                        "__main__.main.final_hash": 329,
+                        "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.initial_hash": 325,
+                        "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
+                        "__main__.main.n_blocks": 326,
+                        "__main__.main.pedersen_ptr": 322,
+                        "__main__.main.root_messages": 331,
+                        "__main__.main.transactions": 330
+                    }
+                },
+                "hints": [],
+                "inst": {
+                    "end_col": 68,
+                    "end_line": 452,
+                    "input_file": {
+                        "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
+                    },
+                    "start_col": 61,
+                    "start_line": 452
+                }
+            },
+            "936": {
+                "accessible_scopes": [
+                    "__main__",
+                    "__main__.main"
+                ],
+                "flow_tracking_data": {
+                    "ap_tracking": {
+                        "group": 67,
+                        "offset": 36
+                    },
+                    "reference_ids": {
+                        "__main__.main.blocks": 327,
+                        "__main__.main.commands": 332,
+                        "__main__.main.ecdsa_ptr": 323,
+                        "__main__.main.final_hash": 329,
+                        "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
+                        "__main__.main.initial_hash": 325,
+                        "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
+                        "__main__.main.n_blocks": 326,
+                        "__main__.main.pedersen_ptr": 322,
+                        "__main__.main.root_messages": 331,
+                        "__main__.main.transactions": 330
+                    }
+                },
                 "hints": [
                     {
                         "location": {
                             "end_col": 7,
-                            "end_line": 520,
+                            "end_line": 525,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 5,
-                            "start_line": 449
+                            "start_line": 454
                         },
                         "n_prefix_newlines": 1
                     },
                     {
                         "location": {
                             "end_col": 7,
-                            "end_line": 584,
+                            "end_line": 614,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 5,
-                            "start_line": 522
+                            "start_line": 527
                         },
                         "n_prefix_newlines": 1
                     }
@@ -29841,12 +29999,12 @@
                     "parent_location": [
                         {
                             "end_col": 73,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 61,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While expanding the reference 'pedersen_ptr' in:"
                     ],
@@ -29854,7 +30012,7 @@
                     "start_line": 434
                 }
             },
-            "929": {
+            "937": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -29862,7 +30020,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 25
+                        "offset": 37
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -29870,8 +30028,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -29895,12 +30057,12 @@
                             "parent_location": [
                                 {
                                     "end_col": 107,
-                                    "end_line": 585,
+                                    "end_line": 615,
                                     "input_file": {
                                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                     },
                                     "start_col": 27,
-                                    "start_line": 585
+                                    "start_line": 615
                                 },
                                 "While trying to retrieve the implicit argument 'ecdsa_ptr' in:"
                             ],
@@ -29913,7 +30075,7 @@
                     "start_line": 435
                 }
             },
-            "930": {
+            "938": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -29921,7 +30083,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 26
+                        "offset": 38
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -29929,8 +30091,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -29947,12 +30113,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -29960,7 +30126,7 @@
                     "start_line": 439
                 }
             },
-            "931": {
+            "939": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -29968,7 +30134,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 27
+                        "offset": 39
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -29976,8 +30142,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -29994,12 +30164,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -30007,7 +30177,7 @@
                     "start_line": 439
                 }
             },
-            "932": {
+            "940": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30015,7 +30185,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 28
+                        "offset": 40
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -30023,8 +30193,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -30041,12 +30215,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -30054,7 +30228,7 @@
                     "start_line": 439
                 }
             },
-            "933": {
+            "941": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30062,7 +30236,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 29
+                        "offset": 41
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -30070,8 +30244,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -30088,12 +30266,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -30101,7 +30279,7 @@
                     "start_line": 439
                 }
             },
-            "934": {
+            "942": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30109,7 +30287,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 30
+                        "offset": 42
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -30117,8 +30295,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -30135,12 +30317,12 @@
                     "parent_location": [
                         {
                             "end_col": 88,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 75,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While expanding the reference 'initial_state' in:"
                     ],
@@ -30148,7 +30330,7 @@
                     "start_line": 439
                 }
             },
-            "935": {
+            "943": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30156,7 +30338,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 31
+                        "offset": 43
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -30164,8 +30346,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -30182,12 +30368,12 @@
                     "parent_location": [
                         {
                             "end_col": 98,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 90,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While expanding the reference 'n_blocks' in:"
                     ],
@@ -30195,7 +30381,7 @@
                     "start_line": 441
                 }
             },
-            "936": {
+            "944": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30203,7 +30389,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 32
+                        "offset": 44
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -30211,8 +30397,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -30229,12 +30419,12 @@
                     "parent_location": [
                         {
                             "end_col": 106,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 100,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While expanding the reference 'blocks' in:"
                     ],
@@ -30242,7 +30432,7 @@
                     "start_line": 442
                 }
             },
-            "937": {
+            "945": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30250,7 +30440,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 33
+                        "offset": 45
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -30258,8 +30448,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -30269,15 +30463,15 @@
                 "hints": [],
                 "inst": {
                     "end_col": 107,
-                    "end_line": 585,
+                    "end_line": 615,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "start_col": 27,
-                    "start_line": 585
+                    "start_line": 615
                 }
             },
-            "939": {
+            "947": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30290,16 +30484,20 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 334,
+                        "__main__.main.ecdsa_ptr": 338,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 333,
+                        "__main__.main.pedersen_ptr": 337,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
@@ -30312,7 +30510,7 @@
                     "parent_location": [
                         {
                             "end_col": 107,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
@@ -30326,12 +30524,12 @@
                                     "parent_location": [
                                         {
                                             "end_col": 107,
-                                            "end_line": 585,
+                                            "end_line": 615,
                                             "input_file": {
                                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                             },
                                             "start_col": 27,
-                                            "start_line": 585
+                                            "start_line": 615
                                         },
                                         "While trying to update the implicit return value 'ecdsa_ptr' in:"
                                     ],
@@ -30341,7 +30539,7 @@
                                 "While auto generating local variable for 'ecdsa_ptr'."
                             ],
                             "start_col": 27,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While trying to update the implicit return value 'ecdsa_ptr' in:"
                     ],
@@ -30349,7 +30547,7 @@
                     "start_line": 342
                 }
             },
-            "940": {
+            "948": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30362,42 +30560,46 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 333,
+                        "__main__.main.pedersen_ptr": 337,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 73,
-                    "end_line": 585,
+                    "end_line": 615,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 68,
-                            "end_line": 587,
+                            "end_line": 617,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 56,
-                            "start_line": 587
+                            "start_line": 617
                         },
                         "While expanding the reference 'pedersen_ptr' in:"
                     ],
                     "start_col": 61,
-                    "start_line": 585
+                    "start_line": 615
                 }
             },
-            "941": {
+            "949": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30410,42 +30612,46 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 333,
+                        "__main__.main.pedersen_ptr": 337,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 585,
+                    "end_line": 615,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 587,
+                            "end_line": 617,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 587
+                            "start_line": 617
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 585
+                    "start_line": 615
                 }
             },
-            "942": {
+            "950": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30458,42 +30664,46 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 333,
+                        "__main__.main.pedersen_ptr": 337,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 585,
+                    "end_line": 615,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 587,
+                            "end_line": 617,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 587
+                            "start_line": 617
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 585
+                    "start_line": 615
                 }
             },
-            "943": {
+            "951": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30506,42 +30716,46 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 333,
+                        "__main__.main.pedersen_ptr": 337,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 585,
+                    "end_line": 615,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 587,
+                            "end_line": 617,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 587
+                            "start_line": 617
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 585
+                    "start_line": 615
                 }
             },
-            "944": {
+            "952": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30554,42 +30768,46 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 333,
+                        "__main__.main.pedersen_ptr": 337,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 585,
+                    "end_line": 615,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 587,
+                            "end_line": 617,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 587
+                            "start_line": 617
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 585
+                    "start_line": 615
                 }
             },
-            "945": {
+            "953": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30602,42 +30820,46 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 333,
+                        "__main__.main.pedersen_ptr": 337,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 23,
-                    "end_line": 585,
+                    "end_line": 615,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "parent_location": [
                         {
                             "end_col": 83,
-                            "end_line": 587,
+                            "end_line": 617,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
                             "start_col": 70,
-                            "start_line": 587
+                            "start_line": 617
                         },
                         "While expanding the reference 'updated_state' in:"
                     ],
                     "start_col": 10,
-                    "start_line": 585
+                    "start_line": 615
                 }
             },
-            "946": {
+            "954": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30650,30 +30872,34 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 333,
+                        "__main__.main.pedersen_ptr": 337,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 84,
-                    "end_line": 587,
+                    "end_line": 617,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "start_col": 24,
-                    "start_line": 587
+                    "start_line": 617
                 }
             },
-            "948": {
+            "956": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30686,31 +30912,35 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 337,
+                        "__main__.main.pedersen_ptr": 341,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_hash": 338,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_hash": 342,
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 38,
-                    "end_line": 588,
+                    "end_line": 618,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "start_col": 5,
-                    "start_line": 588
+                    "start_line": 618
                 }
             },
-            "949": {
+            "957": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30723,23 +30953,27 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 337,
+                        "__main__.main.pedersen_ptr": 341,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_hash": 338,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_hash": 342,
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 68,
-                    "end_line": 587,
+                    "end_line": 617,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
@@ -30753,12 +30987,12 @@
                             "parent_location": [
                                 {
                                     "end_col": 15,
-                                    "end_line": 590,
+                                    "end_line": 620,
                                     "input_file": {
                                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                     },
                                     "start_col": 5,
-                                    "start_line": 590
+                                    "start_line": 620
                                 },
                                 "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
                             ],
@@ -30768,10 +31002,10 @@
                         "While expanding the reference 'pedersen_ptr' in:"
                     ],
                     "start_col": 56,
-                    "start_line": 587
+                    "start_line": 617
                 }
             },
-            "950": {
+            "958": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30784,17 +31018,21 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 337,
+                        "__main__.main.pedersen_ptr": 341,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_hash": 338,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_hash": 342,
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
@@ -30807,7 +31045,7 @@
                     "parent_location": [
                         {
                             "end_col": 107,
-                            "end_line": 585,
+                            "end_line": 615,
                             "input_file": {
                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                             },
@@ -30821,7 +31059,7 @@
                                     "parent_location": [
                                         {
                                             "end_col": 107,
-                                            "end_line": 585,
+                                            "end_line": 615,
                                             "input_file": {
                                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                             },
@@ -30835,12 +31073,12 @@
                                                     "parent_location": [
                                                         {
                                                             "end_col": 15,
-                                                            "end_line": 590,
+                                                            "end_line": 620,
                                                             "input_file": {
                                                                 "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                                                             },
                                                             "start_col": 5,
-                                                            "start_line": 590
+                                                            "start_line": 620
                                                         },
                                                         "While trying to retrieve the implicit argument 'ecdsa_ptr' in:"
                                                     ],
@@ -30850,7 +31088,7 @@
                                                 "While expanding the reference 'ecdsa_ptr' in:"
                                             ],
                                             "start_col": 27,
-                                            "start_line": 585
+                                            "start_line": 615
                                         },
                                         "While trying to update the implicit return value 'ecdsa_ptr' in:"
                                     ],
@@ -30860,7 +31098,7 @@
                                 "While auto generating local variable for 'ecdsa_ptr'."
                             ],
                             "start_col": 27,
-                            "start_line": 585
+                            "start_line": 615
                         },
                         "While trying to update the implicit return value 'ecdsa_ptr' in:"
                     ],
@@ -30868,7 +31106,7 @@
                     "start_line": 342
                 }
             },
-            "951": {
+            "959": {
                 "accessible_scopes": [
                     "__main__",
                     "__main__.main"
@@ -30881,28 +31119,32 @@
                     "reference_ids": {
                         "__main__.main.blocks": 327,
                         "__main__.main.commands": 332,
-                        "__main__.main.ecdsa_ptr": 336,
+                        "__main__.main.ecdsa_ptr": 340,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
-                        "__main__.main.pedersen_ptr": 337,
+                        "__main__.main.pedersen_ptr": 341,
                         "__main__.main.root_messages": 331,
                         "__main__.main.transactions": 330,
-                        "__main__.main.updated_hash": 338,
-                        "__main__.main.updated_state": 335
+                        "__main__.main.updated_hash": 342,
+                        "__main__.main.updated_state": 339
                     }
                 },
                 "hints": [],
                 "inst": {
                     "end_col": 15,
-                    "end_line": 590,
+                    "end_line": 620,
                     "input_file": {
                         "filename": "src/verifiable-moderation/verifiable-moderation.cairo"
                     },
                     "start_col": 5,
-                    "start_line": 590
+                    "start_line": 620
                 }
             }
         }
@@ -30946,7 +31188,7 @@
                 }
             }
         ],
-        "928": [
+        "936": [
             {
                 "accessible_scopes": [
                     "__main__",
@@ -30956,7 +31198,7 @@
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 24
+                        "offset": 36
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -30964,8 +31206,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -30978,11 +31224,11 @@
                     "__main__",
                     "__main__.main"
                 ],
-                "code": "def copy_category_elements_by_ref(elements_base_addr: int, input_category_elements):\n    if len(input_category_elements) == 0:\n        return\n    else:\n        for element_index in range(len(input_category_elements)):\n            element_base_addr = elements_base_addr + ids.CategoryElement.SIZE * element_index\n            memoey[element_base_addr + CategoryElement.depth] = input_category_elements[element_index][\"depth\"]\n            memoey[element_base_addr + CategoryElement.width] = input_category_elements[element_index][\"width\"]\n            memoey[element_base_addr + CategoryElement.pubkey] = int(input_category_elements[element_index][\"pubkey\"], 16)\n\n            # category_elements[element_index].depth = input_category_elements[element_index][\"depth\"]\n            # category_elements[element_index].width = input_category_elements[element_index][\"width\"]\n            # category_elements[element_index].pubkey = int(input_category_elements[element_index][\"pubkey\"], 16)\n            copy_category_elements_by_ref(\n                element_base_addr + CategoryElement.category_elements_child,\n                # category_elements[element_index].category_elements_child,\n                input_category_elements[element_index][\"category_elements_child\"]\n            )\n\n# initial state\ninitial_state_addr = ids.initial_state.address_\ninitial_state = program_input[\"initial_state\"]\nmemory[initial_state_addr + ids.State.root_pubkey] = int(initial_state[\"state\"][\"root_pubkey\"], 16)\nmemory[initial_state_addr + ids.State.all_category_hash] = int(initial_state[\"state\"][\"all_category_hash\"], 16)\nmemory[initial_state_addr + ids.State.block_hash] = int(initial_state[\"block_hash\"], 16)\nmemory[initial_state_addr + ids.State.n_all_category] = len(initial_state[\"state\"][\"all_category\"])\n\n# ids.initial_state.all_category = []\nfor category_index in range(len(initial_state[\"state\"][\"all_category\"])):\n    category_base_addr = initial_state_addr + ids.State.all_category + ids.Category.SIZE * category_index\n    memory[category_base_addr + ids.Category.hash] = int(initial_state[\"state\"][\"all_category\"][category_index][\"hash\"], 16)\n    memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(initial_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_type\"], 16)\n\n    elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child\n    copy_category_elements_by_ref(\n        elements_base_addr,\n        # ids.initial_state.all_category[category_index].data.category_elements_child,\n        initial_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_elements_child\"]\n    )\n\n# final state\nfinal_state_addr = ids.final_state.address_\nfinal_state = program_input[\"final_state\"]\nmemory[final_state_addr + ids.State.root_pubkey] = int(final_state[\"state\"][\"root_pubkey\"], 16)\nmemory[final_state_addr + ids.State.all_category_hash] = int(final_state[\"state\"][\"all_category_hash\"], 16)\nmemory[final_state_addr + ids.State.block_hash] = int(final_state[\"block_hash\"], 16)\nmemory[final_state_addr + ids.State.n_all_category] = len(final_state[\"state\"][\"all_category\"])\n\n# ids.final_state.all_category = []\nfor category_index in range(len(final_state[\"state\"][\"all_category\"])):\n    category_base_addr = final_state_addr + ids.State.all_category + ids.Category.SIZE * category_index\n    memory[category_base_addr + ids.Category.hash] = int(final_state[\"state\"][\"all_category\"][category_index][\"hash\"], 16)\n    memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(final_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_type\"], 16)\n\n    elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child\n    copy_category_elements_by_ref(\n        # ids.final_state.all_category[category_index].data.category_elements_child,\n        elements_base_addr,\n        final_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_elements_child\"]\n    )",
+                "code": "# elements_base_addr is where reference is stored.\n# input_category_elements is json data given as input.\n# category_elements_address is a base address for elements memory location\n# category_elements_count is maximum memory index where elements are located.\n# return new category_elements_count\ndef copy_category_elements_by_ref(elements_base_addr: int, input_category_elements, category_elements_address:int, _category_elements_count: int) -> int:\n    category_elements_count = _category_elements_count\n    if len(input_category_elements) == 0:\n        return category_elements_count\n    else:\n        memory[elements_base_addr] = category_elements_address + ids.CategoryElement.SIZE * category_elements_count\n        for element_index in range(len(input_category_elements)):\n            element_base_addr = category_elements_address + ids.CategoryElement.SIZE * (category_elements_count)\n            memory[element_base_addr + ids.CategoryElement.depth] = input_category_elements[element_index][\"depth\"]\n            memory[element_base_addr + ids.CategoryElement.width] = input_category_elements[element_index][\"width\"]\n            memory[element_base_addr + ids.CategoryElement.pubkey] = int(input_category_elements[element_index][\"pubkey\"], 16)\n            memory[element_base_addr + ids.CategoryElement.n_category_elements_child] = len(input_category_elements[element_index][\"category_elements_child\"])                    \n\n            category_elements_count += 1\n\n            category_elements_count = copy_category_elements_by_ref(\n                element_base_addr + ids.CategoryElement.category_elements_child,\n                # category_elements[element_index].category_elements_child,\n                input_category_elements[element_index][\"category_elements_child\"],\n                category_elements_address,\n                category_elements_count,\n            )\n\n        return category_elements_count\n\n# initial state\ninitial_state_addr = ids.initial_state.address_\ninitial_state = program_input[\"initial_state\"]\nmemory[initial_state_addr + ids.State.root_pubkey] = int(initial_state[\"state\"][\"root_pubkey\"], 16)\nmemory[initial_state_addr + ids.State.all_category_hash] = int(initial_state[\"state\"][\"all_category_hash\"], 16)\nmemory[initial_state_addr + ids.State.block_hash] = int(initial_state[\"block_hash\"], 16)\nmemory[initial_state_addr + ids.State.n_all_category] = len(initial_state[\"state\"][\"all_category\"])\n\n# assign initial_state_categories address value to reference\nmemory[initial_state_addr + ids.State.all_category] = ids.initial_state_categories.address_\ninitial_state_category_elements_count = 0\n\n# ids.initial_state.all_category = []\nfor category_index in range(len(initial_state[\"state\"][\"all_category\"])):\n    category_base_addr = ids.initial_state_categories.address_ + ids.Category.SIZE * category_index\n    memory[category_base_addr + ids.Category.hash] = int(initial_state[\"state\"][\"all_category\"][category_index][\"hash\"], 16)\n    memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(initial_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_type\"], 16)\n\n    memory[category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child] = ids.initial_state_category_elements.address_ + (initial_state_category_elements_count) * ids.CategoryElement.SIZE\n    elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child\n    initial_state_category_elements_count = copy_category_elements_by_ref(\n        elements_base_addr,\n        # ids.initial_state.all_category[category_index].data.category_elements_child,\n        initial_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_elements_child\"],\n        ids.initial_state_category_elements.address_,\n        initial_state_category_elements_count,\n    )\n\n# final state\nfinal_state_addr = ids.final_state.address_\nfinal_state = program_input[\"final_state\"]\nmemory[final_state_addr + ids.State.root_pubkey] = int(final_state[\"state\"][\"root_pubkey\"], 16)\nmemory[final_state_addr + ids.State.all_category_hash] = int(final_state[\"state\"][\"all_category_hash\"], 16)\nmemory[final_state_addr + ids.State.block_hash] = int(final_state[\"block_hash\"], 16)\nmemory[final_state_addr + ids.State.n_all_category] = len(final_state[\"state\"][\"all_category\"])\n\n# assign final_state_categories address value to reference\nmemory[final_state_addr + ids.State.all_category] = ids.final_state_categories.address_\nfinal_state_category_elements_count = 0\n\n# ids.final_state.all_category = []\nfor category_index in range(len(final_state[\"state\"][\"all_category\"])):\n    category_base_addr = ids.final_state_categories.address_ + ids.Category.SIZE * category_index\n    memory[category_base_addr + ids.Category.hash] = int(final_state[\"state\"][\"all_category\"][category_index][\"hash\"], 16)\n    memory[category_base_addr + ids.Category.data + ids.CategoryData.category_type] = int(final_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_type\"], 16)\n\n    memory[category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child] = ids.final_state_category_elements.address_ + (final_state_category_elements_count) * ids.CategoryElement.SIZE\n    elements_base_addr = category_base_addr + ids.Category.data + ids.CategoryData.category_elements_child\n    final_state_category_elements_count = copy_category_elements_by_ref(\n        elements_base_addr,\n        # ids.final_state.all_category[category_index].data.category_elements_child,\n        final_state[\"state\"][\"all_category\"][category_index][\"data\"][\"category_elements_child\"],\n        ids.final_state_category_elements.address_,\n        final_state_category_elements_count,\n    )",
                 "flow_tracking_data": {
                     "ap_tracking": {
                         "group": 67,
-                        "offset": 24
+                        "offset": 36
                     },
                     "reference_ids": {
                         "__main__.main.blocks": 327,
@@ -30990,8 +31236,12 @@
                         "__main__.main.ecdsa_ptr": 323,
                         "__main__.main.final_hash": 329,
                         "__main__.main.final_state": 328,
+                        "__main__.main.final_state_categories": 335,
+                        "__main__.main.final_state_category_elements": 336,
                         "__main__.main.initial_hash": 325,
                         "__main__.main.initial_state": 324,
+                        "__main__.main.initial_state_categories": 333,
+                        "__main__.main.initial_state_category_elements": 334,
                         "__main__.main.n_blocks": 326,
                         "__main__.main.pedersen_ptr": 322,
                         "__main__.main.root_messages": 331,
@@ -32978,7 +33228,7 @@
                         "group": 68,
                         "offset": 0
                     },
-                    "pc": 939,
+                    "pc": 947,
                     "value": "[cast(ap + (-6), starkware.cairo.common.cairo_builtins.SignatureBuiltin**)]"
                 },
                 {
@@ -32986,7 +33236,7 @@
                         "group": 68,
                         "offset": 0
                     },
-                    "pc": 939,
+                    "pc": 947,
                     "value": "[cast(ap + (-6), starkware.cairo.common.cairo_builtins.SignatureBuiltin**)]"
                 },
                 {
@@ -32994,7 +33244,7 @@
                         "group": 68,
                         "offset": 0
                     },
-                    "pc": 940,
+                    "pc": 948,
                     "value": "[cast(fp + 14, starkware.cairo.common.cairo_builtins.SignatureBuiltin**)]"
                 }
             ],
@@ -33030,6 +33280,36 @@
             ],
             "type": "reference"
         },
+        "__main__.main.final_state_categories": {
+            "cairo_type": "__main__.Category*",
+            "full_name": "__main__.main.final_state_categories",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 67,
+                        "offset": 33
+                    },
+                    "pc": 934,
+                    "value": "[cast(ap + (-1), __main__.Category**)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.main.final_state_category_elements": {
+            "cairo_type": "__main__.CategoryElement*",
+            "full_name": "__main__.main.final_state_category_elements",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 67,
+                        "offset": 36
+                    },
+                    "pc": 936,
+                    "value": "[cast(ap + (-1), __main__.CategoryElement**)]"
+                }
+            ],
+            "type": "reference"
+        },
         "__main__.main.initial_hash": {
             "cairo_type": "felt",
             "full_name": "__main__.main.initial_hash",
@@ -33056,6 +33336,36 @@
                     },
                     "pc": 922,
                     "value": "[cast(fp, __main__.State*)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.main.initial_state_categories": {
+            "cairo_type": "__main__.Category*",
+            "full_name": "__main__.main.initial_state_categories",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 67,
+                        "offset": 27
+                    },
+                    "pc": 930,
+                    "value": "[cast(ap + (-1), __main__.Category**)]"
+                }
+            ],
+            "type": "reference"
+        },
+        "__main__.main.initial_state_category_elements": {
+            "cairo_type": "__main__.CategoryElement*",
+            "full_name": "__main__.main.initial_state_category_elements",
+            "references": [
+                {
+                    "ap_tracking_data": {
+                        "group": 67,
+                        "offset": 30
+                    },
+                    "pc": 932,
+                    "value": "[cast(ap + (-1), __main__.CategoryElement**)]"
                 }
             ],
             "type": "reference"
@@ -33092,7 +33402,7 @@
                         "group": 68,
                         "offset": 0
                     },
-                    "pc": 939,
+                    "pc": 947,
                     "value": "[cast(ap + (-7), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
                 },
                 {
@@ -33100,7 +33410,7 @@
                         "group": 69,
                         "offset": 0
                     },
-                    "pc": 947,
+                    "pc": 955,
                     "value": "[cast(ap + (-2), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
                 },
                 {
@@ -33108,7 +33418,7 @@
                         "group": 68,
                         "offset": 0
                     },
-                    "pc": 939,
+                    "pc": 947,
                     "value": "[cast(ap + (-7), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
                 },
                 {
@@ -33116,7 +33426,7 @@
                         "group": 69,
                         "offset": 0
                     },
-                    "pc": 948,
+                    "pc": 956,
                     "value": "[cast(ap + (-2), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
                 }
             ],
@@ -33161,7 +33471,7 @@
                         "group": 69,
                         "offset": 0
                     },
-                    "pc": 948,
+                    "pc": 956,
                     "value": "[cast(ap + (-1), felt*)]"
                 }
             ],
@@ -33176,7 +33486,7 @@
                         "group": 68,
                         "offset": 0
                     },
-                    "pc": 939,
+                    "pc": 947,
                     "value": "[cast(ap + (-5), __main__.State*)]"
                 }
             ],
@@ -40149,10 +40459,42 @@
             },
             {
                 "ap_tracking_data": {
+                    "group": 67,
+                    "offset": 27
+                },
+                "pc": 930,
+                "value": "[cast(ap + (-1), __main__.Category**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 67,
+                    "offset": 30
+                },
+                "pc": 932,
+                "value": "[cast(ap + (-1), __main__.CategoryElement**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 67,
+                    "offset": 33
+                },
+                "pc": 934,
+                "value": "[cast(ap + (-1), __main__.Category**)]"
+            },
+            {
+                "ap_tracking_data": {
+                    "group": 67,
+                    "offset": 36
+                },
+                "pc": 936,
+                "value": "[cast(ap + (-1), __main__.CategoryElement**)]"
+            },
+            {
+                "ap_tracking_data": {
                     "group": 68,
                     "offset": 0
                 },
-                "pc": 939,
+                "pc": 947,
                 "value": "[cast(ap + (-7), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
             },
             {
@@ -40160,7 +40502,7 @@
                     "group": 68,
                     "offset": 0
                 },
-                "pc": 939,
+                "pc": 947,
                 "value": "[cast(ap + (-6), starkware.cairo.common.cairo_builtins.SignatureBuiltin**)]"
             },
             {
@@ -40168,7 +40510,7 @@
                     "group": 68,
                     "offset": 0
                 },
-                "pc": 939,
+                "pc": 947,
                 "value": "[cast(ap + (-5), __main__.State*)]"
             },
             {
@@ -40176,7 +40518,7 @@
                     "group": 68,
                     "offset": 0
                 },
-                "pc": 940,
+                "pc": 948,
                 "value": "[cast(fp + 14, starkware.cairo.common.cairo_builtins.SignatureBuiltin**)]"
             },
             {
@@ -40184,7 +40526,7 @@
                     "group": 69,
                     "offset": 0
                 },
-                "pc": 948,
+                "pc": 956,
                 "value": "[cast(ap + (-2), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
             },
             {
@@ -40192,7 +40534,7 @@
                     "group": 69,
                     "offset": 0
                 },
-                "pc": 948,
+                "pc": 956,
                 "value": "[cast(ap + (-1), felt*)]"
             }
         ]
