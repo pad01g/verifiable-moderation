@@ -439,30 +439,49 @@ func main{
     local initial_state: State;
     local initial_hash: felt;
     local n_blocks: felt;
-    local blocks: Block*;
+    let (blocks: Block*) = alloc();
     local final_state: State; // latest_state should be hardcoded, also get verified by verifier.
     local final_hash: felt;
+    let (transactions: Transaction*) = alloc();
+    let (root_messages: RootMessage*) = alloc();
+    local commands: felt*;
+
     %{
         # assign state variable from input json. it could be initial state.
         # assign blocks variable from input json
         ids.initial_hash = int(program_input["initial_hash"], 16)
         ids.final_hash = int(program_input["final_hash"], 16)
         ids.n_blocks = len(program_input["blocks"])
+
+        # transaction total count
+        # transaction is Transaction struct. 
+        transactions_count = 0
+        # root message total count
+        # root_message is RootMessage struct.
+        root_messages_count = 0
+        # command total count
+        # commands is felt array.
+        commands_count = 0
+        commands_addr = segments.add()
+        ids.commands = commands_addr
+
         # blocks
         for block_index in range(len(program_input["blocks"])):
             base_addr = ids.blocks.address_ + ids.Block.SIZE * block_index
             block = program_input["blocks"][block_index]
-            memory[base_addr + ids.Block.n_transactions] = len(block.transactions)
+            memory[base_addr + ids.Block.n_transactions] = len(block["transactions"])
             memory[base_addr + ids.Block.transactions_merkle_root] = int(block["transactions_merkle_root"], 16)
             memory[base_addr + ids.Block.timestamp] = block["timestamp"]
-            memory[base_addr + ids.Block.root_message] = block["transactions_merkle_root"]["root_message"]
             memory[base_addr + ids.Block.signature_r] = int(block["signature_r"], 16)
             memory[base_addr + ids.Block.signature_s] = int(block["signature_s"], 16)
             memory[base_addr + ids.Block.pubkey] = int(block["pubkey"], 16)
 
+            # assign transaction address value to reference
+            memory[base_addr + ids.Block.transactions] = ids.transactions.address_ + ids.Transaction.SIZE * transactions_count
+
             # fill in transactions
             for tx_index in range(len(block["transactions"])):
-                tx_base_addr = base_addr + ids.Block.transactions + ids.Transaction.SIZE * tx_index
+                tx_base_addr = ids.transactions.address_ + ids.Transaction.SIZE * (transactions_count + tx_index)
                 tx = block["transactions"][tx_index]
                 memory[tx_base_addr + ids.Transaction.prev_block_hash] = int(tx["prev_block_hash"], 16)
                 memory[tx_base_addr + ids.Transaction.command_hash] = int(tx["command_hash"], 16)
@@ -470,14 +489,37 @@ func main{
                 memory[tx_base_addr + ids.Transaction.signature_r] = int(tx["signature_r"], 16)
                 memory[tx_base_addr + ids.Transaction.signature_s] = int(tx["signature_s"], 16)
                 memory[tx_base_addr + ids.Transaction.pubkey] = int(tx["pubkey"], 16)
+
+                # command is given as array so it shold be assigned to another memory space.
                 memory[tx_base_addr + ids.Transaction.n_command] = len(tx["command"])
-                # memory[tx_base_addr + ids.Transaction.command]
-                commands = map(lambda el: int(el, 16), tx["command"])
+                commands = list(map(lambda el: int(el, 16), tx["command"]))
+                # assign commands to reference
+                memory[tx_base_addr + ids.Transaction.command] = commands_addr + commands_count
                 for command_index in range(len(commands)):
-                    command_base_addr = tx_base_addr + ids.Transaction.command + ids.felt.SIZE * command_index
+                    command_base_addr = commands_addr + (commands_count + command_index)
                     command = commands[command_index]
                     memory[command_base_addr] = command
+                # update command count data
+                commands_count += len(commands)
 
+            # update transaction count data
+            transactions_count += len(block["transactions"])
+                    
+            # assign root messages to reference
+            memory[base_addr + ids.Block.root_message] = ids.root_messages.address_ + ids.RootMessage.SIZE * root_messages_count
+            # fill in root message array
+            for root_message_index in range(len(block["root_message"])):
+                root_message_base_addr = ids.root_messages.address_ + ids.RootMessage.SIZE * (root_messages_count + root_message_index)
+                root_message = block["root_message"][root_message_index]
+                memory[root_message_base_addr] = root_message
+            # update root messages count data
+            root_messages_count += len(block["root_message"])
+
+
+        
+    %}
+    // states
+    %{
         def copy_category_elements_by_ref(elements_base_addr: int, input_category_elements):
             if len(input_category_elements) == 0:
                 return
