@@ -116,6 +116,42 @@ func search_tree_pubkey_recursive(data: CategoryData, pubkey: felt) -> (result: 
     return (result = result);
 }
 
+func assign_update_state_category_recursive(state: State, all_category: Category*, category_index: felt, new_category: Category*, current_category_index: felt) -> (state: State) {
+    if (current_category_index == state.n_all_category) {
+        return (state = state);
+    } 
+    if (category_index == current_category_index) {
+        assert [state.all_category + Category.SIZE * current_category_index] = [new_category];
+    } else {
+        assert [state.all_category + Category.SIZE * current_category_index] = [all_category + Category.SIZE * current_category_index];
+    }
+    return assign_update_state_category_recursive(state, all_category, category_index, new_category, current_category_index + 1);
+}
+
+func update_state_category(state: State, category_index: felt, n_category_elements_child: felt, category_elements_child: CategoryElement*) -> (state: State) {
+    alloc_locals;
+    // update category elements in category.
+    // add or remove from category elements.
+    local new_state: State;
+    assert new_state.block_hash = state.block_hash;
+    assert new_state.root_pubkey = state.root_pubkey;
+    // number of category does not change. it shold be different method to add/remove category.
+    assert new_state.n_all_category = state.n_all_category;
+    // get old reference
+    tempvar cat: Category* = state.all_category + Category.SIZE * category_index;
+    let (new_cat: Category*) = alloc();
+    let (new_catdata: CategoryData*) = alloc();
+    assert [new_catdata] = new_cat.data;
+    assert new_catdata.category_type = cat.data.category_type;
+    // assign new data
+    assert new_catdata.n_category_elements_child = n_category_elements_child;
+    assert new_catdata.category_elements_child = category_elements_child;
+
+    // assign new_catdata to `category_index` of new_state.n_all_category, while other categories are copied from `state.all_category`
+    let (state_2: State) = assign_update_state_category_recursive(new_state, state.all_category, category_index, new_cat, 0);
+    return (state = state_2);
+}
+
 func check_category_pubkey_authority(state: State, category_id: felt, pubkey: felt) -> (root: felt, exists: felt, result: felt) {
     alloc_locals;
     let (exists, index) = category_id_exists(state.all_category, state.n_all_category, category_id);
@@ -258,14 +294,14 @@ func verify_transaction_node_create(state: State, transaction: Transaction) -> (
         // verify add result is true
         assert node_add_result = 1;
     } else {
+        // add first node under category
         tempvar index = result;
-        tempvar child: CategoryElement;
-        child.depth = depth;
-        child.width = width;
-        child.pubkey = node_pubkey;
+        let (child_element: CategoryElement*) = alloc();
+        child_element.depth = depth;
+        child_element.width = width;
+        child_element.pubkey = node_pubkey;
         // @todo add by reference
-        assert new_state.all_category[index].data.n_category_elements_child = 1;
-        assert new_state.all_category[index].data.category_elements_child[0] = child;
+        return update_state_category(new_state, index, 1, child_element);
     }
     return (state = new_state);
 }
