@@ -1,0 +1,21 @@
+version: "3.6"
+services:
+  nostr-rs-relay:
+    image: scsibug/nostr-rs-relay
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./docker/nostr-rs-relay/data:/usr/src/app/db:Z
+      - ./docker/nostr-rs-relay/config.toml:/usr/src/app/config.toml:ro,Z
+  noscl-1:
+    build:
+      context: docker/noscl
+      dockerfile: Dockerfile
+  noscl-2:
+    build:
+      context: docker/noscl
+      dockerfile: Dockerfile
+  verimod:
+    build:
+      context: docker/verimod
+      dockerfile: Dockerfile
