@@ -1,6 +1,6 @@
 # what is this?
 
-spec of verifiable bbs moderation in STARK-compressed format.
+spec of verifiable bbs (nostr) moderation in STARK-compressed format.
 
 # description
 
@@ -8,12 +8,16 @@ spec of verifiable bbs moderation in STARK-compressed format.
    - python source of the program.
  - src/verifiable-moderation
    - stark source of the program.
- - src/verimod
-   - independent daemon program to check authority of specific public key
- - src/admin
-   - check/add/remove authority for verimod public key
- - src/bbsapp
-   - example p2p bbs app that uses verimod server. anyone can write to any board, but only moderated messages will be shown.
+ - docker/verimod
+   - independent daemon server program to check authority of specific public key (e.g. for filter-server).
+ - docker/admin
+   - add/remove authority for verimod key. admin delegates moderation rights to filter-server.
+ - docker/noscl
+   - nostr client
+ - docker/nostr-rs-relay
+   - nostr server
+ - docker/filter-server
+   - nostr contents filter server. noscl can fetch filters if they like. admin can delegate moderation rights to this filter server.
 
 # prepare parameters
 

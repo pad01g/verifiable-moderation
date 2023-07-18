@@ -1,0 +1,14 @@
+{
+  "relays": {
+    "ws://nostr-rs-relay:8080": {
+      "read": true,
+      "write": true
+    }
+  },
+  "following": [
+    {
+      "key": "e1a3d3b43a0cd7f607320d73ae6ffbf26e768de6943d0454385a11d8ef8bdaf5"
+    }
+  ],
+  "privatekey": "253394ec9e0875d6452c8d46bdda00fb89d2b98f1f5b9445df8e832fefbc7927"
+}

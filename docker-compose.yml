@@ -7,17 +7,32 @@ services:
     volumes:
       - ./docker/nostr-rs-relay/data:/usr/src/app/db:Z
       - ./docker/nostr-rs-relay/config.toml:/usr/src/app/config.toml:ro,Z
+    container_name: nostr-rs-relay
   noscl-1:
     build:
       context: docker/noscl
       dockerfile: Dockerfile
+    volumes:
+      - ./docker/noscl/nostr1:/root/.config/nostr
+    container_name: noscl-1
   noscl-2:
     build:
       context: docker/noscl
       dockerfile: Dockerfile
+    volumes:
+      - ./docker/noscl/nostr2:/root/.config/nostr
+    container_name: noscl-2
   verimod:
     build:
       context: docker/verimod
       dockerfile: Dockerfile
     volumes:
       - ./src/verimod:/usr/src/verimod
+    container_name: verimod
+  filter-server:
+    build:
+      context: docker/admin
+      dockerfile: Dockerfile
+    volumes:
+      - ./src/filter-server:/usr/src/filter-server
+    container_name: filter-server
