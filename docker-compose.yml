@@ -19,3 +19,5 @@ services:
     build:
       context: docker/verimod
       dockerfile: Dockerfile
+    volumes:
+      - ./src/verimod:/usr/src/verimod
