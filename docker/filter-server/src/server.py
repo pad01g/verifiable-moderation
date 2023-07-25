@@ -44,7 +44,8 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         json_str = json.dumps(self.filter_words)
         signature = ""
         pubkey = ""
-        self.wfile.write({"pubkey": pubkey, "signature_r": signature, "signature_s": signature, "json_str": json_str})
+        ret = json.dumps({"pubkey": pubkey, "signature_r": signature, "signature_s": signature, "json_str": json_str})
+        self.wfile.write(ret)
 
     # add filtered words. do not check signature etc. it comes from trusted local source.
     # endpoint is protected by password.
