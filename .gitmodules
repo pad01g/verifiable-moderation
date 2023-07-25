@@ -1,3 +1,0 @@
-[submodule "docker/admin/src/cairolib"]
-	path = docker/admin/src/cairolib
-	url = https://github.com/starkware-libs/starkex-resources/

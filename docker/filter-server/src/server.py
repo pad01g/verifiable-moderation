@@ -1,7 +1,7 @@
-from cairolib.crypto.starkware.crypto.signature.signature import (
+from starkware.crypto.signature.signature import (
     pedersen_hash, private_to_stark_key, sign, verify, FIELD_PRIME)
 
-from cairolib.crypto.starkware.cairo.common.hash_chain import (compute_hash_chain)
+from starkware.cairo.common.hash_chain import (compute_hash_chain)
 
 import argparse
 from http.server import (HTTPServer, BaseHTTPRequestHandler)
