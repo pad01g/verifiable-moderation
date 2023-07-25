@@ -3,3 +3,4 @@
 rfc6979/build
 rfc6979/dist
 __pycache__
+docker/nostr-rs-relay/data/*
