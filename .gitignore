@@ -2,3 +2,4 @@
 *.egg-info
 rfc6979/build
 rfc6979/dist
+__pycache__

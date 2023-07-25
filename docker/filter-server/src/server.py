@@ -67,14 +67,12 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b'{"result": "ok"}')
 
-def run_server(args):
-
-    httpd = HTTPServer(('0.0.0.0', 8080), BaseHTTPRequestHandler)
+def run_server():
+    httpd = HTTPServer(('0.0.0.0', 8080), CustomHTTPRequestHandler)
     httpd.serve_forever()
 
 
 def main():
-    args = parse_args()
-    run_server(args)
+    run_server()
 
 main()

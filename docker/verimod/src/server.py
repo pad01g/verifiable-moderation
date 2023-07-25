@@ -20,27 +20,25 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
         super().__init__(*args, **kwargs)
 
-    # return list of filtered words, signed with admin private key
+    # check if requested data satisfies condition
     def do_GET(self):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
 
-    # add filtered words. do not check signature etc. it comes from trusted local source.
-    # endpoint is protected by password.
+    # add block data to memory
     def do_POST(self):
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
 
-def run_server(args):
+def run_server():
 
-    httpd = HTTPServer(('0.0.0.0', 8080), BaseHTTPRequestHandler)
+    httpd = HTTPServer(('0.0.0.0', 8080), CustomHTTPRequestHandler)
     httpd.serve_forever()
 
 
 def main():
-    args = parse_args()
-    run_server(args)
+    run_server()
 
 main()
