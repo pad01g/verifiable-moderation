@@ -8,24 +8,25 @@ spec of verifiable bbs (nostr) moderation in STARK-compressed format.
    - python source of the program.
  - src/verifiable-moderation
    - stark source of the program. it uses cairo v0. it should be upgraded to v1.
- - docker/verimod
-   - independent daemon server program to check authority of specific public key (e.g. for filter-server).
  - docker/admin
    - add/remove authority for verimod key. admin delegates moderation rights to filter-server.
- - docker/noscl
-   - nostr client
-     - nostr2 just submits messages
-     - nostr1:
-        - fetch data from filter-server
-        - check if data is correctly signed
-        - check if signature is delegated by trusted admin
-        - check if message by nostr2 can be shown
- - docker/nostr-rs-relay
-   - nostr server
  - docker/filter-server
    - nostr contents filter server. noscl can fetch filters if they like. admin can delegate moderation rights to this filter server.
+ - docker/noscl-reader
+   - nostr client
+     - fetch data from filter-server
+     - check if data is correctly signed
+     - check if signature is delegated by trusted admin
+     - check if message by nostr-writer can be shown
+ - docker/noscl-writer
+   - nostr client
+     - just submit messages
+ - docker/nostr-rs-relay
+   - nostr server
+ - docker/verimod
+   - independent daemon server program to check authority of specific public key (e.g. for filter-server).
 
-# prepare parameters
+# prepare parameters for cairo v0
 
 ```
 $ python3 verifiable-moderation.py
