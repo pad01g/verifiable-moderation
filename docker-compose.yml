@@ -31,8 +31,15 @@ services:
     container_name: verimod
   filter-server:
     build:
-      context: docker/admin
+      context: docker/filter-server
       dockerfile: Dockerfile
     volumes:
       - ./src/filter-server:/usr/src/filter-server
     container_name: filter-server
+  admin:
+    build:
+      context: docker/admin
+      dockerfile: Dockerfile
+    volumes:
+      - ./src/admin:/usr/src/admin
+    container_name: admin
