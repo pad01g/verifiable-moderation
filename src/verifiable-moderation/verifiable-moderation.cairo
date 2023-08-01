@@ -241,40 +241,76 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
 func add_node_to_state_by_reference_recursive(
     n_category_elements_child: felt,
     category_elements_child: CategoryElement*,
+    new_category_elements_child: CategoryElement*,
     pubkey: felt,
-    node: CategoryElement
+    node: CategoryElement,
+    result: felt,
 ) -> (result: felt) {
     if (n_category_elements_child == 0){
-        return (result = 0);
+        // you don't have to do anything in this case. just return given result.
+        return (result = result);
     }else{
-        if (category_elements_child.pubkey == pubkey){
-            assert category_elements_child.category_elements_child[category_elements_child.n_category_elements_child] = node;
-            return (result = 1);
-        }else{
-            let (result1) =  add_node_to_state_by_reference_recursive(
-                n_category_elements_child - 1,
-                category_elements_child + CategoryElement.SIZE,
-                pubkey,
-                node,
-            );
-            if (result1 == 1){
-                return (result = 1);
+        // if result is already true, you don't have to do anything. just copy reference data and return given result.
+        if (result == 1) {
+            assert category_elements_child = new_category_elements_child;
+            return (result = result);
+        }else{ // if result is false, selectively copy reference or substitute new node value.
+            let result_pk: felt;
+            if (category_elements_child.pubkey == pubkey){
+                // append node to list of category_elements_child.category_elements_child
+                // don't forget to increment n_category_elements_child
+                assert new_category_elements_child.category_elements_child[category_elements_child.n_category_elements_child] = node;
+                // set result as true.
+                assert result_pk = 1;
+                // copy other elements
+                // 1) new_category_elements_child.category_elements_child[ other index ]
+                // 2) category_elements_child + 1, ... , category_elements_child + n_category_elements_child
+                return (result = result_pk);
+            }else{
+                // set result as false;
+                assert result_pk = 0;
             }
+            // depth first search.
             let (result2) =  add_node_to_state_by_reference_recursive(
                 category_elements_child.n_category_elements_child,
                 category_elements_child.category_elements_child,
+                new_category_elements_child.category_elements_child,
                 pubkey,
                 node,
+                0,
             );
-            return (result = result2);
+            if (result2 == 1){
+                // copy other elements.
+                // 1) category_elements_child + 1, ... , category_elements_child + n_category_elements_child
+                // you should also update brother nodes
+                return (result = result2);
+            }
+
+            let (result1) =  add_node_to_state_by_reference_recursive(
+                n_category_elements_child - 1,
+                category_elements_child + CategoryElement.SIZE,
+                new_category_elements_child + CategoryElement.SIZE,
+                pubkey,
+                node,
+                0,
+            );
+            // simply, copy information of this node to new array.
+            // 1) new_category_elements_child = category_elements_child;
+            return (result = result1);
         }
     }
 }
 
-func add_node_to_state_by_reference(data: CategoryData, pubkey: felt, node: CategoryElement) -> (result: felt) {
+func add_node_to_state_by_reference(new_data: CategoryData*, data: CategoryData*, pubkey: felt, node: CategoryElement) -> (result: felt) {
+    alloc_locals;
+    assert new_data.n_category_elements_child = data.n_category_elements_child;
+    let (category_elements_child: CategoryElement*) = alloc();
+    assert new_data.category_elements_child = category_elements_child;
+
     let (result) = add_node_to_state_by_reference_recursive(
         data.n_category_elements_child,
         data.category_elements_child,
+        new_data.category_elements_child, // this is empty array
         pubkey,
         node
     );
@@ -314,12 +350,28 @@ func verify_transaction_node_create(state: State*, transaction: Transaction) -> 
     }
     if (root == 0) {
         tempvar index = result;
+        let (empty_child_reference: CategoryElement*) = alloc();
         tempvar child: CategoryElement;
         child.depth = depth;
         child.width = width;
         child.pubkey = node_pubkey;
+        child.n_category_elements_child = 0;
+        child.category_elements_child = empty_child_reference;
         // @todo implement add_node_to_state_by_reference
-        let (node_add_result) = add_node_to_state_by_reference(new_state.all_category[index].data, pubkey, child);
+        assert new_state.block_hash = state.block_hash;
+        assert new_state.root_pubkey = state.root_pubkey;
+        assert new_state.n_all_category = state.n_all_category;
+        assert new_state.all_category = state.all_category;
+        let (new_category_data: CategoryData*) = alloc();
+        let (node_add_result) = add_node_to_state_by_reference(
+            new_category_data,
+            // state.all_category[index].data
+            // +1 is for category.hash
+            cast(state.all_category + Category.SIZE * index + 1, CategoryData*),
+            pubkey,
+            child
+        );
+        
         // verify add result is true
         assert node_add_result = 1;
     } else {
