@@ -11,6 +11,8 @@ from starkware.cairo.common.cairo_builtins import (
     HashBuiltin,
     SignatureBuiltin,
 )
+from starkware.cairo.common.registers import get_fp_and_pc
+
 struct State {
     root_pubkey: felt,
     all_category_hash: felt,
@@ -116,10 +118,14 @@ func search_tree_pubkey_recursive(data: CategoryData, pubkey: felt) -> (result: 
     return (result = result);
 }
 
-func assign_update_state_category_recursive(state: State, all_category: Category*, category_index: felt, new_category: Category*, current_category_index: felt) -> (state: State) {
+func assign_update_state_category_recursive(state: State*, all_category: Category*, category_index: felt, new_category: Category*, current_category_index: felt) -> (state: State*) {
     if (current_category_index == state.n_all_category) {
         return (state = state);
-    } 
+    }
+
+    // let (new_cat_list: Category*) = alloc();
+    // assert state.all_category = new_cat_list;
+
     if (category_index == current_category_index) {
         assert [state.all_category + Category.SIZE * current_category_index] = [new_category];
     } else {
@@ -128,32 +134,55 @@ func assign_update_state_category_recursive(state: State, all_category: Category
     return assign_update_state_category_recursive(state, all_category, category_index, new_category, current_category_index + 1);
 }
 
-func update_state_category(state: State, category_index: felt, n_category_elements_child: felt, category_elements_child: CategoryElement*) -> (state: State) {
+func update_state_category(state: State*, category_index: felt, n_category_elements_child: felt, category_elements_child: CategoryElement*) -> (state: State*) {
     alloc_locals;
     // update category elements in category.
     // add or remove from category elements.
-    local new_state: State;
+    let (new_state: State*) = alloc();
     assert new_state.block_hash = state.block_hash;
     assert new_state.root_pubkey = state.root_pubkey;
     // number of category does not change. it shold be different method to add/remove category.
     assert new_state.n_all_category = state.n_all_category;
+
+    let (new_cat_list: Category*) = alloc();
+    assert new_state.all_category = new_cat_list;
+
     // get old reference
     tempvar cat: Category* = state.all_category + Category.SIZE * category_index;
+    // create new category
     let (new_cat: Category*) = alloc();
-    let (new_catdata: CategoryData*) = alloc();
-    assert [new_catdata] = new_cat.data;
+    local new_catdata: CategoryData;
+    // @todo cast reference, but not sure if it works
+    // assert cast(&new_cat + Category.data, CategoryData*) = new_catdata;
     assert new_catdata.category_type = cat.data.category_type;
     // assign new data
     assert new_catdata.n_category_elements_child = n_category_elements_child;
     assert new_catdata.category_elements_child = category_elements_child;
+    assert new_cat.data = new_catdata;
+    assert new_cat.hash = 0;
 
-    // assign new_catdata to `category_index` of new_state.n_all_category, while other categories are copied from `state.all_category`
-    let (state_2: State) = assign_update_state_category_recursive(new_state, state.all_category, category_index, new_cat, 0);
+    %{
+        if True:
+            print(f"ids.new_cat: {ids.new_cat}")
+            print(f"ids.new_cat.address_: {ids.new_cat.address_}")
+            print(f"memory[ids.new_cat.address_]: {memory[ids.new_cat.address_]}")
+    %}
+
+    // assign new_cat to `category_index` of new_state.n_all_category, while other categories are copied from `state.all_category`
+    let (state_2: State*) = assign_update_state_category_recursive(new_state, state.all_category, category_index, new_cat, 0);
     return (state = state_2);
 }
 
-func check_category_pubkey_authority(state: State, category_id: felt, pubkey: felt) -> (root: felt, exists: felt, result: felt) {
+func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: felt) -> (root: felt, exists: felt, result: felt) {
     alloc_locals;
+
+    %{
+        if True:
+            print(f"ids.state: {ids.state}")
+            print(f"ids.state.address_: {ids.state.address_}")
+            print(f"memory[ids.state.address_]: {memory[ids.state.address_]}")
+    %}
+
     let (exists, index) = category_id_exists(state.all_category, state.n_all_category, category_id);
 
     %{
@@ -252,9 +281,9 @@ func add_node_to_state_by_reference(data: CategoryData, pubkey: felt, node: Cate
     return (result = result);
 }
 
-func verify_transaction_node_create(state: State, transaction: Transaction) -> (state: State) {
+func verify_transaction_node_create(state: State*, transaction: Transaction) -> (state: State*) {
     alloc_locals;
-    local new_state: State = state;
+    let (new_state: State*) = alloc();
     // apply_command_node_create
     tempvar command :felt* = transaction.command;
     tempvar category_id = command[1];
@@ -301,30 +330,42 @@ func verify_transaction_node_create(state: State, transaction: Transaction) -> (
         child_element.width = width;
         child_element.pubkey = node_pubkey;
         // @todo add by reference
+        assert new_state.block_hash = state.block_hash;
+        assert new_state.root_pubkey = state.root_pubkey;
+        assert new_state.n_all_category = state.n_all_category;
+        assert new_state.all_category = state.all_category;
         return update_state_category(new_state, index, 1, child_element);
     }
     return (state = new_state);
 }
-func verify_transaction_node_remove(state: State, transaction: Transaction) -> (state: State) {
+func verify_transaction_node_remove(state: State*, transaction: Transaction) -> (state: State*) {
     alloc_locals;
-    local new_state: State = state;
-    return (state = new_state);
+    let (new_state: State*) = alloc();
+    return (state = state);
 }
-func verify_transaction_category_create(state: State, transaction: Transaction) -> (state: State) {
+func verify_transaction_category_create(state: State*, transaction: Transaction) -> (state: State*) {
     alloc_locals;
-    local new_state: State = state;
-    return (state = new_state);
+    let (new_state: State*) = alloc();
+    return (state = state);
 }
-func verify_transaction_category_remove(state: State, transaction: Transaction) -> (state: State) {
+func verify_transaction_category_remove(state: State*, transaction: Transaction) -> (state: State*) {
     alloc_locals;
-    local new_state: State = state;
-    return (state = new_state);
+    let (new_state: State*) = alloc();
+    return (state = state);
 }
 
-func verify_transaction(state: State, transaction: Transaction) -> (state: State) {
+func verify_transaction(state: State*, transaction: Transaction) -> (state: State*) {
     // verify signature here.
     tempvar pubkey = transaction.pubkey;
     if ([transaction.command] == COMMAND_NODE_CREATE) {
+
+        %{
+            if True:
+                print(f"[verify_transaction] ids.state: {ids.state}")
+                print(f"[verify_transaction] ids.state.address_: {ids.state.address_}")
+                print(f"[verify_transaction] memory[ids.state.address_]: {memory[ids.state.address_]}")
+        %}    
+
         return verify_transaction_node_create(state, transaction);
     }else{
         if ([transaction.command] == COMMAND_NODE_REMOVE){
@@ -350,12 +391,19 @@ func verify_transaction(state: State, transaction: Transaction) -> (state: State
     return (state = state);
 }
 
-func verify_transaction_recursive(state: State, n_transactions: felt, transactions: Transaction*) -> (state: State) {
+func verify_transaction_recursive(state: State*, n_transactions: felt, transactions: Transaction*) -> (state: State*) {
     alloc_locals;
     if (n_transactions == 0){
         return (state = state);
     }else{
-        let (new_state) = verify_transaction(state, transactions[0]);
+        %{
+            if True:
+                print(f"[verify_transaction_recursive] {ids.n_transactions} ids.state: {ids.state}")
+                print(f"[verify_transaction_recursive] {ids.n_transactions} ids.state.address_: {ids.state.address_}")
+                print(f"[verify_transaction_recursive] {ids.n_transactions} memory[ids.state.address_]: {memory[ids.state.address_]}")
+        %}
+
+        let (new_state: State*) = verify_transaction(state, transactions[0]);
         return verify_transaction_recursive(new_state, n_transactions - 1, transactions + Transaction.SIZE);    
     }
 }
@@ -424,7 +472,7 @@ func calc_transactions_merkle_root{hash_ptr: HashBuiltin*}(transactions: Transac
     return h;
 }
 // verify block hash and signature.
-func verify_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state:State, block: Block*){
+func verify_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state:State*, block: Block*){
     // check block authenticity except for transaction validity.
     let transactions_merkle_root_recalc = calc_transactions_merkle_root(block.transactions, block.n_transactions);
     assert block.transactions_merkle_root = transactions_merkle_root_recalc;
@@ -438,7 +486,7 @@ func verify_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state:St
     return ();
 }
 
-func update_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: State, block: Block*) -> (state: State) {
+func update_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: State*, block: Block*) -> (state: State*) {
     alloc_locals;
     // check if block itself has correct signature, timestamp and block reference.
     // lookup CATEGORY_BLOCK table and if pubkey is correct.
@@ -448,7 +496,7 @@ func update_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: S
     return (state=new_state);
 }
 
-func update_block_recursive{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: State, n_blocks: felt, blocks: Block*) -> (state: State) {
+func update_block_recursive{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: State*, n_blocks: felt, blocks: Block*) -> (state: State*) {
     alloc_locals;
     if (n_blocks == 0){
         return (state=state);
@@ -511,7 +559,7 @@ func recompute_category_hash_by_reference{
 
 func recompute_category_hash_recursive{
     hash_ptr: HashBuiltin*,
-}(state: State) -> (state: State) {
+}(state: State*) -> (state: State*) {
     return (state = state);
 }
 
@@ -528,7 +576,7 @@ func get_category_hash_list{
 
 func recompute_state_hash{
     hash_ptr: HashBuiltin*,
-}(state: State) -> felt {
+}(state: State*) -> felt {
     alloc_locals;
     let (category_hash_list) = alloc();
     // run recompute_category_hash_recursive
@@ -544,6 +592,7 @@ func main{
     ecdsa_ptr: SignatureBuiltin*
 }() {
     alloc_locals;
+    let (__fp__, _) = get_fp_and_pc();
     // given list of block, update state
     local initial_state: State;
     local initial_hash: felt;
@@ -723,7 +772,17 @@ func main{
             )
 
     %}
-    let (updated_state: State) = update_block_recursive{hash_ptr = pedersen_ptr}(initial_state, n_blocks, blocks);
+
+
+    %{
+        if True:
+            print(f"ids.initial_state: {ids.initial_state}")
+            print(f"ids.initial_state.address_: {ids.initial_state.address_}")
+            print(f"memory[ids.initial_state.address_]: {memory[ids.initial_state.address_]}")
+    %}
+
+
+    let (updated_state: State*) = update_block_recursive{hash_ptr = pedersen_ptr}(cast(&initial_state, State*), n_blocks, blocks);
     // assert that updated_state and latest_state match!
     let updated_hash = recompute_state_hash{hash_ptr = pedersen_ptr}(updated_state);
     assert updated_hash = final_hash;
