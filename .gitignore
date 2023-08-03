@@ -5,3 +5,4 @@ rfc6979/dist
 __pycache__
 docker/nostr-rs-relay/data/*
 verifiable-moderation.json
+env
