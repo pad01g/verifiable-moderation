@@ -6,6 +6,7 @@ from starkware.cairo.common.hash_chain import (compute_hash_chain)
 import argparse
 from http.server import (HTTPServer, BaseHTTPRequestHandler)
 import json
+import hashlib
 
 def parse_args():
     parser = argparse.ArgumentParser(description='run server with options.')
@@ -33,21 +34,30 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             self.password = d["password"]
         else:
             self.password = ""
+        if "private_key" in d:
+            self.pr = d["private_key"]
         super().__init__(*args, **kwargs)
+        print("initiated")
+
 
     def do_GET(self):
+        print("do_GET")
         global filter_words
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
-        json_str = json.dumps(filter_words)
-        signature = ""
-        pubkey = ""
-        ret = json.dumps({"pubkey": pubkey, "signature_r": signature, "signature_s": signature, "json_str": json_str})
-        print(ret)
-        self.wfile.write(ret.encode())
+        for word in filter_words:
+            json_str = json.dumps(word)
+            m = hashlib.sha224(json_str.encode())
+            print("hash: ", m.hexdigest())
+            r, s = sign(msg_hash=int.from_bytes(m.digest(), byteorder='big'), priv_key=int(self.pr, 16))
+            ret = json.dumps({"pubkey": "", "signature_r": r, "signature_s": s, "json_str": json_str})
+            print(word, ret)
+            self.wfile.write(ret.encode())
+        self.wfile.write("ok".encode())
 
     def do_POST(self):
+        print("do_POST")
         global filter_words
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -66,14 +76,12 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length)
         
         filter_words.append(post_data.decode('utf-8').removeprefix("user_input="))
+        filter_words = list(set(filter_words))
         print("filter_words:", filter_words)
-
-
 
 def run_server():
     httpd = HTTPServer(('0.0.0.0', 8000), CustomHTTPRequestHandler)
     httpd.serve_forever()
-
 
 def main():
     print("Start server")
