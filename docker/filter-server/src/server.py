@@ -51,10 +51,10 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             m = hashlib.sha224(json_str.encode())
             print("hash: ", m.hexdigest())
             r, s = sign(msg_hash=int.from_bytes(m.digest(), byteorder='big'), priv_key=int(self.pr, 16))
-            ret = json.dumps({"pubkey": "", "signature_r": r, "signature_s": s, "json_str": json_str})
+            ret = json.dumps({"pubkey": private_to_stark_key(int(self.pr, 16)), "signature_r": hex(r), "signature_s": hex(s), "json_str": json_str})
             print(word, ret)
             self.wfile.write(ret.encode())
-        self.wfile.write("ok".encode())
+            print("wrote to file")
 
     def do_POST(self):
         print("do_POST")
@@ -73,10 +73,17 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             </html>
         """)
         content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        
-        filter_words.append(post_data.decode('utf-8').removeprefix("user_input="))
-        filter_words = list(set(filter_words))
+        print('content-type: ', self.headers.get('content-type'))
+        if self.headers.get('content-type') == 'application/json':
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            filter_words.append(data["filter_word"])
+            filter_words = list(set(filter_words))
+        else:
+            post_data = self.rfile.read(content_length)
+            filter_words.append(post_data.decode('utf-8').removeprefix("user_input="))
+            filter_words = list(set(filter_words))
         print("filter_words:", filter_words)
 
 def run_server():
