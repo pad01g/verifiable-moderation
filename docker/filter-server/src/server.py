@@ -63,14 +63,17 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         data = json.loads(post_data.decode('utf-8'))
-        filter_words.append(data["filter_word"])
-        filter_words = list(set(filter_words))
         if "password" in data and data["password"] == self.password:
             pass
         else:
-            self.send_response(400)
             print("wrong password")
+            self.send_response(400)
+            self.send_header('Content-Type', 'text/plain; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(b'Wrong password')
             return
+        filter_words.append(data["filter_word"])
+        filter_words = list(set(filter_words))
         print("filter_words:", filter_words)
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
