@@ -25,7 +25,7 @@ def main():
         "final_hash": final_hash,
     }
 
-    with open('verifiable-moderation-input.json', 'w') as f:
+    with open('verifiable-moderation/verifiable-moderation-input.json', 'w') as f:
         json.dump(input_data, f, indent=4)
         f.write('\n')
 
