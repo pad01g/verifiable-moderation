@@ -7,7 +7,7 @@ build:
 	protostar build-cairo0 --disable-hint-validation
 
 test:
-	protostar test-cairo0 --disable-hint-validation
+	protostar test-cairo0 --disable-hint-validation $(TARGET)
 
 clean:
 	rm -rf build/*

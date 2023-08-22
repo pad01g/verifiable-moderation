@@ -1,6 +1,7 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.hash_chain import hash_chain
+from starkware.cairo.common.memcpy import memcpy
 
 from starkware.cairo.common.cairo_builtins import (
     HashBuiltin,
@@ -24,33 +25,67 @@ from src.consts import (
     CATEGORY_CATEGORY,    
 )
 
+// category_elements: pointer to category elements list.
+// n_category_elements: length of category_elements.
+// child_hash_list: tracks list of hash of elements scanned so far
 func recompute_child_hash{
     hash_ptr: HashBuiltin*,
 }(category_elements: CategoryElement*, n_category_elements: felt, child_hash_list: felt*) -> () {
     alloc_locals;
+    %{
+        print(f"n_category_elements: {ids.n_category_elements}")
+    %}
+
     if (n_category_elements == 0){
+        assert [child_hash_list] = 1;
+        // assert [child_hash_list + 1] = 0;
         return ();
     }else{
+        %{
+            print(f"category_elements: {memory[ids.category_elements.address_]}")
+            # print(f"child_hash_list: {memory[ids.child_hash_list]}")
+        %}
+    
         let (subarray) = alloc();
         recompute_child_hash(
-            category_elements[0].category_elements_child,
-            category_elements[0].n_category_elements_child,
+            category_elements.category_elements_child,
+            category_elements.n_category_elements_child,
             subarray
         );
-        // `subarray` should have elements list.
-        let (dfs_hash) = hash_chain(subarray);
+        tempvar n_category_elements_child = category_elements.n_category_elements_child;
+        // `subarray` should have elements list. length of subarray is always equal to `n_category_elements_child`
+        %{
+            print(f"subarray: {memory[ids.subarray]}")
+            print(f"category_elements.n_category_elements_child: {ids.n_category_elements_child}")
+        %}
+        let (hash_chain_input) = alloc();
+
+        if (category_elements.n_category_elements_child == 0){
+            assert [hash_chain_input] = 1;
+            assert [hash_chain_input+1] = 0;
+        }else{
+            assert [hash_chain_input] = n_category_elements_child;
+            memcpy(subarray, hash_chain_input+1, category_elements.n_category_elements_child);
+        }
+
+        let (dfs_hash) = hash_chain(hash_chain_input);
+        %{
+            print(f"dfs_hash: {hex(ids.dfs_hash)}")
+            print(f"child_hash_list: {memory[ids.child_hash_list]}")
+        %}
         
         // Allocate an array.
         let (ptr) = alloc();
 
         // Populate values in the array.
-        assert [ptr] = dfs_hash;
-        assert [ptr + 1] = category_elements[0].depth;
-        assert [ptr + 2] = category_elements[0].width;
-        assert [ptr + 3] = category_elements[0].pubkey;
+        assert [ptr] = 4;
+        assert [ptr + 1] = dfs_hash;
+        assert [ptr + 2] = category_elements.depth;
+        assert [ptr + 3] = category_elements.width;
+        assert [ptr + 4] = category_elements.pubkey;
 
         let (child_hash) = hash_chain(ptr);
-        assert child_hash_list[0] = child_hash;
+        assert [child_hash_list] = child_hash;
         return recompute_child_hash(
             category_elements + CategoryElement.SIZE,
             n_category_elements - 1,
