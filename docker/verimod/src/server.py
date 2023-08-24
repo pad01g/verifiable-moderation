@@ -8,11 +8,12 @@ from verimod import (generate_key_pair, generate_blocks, make_initial_state, mak
 import argparse
 from http.server import (HTTPServer, BaseHTTPRequestHandler)
 from urllib.parse import (urlparse, parse_qs)
+import json
 
 def parse_args():
     parser = argparse.ArgumentParser(description='run server with options.')
     parser.add_argument('--config', type=str, default="config.json", help='config location')
-    parser.add_argument('--state', type=str, default="state.json", help='state file location')
+    # parser.add_argument('--state', type=str, default="state.json", help='state file location')
 
     args = parser.parse_args()
     return args
@@ -34,15 +35,17 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.args = parse_args()
 
         # @todo make initial state not here, run only once
-        state_file = args.state
+        config_file = args.config
         d = {}
         try:
-            with open(state_file) as f:
+            with open(config_file) as f:
                 d = json.loads(f)
-            self.state = d
+            self.initial_state = d['initial_state']
+            self.blocks = d['blocks']
+            self.final_state , _ = make_final_state(self.initial_state, self.blocks)    
         except Exception as e:
-            self.state = {}
-
+            print("Error: No state file found")
+            raise e
         super().__init__(*args, **kwargs)
 
     # check if requested data satisfies condition
@@ -53,14 +56,13 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         params = parse_qs(parsed.query)
 
-        category_type = params["category_type"]
-        pubkey = params["pubkey"]
+        category_type = params["category_type"][0]
+        pubkey = params["pubkey"][0]
 
         result = False
         for category in self.state["all_category"]:
             if category["data"]["category_type"] == category_type:
                 category_elements_child = category["data"]["category_elements_child"]
-                # check recursively if pubkey exists in category_elements_child
                 exists = check_category_elements_child(pubkey, category_elements_child)
                 if exists:
                     result = True
@@ -70,7 +72,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'application/json')
         self.end_headers()
         ret = json.dumps({"result": result})
-        self.wfile.write(ret)
+        self.wfile.write(ret.encode('utf-8'))
 
     # add block data to memory
     def do_POST(self):
@@ -95,8 +97,8 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
 def run_server():
-
-    httpd = HTTPServer(('0.0.0.0', 8080), CustomHTTPRequestHandler)
+    httpd = HTTPServer(('0.0.0.0', 8000), CustomHTTPRequestHandler)
+    print("Server started on")
     httpd.serve_forever()
 
 
