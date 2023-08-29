@@ -25,7 +25,7 @@ func test_recompute_child_hash{syscall_ptr: felt*, range_check_ptr, pedersen_ptr
     assert category_element.width = 0;
     assert category_element.pubkey = 0;
     let (subarray: felt*) = alloc();
-    assert [subarray] = 0;
+    // assert [subarray] = 0;
     recompute_child_hash{hash_ptr = pedersen_ptr}(category_element, 1, subarray);
     return ();
 }

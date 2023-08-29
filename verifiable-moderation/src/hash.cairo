@@ -47,6 +47,7 @@ func recompute_child_hash{
         %}
     
         let (subarray) = alloc();
+        // memory of subarray is written
         recompute_child_hash(
             category_elements.category_elements_child,
             category_elements.n_category_elements_child,
@@ -71,7 +72,7 @@ func recompute_child_hash{
         let (dfs_hash) = hash_chain(hash_chain_input);
         %{
             print(f"dfs_hash: {hex(ids.dfs_hash)}")
-            print(f"child_hash_list: {memory[ids.child_hash_list]}")
+            # print(f"child_hash_list: {memory[ids.child_hash_list]}")
         %}
         
         // Allocate an array.
@@ -85,6 +86,10 @@ func recompute_child_hash{
         assert [ptr + 4] = category_elements.pubkey;
 
         let (child_hash) = hash_chain(ptr);
+        %{
+            print(f"child_hash: {hex(ids.child_hash)}")
+        %}
+
         assert [child_hash_list] = child_hash;
         return recompute_child_hash(
             category_elements + CategoryElement.SIZE,
