@@ -101,35 +101,38 @@ func recompute_child_hash{
 
 func recompute_category_hash_by_reference{
     hash_ptr: HashBuiltin*,
-}(category: Category*, n_category: felt) -> () {
+}(category: Category*, n_category: felt, hash_list: felt*) -> () {
     alloc_locals;
     if (n_category == 0){
         return ();
     }else{
         let (subarray) = alloc();
         recompute_child_hash(category.data.category_elements_child, category.data.n_category_elements_child, subarray);
-        let (category_data_hash) = hash_chain(subarray);
+        // subarray must have length
+
+        let (hash_chain_input) = alloc();
+        tempvar n_category_elements_child = category.data.n_category_elements_child;
+        if (category.data.n_category_elements_child == 0){
+            assert [hash_chain_input] = 1;
+            assert [hash_chain_input+1] = 0;
+        }else{
+            assert [hash_chain_input] = category.data.n_category_elements_child;
+            %{
+                print(f"hash_chain_input: {hex(memory[ids.hash_chain_input])}")
+                # print(f"hash_chain_input + 1: {hex(memory[ids.hash_chain_input + 1])}")
+                print(f"subarray: {hex(memory[ids.subarray])}")
+                print(f"subarray + 1: {hex(memory[ids.subarray + 1])}")
+                print(f"n_category_elements_child: {hex(ids.n_category_elements_child)}")
+            %}
+            memcpy(hash_chain_input+1, subarray, category.data.n_category_elements_child);
+        }
+
+        let (category_data_hash) = hash_chain(hash_chain_input);
         let (category_hash) = hash2(category.data.category_type, category_data_hash);
-        assert category.hash = category_hash;
-        return recompute_category_hash_by_reference(category + Category.SIZE, n_category - 1);
+        // assert category.hash = category_hash;
+        assert [hash_list] = category_hash;
+        return recompute_category_hash_by_reference(category + Category.SIZE, n_category - 1, hash_list + 1);
     }
-}
-
-func recompute_category_hash_recursive{
-    hash_ptr: HashBuiltin*,
-}(state: State*) -> (state: State*) {
-    return (state = state);
-}
-
-func get_category_hash_list{
-    hash_ptr: HashBuiltin*,
-}(category: Category*, n_category_hash_list: felt, category_hash_list: felt*) -> () {
-    // recursively assign category hash into category hash list arg, it is just map() function.
-    if (n_category_hash_list == 0){
-        return ();
-    }
-    assert category_hash_list[0] = category.hash;
-    return get_category_hash_list(category + Category.SIZE, n_category_hash_list - 1, category_hash_list);
 }
 
 func recompute_state_hash{
@@ -137,10 +140,19 @@ func recompute_state_hash{
 }(state: State*) -> felt {
     alloc_locals;
     let (category_hash_list) = alloc();
-    // run recompute_category_hash_recursive
-    let (new_state) = recompute_category_hash_recursive(state);
     // get category hash list as felt*.
-    get_category_hash_list(new_state.all_category, new_state.n_all_category, category_hash_list);
-    let (h) = hash_chain(category_hash_list);
+    recompute_category_hash_by_reference(state.all_category, state.n_all_category, category_hash_list);
+
+    let (hash_chain_input) = alloc();
+    if (state.n_all_category == 0){
+        assert [hash_chain_input] = 1;
+        assert [hash_chain_input+1] = 0;
+    }else{
+        assert [hash_chain_input] = state.n_all_category;
+        memcpy(hash_chain_input+1, category_hash_list, state.n_all_category);
+    }
+    // need to add root_pubkey, n_all_category, block_hash too
+
+    let (h) = hash_chain(hash_chain_input);
     return h;
 }

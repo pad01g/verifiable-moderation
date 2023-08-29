@@ -28,21 +28,27 @@ from src.consts import (
     CATEGORY_CATEGORY,    
 )
 
-func category_id_exists(category: Category*, n_category: felt, category_id: felt) -> (exists: felt, result: felt) {
-    if (n_category == 0) {
+// remaining_count should be internal value
+func category_id_exists_internal(category: Category*, n_category: felt, remaining_count: felt, category_id: felt) -> (exists: felt, result: felt) {
+    if (remaining_count == 0) {
         return (exists = 0, result = 0);
     }
     %{
+        print(f"[category_id_exists] remaining_count: {ids.remaining_count}")
         print(f"[category_id_exists] n_category: {ids.n_category}")
         print(f"[category_id_exists] ids.category.address_: {ids.category.address_}")
         print(f"[category_id_exists] ids.category.address_ + ids.Category.data: {hex(memory[ids.category.address_ + ids.Category.data])}")
         print(f"[category_id_exists] ids.category.address_ + ids.Category.data + ids.CategoryData.category_type: {hex(memory[ids.category.address_ + ids.Category.data + ids.CategoryData.category_type])}")
     %}
     if (category.data.category_type == category_id) {
-        return (exists = 1, result = 1);
+        return (exists = 1, result = n_category - remaining_count);
     } else {
-        return category_id_exists(category + Category.SIZE, n_category - 1, category_id);
+        return category_id_exists_internal(category + Category.SIZE, n_category, remaining_count - 1, category_id);
     }
+}
+
+func category_id_exists(category: Category*, n_category: felt, category_id: felt) -> (exists: felt, result: felt) {
+    return category_id_exists_internal(category, n_category, n_category, category_id);
 }
 
 // check if element in certain level contains pubkey
@@ -88,6 +94,7 @@ func assign_update_state_category_recursive(state: State*, all_category: Categor
     return assign_update_state_category_recursive(state, all_category, category_index, new_category, current_category_index + 1);
 }
 
+// provided category_elements_child, replace specified category elements witth `category_elements_child`
 func update_state_category(state: State*, category_index: felt, n_category_elements_child: felt, category_elements_child: CategoryElement*) -> (state: State*) {
     alloc_locals;
     // update category elements in category.
@@ -135,6 +142,7 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
             print(f"[check_category_pubkey_authority] ids.state: {ids.state}")
             print(f"[check_category_pubkey_authority] ids.state.address_: {ids.state.address_}")
             print(f"[check_category_pubkey_authority] memory[ids.state.address_]: {memory[ids.state.address_]}")
+            print(f"[check_category_pubkey_authority] ids.state.all_category.address_: {ids.state.all_category.address_}")
             # @todo debug here
             print(f"[check_category_pubkey_authority] state.all_category value: {memory[ids.state.all_category.address_]}, state.all_category ref: {ids.state.all_category}")
             category_hash = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.hash]
