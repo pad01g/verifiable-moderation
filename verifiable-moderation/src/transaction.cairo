@@ -154,7 +154,7 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
     let (exists, index) = category_id_exists(state.all_category, state.n_all_category, category_id);
 
     %{
-        if False:
+        if True:
             print(f"exists: {ids.exists}, index: {ids.index}")
             print(f"state.all_category value: {memory[ids.state.all_category.address_]}, state.all_category ref: {ids.state.all_category}")
             category_hash = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.hash]
@@ -163,10 +163,7 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
             print(f"state.all_category data: {hex(category_data)}")
     %}
 
-    // let n_: felt = [state.all_category + Category.SIZE * 0 + Category.data + CategoryData.SIZE * 0 + CategoryData.category_type];
-
     tempvar cat: Category* = state.all_category + index * Category.SIZE;
-    // tempvar catdata: CategoryData = [cat + Category.data];
     %{
         if False:
             print(f"cat: {ids.cat}")
@@ -190,7 +187,6 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
     %}
 
     tempvar n_elements: felt = catdata.n_category_elements_child;
-    // tempvar n_elements: felt = [state.all_category + index * Category.SIZE + Category.data + CategoryData.n_category_elements_child];
     if (exists != 0 and state.root_pubkey == pubkey and n_elements == 0) {
         return (root = 1, exists = exists, result = index);
     }
@@ -247,7 +243,7 @@ func add_node_to_state_by_reference_recursive(
     // list of new elements to copy to
     new_category_elements_child: CategoryElement*,
     pubkey: felt,
-    node: CategoryElement,
+    node: CategoryElement*,
     result: felt,
 ) -> (result: felt) {
     alloc_locals;
@@ -280,7 +276,12 @@ func add_node_to_state_by_reference_recursive(
             if (category_elements_child.pubkey == pubkey){
                 // append node to list of category_elements_child.category_elements_child
                 // don't forget to increment n_category_elements_child
-                assert [new_category_elements_child.category_elements_child + Category.SIZE * (category_elements_child.n_category_elements_child + 1)] = node;
+                if (category_elements_child.n_category_elements_child == 0){
+                    // if `new_category_elements_child.category_elements_child` is not defined, it should be allocated first.
+                    let (child: CategoryElement*) = alloc();
+                    assert new_category_elements_child.category_elements_child = child;
+                }
+                assert [new_category_elements_child.category_elements_child + CategoryElement.SIZE * (category_elements_child.n_category_elements_child)] = [node];
                 // set result as true.
                 assert result_pk = 1;
                 // copy other elements
@@ -347,7 +348,7 @@ func add_node_to_state_by_reference_recursive(
 }
 
 // use pubkey to find where to attach new node
-func add_node_to_state_by_reference(new_data: CategoryData*, data: CategoryData*, pubkey: felt, node: CategoryElement) -> (result: felt) {
+func add_node_to_state_by_reference(new_data: CategoryData*, data: CategoryData*, pubkey: felt, node: CategoryElement*) -> (result: felt) {
     alloc_locals;
 
     %{
@@ -435,13 +436,6 @@ func verify_transaction_node_create(state: State*, transaction: Transaction) -> 
             CategoryElement*
         );
         let (new_category_elements_child: CategoryElement*) = alloc();
-        // example assert
-        // if (index == 0){
-        //     assert new_catdata.category_elements_child = child_element;
-        // } else {
-        //     assert new_catdata.category_elements_child = category_elements_child;
-        // }
-        //
 
         %{
             print(f"[verify_transaction_node_create] [] category_elements_child: {ids.category_elements_child.address_}")
@@ -481,12 +475,12 @@ func verify_transaction_node_create(state: State*, transaction: Transaction) -> 
     if (root == 0) {
         tempvar index = result;
         let (empty_child_reference: CategoryElement*) = alloc();
-        tempvar child: CategoryElement;
-        child.depth = depth;
-        child.width = width;
-        child.pubkey = node_pubkey;
-        child.n_category_elements_child = 0;
-        child.category_elements_child = empty_child_reference;
+        let (child: CategoryElement*) = alloc();
+        assert child.depth = depth;
+        assert child.width = width;
+        assert child.pubkey = node_pubkey;
+        assert child.n_category_elements_child = 0;
+        assert child.category_elements_child = empty_child_reference;
         // @todo implement add_node_to_state_by_reference
         assert new_state.block_hash = state.block_hash;
         assert new_state.root_pubkey = state.root_pubkey;
