@@ -540,9 +540,60 @@ func verify_transaction_node_create(state: State*, transaction: Transaction) -> 
     }
     return (state = new_state);
 }
+
+func assign_category_without_pubkey(src_category_list_length: felt, src_category_list: CategoryElement*, dst_category_list: CategoryElement*, pubkey: felt) -> () {
+    if (src_category_list_length == 0){
+        return ();
+    }
+    tempvar pointer: CategoryElement*;
+    if (src_category_list.pubkey == pubkey){
+        // skip
+        pointer = src_category_list;
+    }else{
+        assert [dst_category_list] = [src_category_list];
+        pointer = src_category_list + CategoryElement.SIZE
+    }
+    return assign_category_without_pubkey(
+        src_category_list_length - 1,
+        src_category_list + CategoryElement.SIZE,
+        pointer,
+        pubkey,
+    );
+}
+
 func verify_transaction_node_remove(state: State*, transaction: Transaction) -> (state: State*) {
     alloc_locals;
     let (new_state: State*) = alloc();
+    tempvar category_id = command[1];
+    tempvar node_pubkey = command[2];
+    let (root, exists, result) = check_category_pubkey_authority(state, category_id, transaction.pubkey);
+    if (exists == 0){
+        // cannot remove.
+        assert 0 = 1;
+    }else{
+        if (root == 1){
+            // remove node from category root
+            assert new_state.block_hash = state.block_hash;
+            assert new_state.root_pubkey = state.root_pubkey;
+            assert new_state.n_all_category = state.n_all_category;
+            let (new_category_elements: CategoryElement*) = alloc();
+            
+            assign_category_without_pubkey(
+                state.all_category[result].data.n_category_elements_child,
+                state.all_category[result].data.category_elements_child,
+                new_category_elements,
+                node_pubkey
+            );
+            // @todo what about other elements?
+            // they must be copied too
+            assert new_state.all_category[result].data.category_elements_child = new_category_elements;
+            return (state = new_state);
+    
+        }else{
+            // search pubkey from tree object and remove.
+        }
+    }
+
     return (state = state);
 }
 func verify_transaction_category_create(state: State*, transaction: Transaction) -> (state: State*) {
