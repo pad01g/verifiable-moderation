@@ -33,16 +33,17 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def __init__(self, *args, **kwargs):
         self.args = parse_args()
-
+        config_file = self.args.config
         # @todo make initial state not here, run only once
         config_file = args.config
         d = {}
         try:
             with open(config_file) as f:
-                d = json.loads(f)
+                d = json.load(f)
             self.initial_state = d['initial_state']
             self.blocks = d['blocks']
-            self.final_state , _ = make_final_state(self.initial_state, self.blocks)    
+            self.final_state , _ = make_final_state(self.initial_state, self.blocks) 
+            self.state = self.initial_state   
         except Exception as e:
             print("Error: No state file found")
             raise e
