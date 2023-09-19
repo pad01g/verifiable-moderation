@@ -561,6 +561,146 @@ func assign_category_without_pubkey(src_category_list_length: felt, src_category
     );
 }
 
+func search_and_remove_node_from_state(
+    // current remaining length of category_elements_child
+    n_category_elements_child: felt,
+    // list of elements to search for
+    category_elements_child: CategoryElement*,
+    // list of new elements to copy to
+    new_category_elements_child: CategoryElement*,
+    target_pubkey: felt,
+    deleted: felt
+) -> () {
+
+    if (n_category_elements_child == 0) {
+        return ();
+    }
+
+    if (category_elements_child.pubkey == target_pubkey) {
+        // remove it if it is target pubkey
+        assert new_category_elements_child.category_elements_child = alloc();
+        assert new_category_elements_child.n_category_elements_child = 0;
+
+        // move to next element, do not traverse child
+        copy_elements_by_assert_except_index(
+            // you can use remaining count
+            n_category_elements_child - 1,
+            category_elements_child + CategoryElement.SIZE,
+            new_category_elements_child + CategoryElement.SIZE,
+            // copy everything?
+            n_category_elements_child + 1
+        );
+    
+    }else{
+        // check if elements are deleted.
+
+        // do traverse children
+        let (modified) = copy_elements_by_assert_except_index(
+            category_elements_child.n_category_elements_child + 1,
+            category_elements_child.category_elements_child,
+            new_category_elements_child.category_elements_child,
+            category_elements_child.n_category_elements_child + 1
+        );
+
+        // copy it if 
+        assert new_category_elements_child.category_elements_child = category_elements_child.category_elements_child;
+        assert new_category_elements_child.n_category_elements_child = category_elements_child.n_category_elements_child;
+
+        // move to next element
+        copy_elements_by_assert_except_index(
+            // you can use remaining count
+            n_category_elements_child - 1,
+            category_elements_child + CategoryElement.SIZE,
+            new_category_elements_child + CategoryElement.SIZE,
+            // copy everything?
+            n_category_elements_child + 1
+        );
+
+    }
+}
+
+func remove_node_from_state_by_reference_recursive(
+    // current remaining length of category_elements_child
+    n_category_elements_child: felt,
+    // list of elements to search for
+    category_elements_child: CategoryElement*,
+    // list of new elements to copy to
+    new_category_elements_child: CategoryElement*,
+    pubkey: felt,
+    target_pubkey: felt,
+    result: felt,
+) -> (result: felt) {
+    alloc_locals;
+    if (n_category_elements_child == 0){
+        // you don't have to do anything in this case. just return given result.
+        return (result = result);
+    }else{
+        // if result is already true, you don't have to do anything. just copy reference data and return given result.
+        if (result == 1) {
+            assert category_elements_child = new_category_elements_child;
+            return (result = result);
+        }else{
+            // if result is false, selectively copy reference or substitute new node value.
+            local result_pk: felt;
+            if (category_elements_child.pubkey == pubkey){
+                // remove child elements recursively under this element.
+                // but first you need to find it...
+                // copy `category_elements_child.category_elements_child` to `new_category_elements_child.category_elements_child`
+                // without removed element in `search_and_remove_node_from_state`.
+                search_and_remove_node_from_state(
+                    category_elements_child.n_category_elements_child,
+                    category_elements_child.category_elements_child,
+                    new_category_elements_child.category_elements_child,
+                    target_pubkey
+                );
+
+                // set result as true.
+                assert result_pk = 1;
+
+                return (result = result_pk);
+            }else{
+                // set result as false;
+                assert result_pk = 0;
+            }
+            // depth first search.
+            let (result2) =  remove_node_to_state_by_reference_recursive(
+                category_elements_child.n_category_elements_child,
+                category_elements_child.category_elements_child,
+                new_category_elements_child.category_elements_child,
+                pubkey,
+                target_pubkey,
+                0,
+            );
+            if (result2 == 1){
+                // copy other elements.
+                // 1) category_elements_child + 1, ... , category_elements_child + n_category_elements_child
+                copy_elements_by_assert_except_index(
+                    // you can use remaining count
+                    n_category_elements_child - 1,
+                    category_elements_child + CategoryElement.SIZE,
+                    new_category_elements_child + CategoryElement.SIZE,
+                    // copy everything?
+                    n_category_elements_child + 1
+                );
+                // you should also update brother nodes
+                return (result = result2);
+            }
+
+            let (result1) =  remove_node_to_state_by_reference_recursive(
+                n_category_elements_child - 1,
+                category_elements_child + CategoryElement.SIZE,
+                new_category_elements_child + CategoryElement.SIZE,
+                pubkey,
+                target_pubkey,
+                0,
+            );
+            // simply, copy information of this node to new array.
+            // 1) new_category_elements_child = category_elements_child;
+            assert new_category_elements_child = category_elements_child;
+            return (result = result1);
+        }
+    }
+}
 func verify_transaction_node_remove(state: State*, transaction: Transaction) -> (state: State*) {
     alloc_locals;
     let (new_state: State*) = alloc();
@@ -584,13 +724,19 @@ func verify_transaction_node_remove(state: State*, transaction: Transaction) -> 
                 new_category_elements,
                 node_pubkey
             );
-            // @todo what about other elements?
-            // they must be copied too
-            assert new_state.all_category[result].data.category_elements_child = new_category_elements;
-            return (state = new_state);
+
+            // update category
+            let (state_2: State*) = update_state_category(
+                new_state,
+                result,
+                new_state.all_category[result].data.n_category_elements_child - 1,
+                new_category_elements
+            );
+            return (state = state_2);
     
         }else{
             // search pubkey from tree object and remove.
+            // remove_node_from_state_by_reference_recursive
         }
     }
 
