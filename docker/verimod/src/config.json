@@ -1,29 +1,4 @@
 {
-    "initial_state": {
-        "state": {
-            "root_pubkey": "0x2f3b7aa96f717634e886860acbae543025c6f534637844b012c2ee467f19477",
-            "all_category_hash": "0x7cb0ba221df2dd9263381c3a7a733b2bb319a10deaf9e30cd28d0fb125e5469",
-            "all_category": [
-                {
-                    "hash": "0xcac9d38ae029640462776df2454967b488f0ea06b64a9fbe8cb430d7bb17b2",
-                    "data": {
-                        "category_type": "0x800000000000010ffffffffffffffffffffffffffffffffffffffffffffffff",
-                        "n_category_elements_child": 0,
-                        "category_elements_child": []
-                    }
-                },
-                {
-                    "hash": "0x22f832fa9c8d0cdffdd31501ce4ac38747ebcbdd7be3ddd8086976f81941ce4",
-                    "data": {
-                        "category_type": "0x800000000000011000000000000000000000000000000000000000000000000",
-                        "n_category_elements_child": 0,
-                        "category_elements_child": []
-                    }
-                }
-            ]
-        },
-        "block_hash": "0x11b3fa2f5dc95ba948f5a07375a30fc0e369b7487c66019c226db8ea368335e"
-    },
     "blocks": [
         {
             "transactions": [
@@ -223,6 +198,71 @@
             "signature_s": "0x252cf52cf72f0a1eccd38baa56a9e3bd32c012cb26707422a4c0f9d7699f0d9",
             "pubkey": "0x1c3eb6d67f833a9dac3766b2f22d31299875884f3fc84ebc70c322e8fb18112"
         }
-    ]
-  }
-  
+    ],
+    "initial_state": {
+        "state": {
+            "root_pubkey": "0x2f3b7aa96f717634e886860acbae543025c6f534637844b012c2ee467f19477",
+            "all_category_hash": "0x7cb0ba221df2dd9263381c3a7a733b2bb319a10deaf9e30cd28d0fb125e5469",
+            "all_category": [
+                {
+                    "hash": "0xcac9d38ae029640462776df2454967b488f0ea06b64a9fbe8cb430d7bb17b2",
+                    "data": {
+                        "category_type": "0x800000000000010ffffffffffffffffffffffffffffffffffffffffffffffff",
+                        "n_category_elements_child": 0,
+                        "category_elements_child": []
+                    }
+                },
+                {
+                    "hash": "0x22f832fa9c8d0cdffdd31501ce4ac38747ebcbdd7be3ddd8086976f81941ce4",
+                    "data": {
+                        "category_type": "0x800000000000011000000000000000000000000000000000000000000000000",
+                        "n_category_elements_child": 0,
+                        "category_elements_child": []
+                    }
+                }
+            ]
+        },
+        "block_hash": "0x11b3fa2f5dc95ba948f5a07375a30fc0e369b7487c66019c226db8ea368335e"
+    },
+    "initial_hash": "0x20bf0302d758850960cd771822640a618a6bf70353ed11877998bb870da8e8e",
+    "final_state": {
+        "state": {
+            "root_pubkey": "0x2f3b7aa96f717634e886860acbae543025c6f534637844b012c2ee467f19477",
+            "all_category_hash": "0x7cb0ba221df2dd9263381c3a7a733b2bb319a10deaf9e30cd28d0fb125e5469",
+            "all_category": [
+                {
+                    "hash": "0xcac9d38ae029640462776df2454967b488f0ea06b64a9fbe8cb430d7bb17b2",
+                    "data": {
+                        "category_type": "0x800000000000010ffffffffffffffffffffffffffffffffffffffffffffffff",
+                        "n_category_elements_child": 0,
+                        "category_elements_child": [
+                            {
+                                "category_elements_child": [],
+                                "depth": 1,
+                                "width": 2,
+                                "pubkey": "0x22285e2a1c84a7b6e283eb1ee28a40ba30874aff62617ba1220d7dc6a2b1e70"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "hash": "0x22f832fa9c8d0cdffdd31501ce4ac38747ebcbdd7be3ddd8086976f81941ce4",
+                    "data": {
+                        "category_type": "0x800000000000011000000000000000000000000000000000000000000000000",
+                        "n_category_elements_child": 0,
+                        "category_elements_child": [
+                            {
+                                "category_elements_child": [],
+                                "depth": 2,
+                                "width": 3,
+                                "pubkey": "0x1c3eb6d67f833a9dac3766b2f22d31299875884f3fc84ebc70c322e8fb18112"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "block_hash": "0x2f74c505b129bb7f830ddcac7b2a7124dda46cce70ab2e6221ff1e25eca234c"
+    },
+    "final_hash": "0x40897e9b8ce9eb7f3ff1887df7e56dd12dc035cf335df66d758d22541b816cc"
+}

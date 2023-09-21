@@ -49,12 +49,13 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             self.initial_state = d['initial_state']
             self.blocks = d['blocks']
             self.final_state , _ = make_final_state(self.initial_state, self.blocks) 
-            self.state = self.initial_state   
+            self.state = [self.initial_state, self.final_state]   
         except Exception as e:
             logging.error(f"Error: No state file found. Exception: {e}")
             print("Error: No state file found")
             raise e
         print("Initial state: ", self.initial_state)
+        print("Final state: ", self.final_state)
         super().__init__(*args, **kwargs)
 
     # check if requested data satisfies condition
@@ -75,17 +76,18 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             pubkey = params["pubkey"][0]
 
             result = False
-            for category in self.state["state"]["all_category"]:
-                if category["data"]["category_type"] == category_type:
-                    print("category found")
-                    category_elements_child = category["data"]["category_elements_child"]
-                    exists = check_category_elements_child(pubkey, category_elements_child)
-                    if exists:
-                        result = True
-                        print("Correct category exits")
-                        break
-                    else:
-                        print("Correct category does not exit")
+            for state in self.state:
+                for category in state["state"]["all_category"]:
+                    if category["data"]["category_type"] == category_type:
+                        print("category found")
+                        category_elements_child = category["data"]["category_elements_child"]
+                        exists = check_category_elements_child(pubkey, category_elements_child)
+                        if exists:
+                            result = True
+                            print("Correct category exits")
+                            break
+                        else:
+                            print("Correct category does not exit")
 
         except Exception as e:
             logging.error(f"Error: No state file found. Exception: {e}")
@@ -105,6 +107,8 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         # update state by applying blocks here
         try:
             content_length = int(self.headers['content-length'])
+            print("reading")
+            sys.stdout.flush()
             body = self.rfile.read(content_length).decode('utf-8')
             new_block_json = json.loads(body)
             new_block = new_block_json["block"]
@@ -113,7 +117,8 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             print("Error: Invalid block")
             raise e
             pass
-
+        print("new_block:", new_block)
+        sys.stdout.flush()
         try:
             final_state, final_hash = make_final_state(self.state, [new_block])
             self.state = final_state
