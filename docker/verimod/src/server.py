@@ -49,7 +49,11 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             self.initial_state = d['initial_state']
             self.blocks = d['blocks']
             self.final_state , _ = make_final_state(self.initial_state, self.blocks) 
-            self.state = [self.initial_state, self.final_state]   
+            self.state = []
+            for key, value in d.items():
+                if "state" in key:
+                    self.state.append(value)
+            self.state.append(self.final_state)
         except Exception as e:
             logging.error(f"Error: No state file found. Exception: {e}")
             print("Error: No state file found")
@@ -120,9 +124,16 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         print("new_block:", new_block)
         sys.stdout.flush()
         try:
-            final_state, final_hash = make_final_state(self.state, [new_block])
-            self.state = final_state
-            self.hash = final_hash
+            newstate = []
+            for state in self.state:
+                print("state:", type(state))
+                print("state:", state)
+                try:
+                    final_state, final_hash = make_final_state(state, [new_block])
+                    newstate.append(final_state)
+                except Exception as e:
+                    print("Error: Invalid signature")
+            self.state = newstate
 
             # write state to json file
         except Exception as e:
