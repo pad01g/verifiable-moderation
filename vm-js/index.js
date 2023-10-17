@@ -35,6 +35,7 @@ const for_loop_inside = (vars, current) => {
 
         const filtered_list = remove_node_from_state_by_reference_recursive_noloop(
             vars.category_list[current].category_list,
+            vars.category_list[current].category_list_length,
             vars.pubkey,
             vars.auth_pubkey,
             authorized,
@@ -45,7 +46,7 @@ const for_loop_inside = (vars, current) => {
             category_list: filtered_list,
         }
 
-        vars.new_category_list[vars.new_category_list_index + 1] = (new_list);
+        vars.new_category_list[vars.new_category_list_index] = (new_list);
         new_category_list_index = vars.new_category_list_index + 1;
     }
 
@@ -70,6 +71,7 @@ const for_loop = (vars, max, current) => {
 
 const remove_node_from_state_by_reference_recursive_noloop = (
     category_list,
+    category_list_length,
     pubkey,
     auth_pubkey,
     authorized,
@@ -84,7 +86,7 @@ const remove_node_from_state_by_reference_recursive_noloop = (
         auth_pubkey,
         authorized,
     }
-    const new_vars = for_loop(vars, category_list.length, 0);
+    const new_vars = for_loop(vars, category_list_length, 0);
     return new_vars.new_category_list;
 }
 
@@ -94,6 +96,7 @@ const verify_transaction_node_remove = (state, transaction, auth_pubkey) => {
     const authorized = false;
     const category_list = remove_node_from_state_by_reference_recursive_noloop(
         state.all_category,
+        state.all_category_length,
         pubkey,
         auth_pubkey,
         authorized,
@@ -104,40 +107,50 @@ const verify_transaction_node_remove = (state, transaction, auth_pubkey) => {
 
 const main = () => {
     const state = {
+        all_category_length: 1,
         all_category: [
             {
                 pubkey: 0,
+                category_list_length: 2,
                 category_list: [
                     {
                         pubkey: 1,
-                        category_list: []
+                        category_list_length: 0,
+                        category_list: [],
                     },
                     {
                         pubkey: 2,
+                        category_list_length: 3,
                         category_list: [
                             {
                                 pubkey: 789,
+                                category_list_length: 1,
                                 category_list: [
                                     {
                                         pubkey: 5,
+                                        category_list_length: 0,
                                         category_list: []
                                     },
                                 ]
                             },
                             {
                                 pubkey: 123,
+                                category_list_length: 1,
                                 category_list: [
                                     {
                                         pubkey: 3,
+                                        category_list_length: 0,
                                         category_list: []
                                     },
                                 ]
                             },
                             {
                                 pubkey: 456,
+                                category_list_length: 1,
                                 category_list: [
                                     {
                                         pubkey: 4,
+                                        category_list_length: 0,
                                         category_list: []
                                     },
                                 ]
