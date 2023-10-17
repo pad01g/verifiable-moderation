@@ -1,11 +1,6 @@
 %lang starknet
-from src.transaction import (
-    category_id_exists,
-    search_tree_pubkey_recursive,
-    update_state_category,
-    check_category_pubkey_authority,
-    add_node_to_state_by_reference,
-    verify_transaction_node_create,
+from src.transaction_remove_node import (
+    verify_transaction_node_remove,
 )
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.alloc import alloc
@@ -30,7 +25,7 @@ from src.structs import (
 )
 
 @external
-func test_verify_transaction_node_create{syscall_ptr: felt*, range_check_ptr, pedersen_ptr: HashBuiltin*}() {
+func test_verify_transaction_node_remove{syscall_ptr: felt*, range_check_ptr, pedersen_ptr: HashBuiltin*}() {
     alloc_locals;
 
     let (category_element: CategoryElement*) = alloc();
@@ -58,18 +53,13 @@ func test_verify_transaction_node_create{syscall_ptr: felt*, range_check_ptr, pe
 
     let (command: felt*) = alloc();
     let category_id = CATEGORY_CATEGORY;
-    let depth = 0;
-    let width = 0;
-    let node_pubkey = 995;
 
-    assert command[0] = COMMAND_NODE_CREATE;
+    assert command[0] = COMMAND_NODE_REMOVE;
     assert command[1] = category_id;
-    assert command[2] = depth;
-    assert command[3] = width;
-    assert command[4] = node_pubkey;
+    assert command[2] = 123;
 
     let transaction = Transaction(
-        n_command = COMMAND_NODE_CREATE,
+        n_command = 3,
         command = command,
         prev_block_hash = 990,
         command_hash = 991,
@@ -78,10 +68,9 @@ func test_verify_transaction_node_create{syscall_ptr: felt*, range_check_ptr, pe
         signature_s = 994,
         pubkey = 0,
     );
-    let (new_state: State*) = verify_transaction_node_create(state, transaction);
+    let (new_state: State*) = verify_transaction_node_remove(state, transaction);
     
     assert new_state.all_category.data.category_elements_child.pubkey = 0;
-    assert new_state.all_category.data.category_elements_child.category_elements_child.pubkey = 995;
 
     return ();
 }

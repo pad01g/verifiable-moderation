@@ -28,6 +28,86 @@ from src.consts import (
     CATEGORY_CATEGORY,    
 )
 
+func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: felt) -> (root: felt, exists: felt, result: felt) {
+    alloc_locals;
+
+    %{
+        if True:
+            print(f"[check_category_pubkey_authority] ids.state: {ids.state}")
+            print(f"[check_category_pubkey_authority] ids.state.address_: {ids.state.address_}")
+            print(f"[check_category_pubkey_authority] memory[ids.state.address_]: {memory[ids.state.address_]}")
+            print(f"[check_category_pubkey_authority] ids.state.all_category.address_: {ids.state.all_category.address_}")
+            # @todo debug here
+            print(f"[check_category_pubkey_authority] state.all_category value: {memory[ids.state.all_category.address_]}, state.all_category ref: {ids.state.all_category}")
+            category_hash = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.hash]
+            print(f"[check_category_pubkey_authority] state.all_category hash: {hex(category_hash)}")
+            category_data = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.data + ids.CategoryData.SIZE * 0 + ids.CategoryData.category_type]
+            print(f"[check_category_pubkey_authority] state.all_category data: {hex(category_data)}")
+    %}
+
+    let (exists, index) = category_id_exists(state.all_category, state.n_all_category, category_id);
+
+    %{
+        if True:
+            print(f"exists: {ids.exists}, index: {ids.index}")
+            print(f"state.all_category value: {memory[ids.state.all_category.address_]}, state.all_category ref: {ids.state.all_category}")
+            category_hash = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.hash]
+            print(f"state.all_category hash: {hex(category_hash)}")
+            category_data = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.data + ids.CategoryData.SIZE * 0 + ids.CategoryData.category_type]
+            print(f"state.all_category data: {hex(category_data)}")
+    %}
+
+    tempvar cat: Category* = state.all_category + index * Category.SIZE;
+    %{
+        if False:
+            print(f"cat: {ids.cat}")
+            print(f"cat: {ids.cat.address_}")
+            category_hash = memory[ids.cat.address_ + ids.Category.SIZE * 0 + ids.Category.hash]
+            print(f"cat hash: {hex(category_hash)}")
+            print(f"cat: {ids.cat.data}")
+            print(f"cat: {ids.cat.data.address_}")
+    %}
+
+    let catdata: CategoryData = cat.data;
+
+    %{
+        if False:
+            print(f"catdata: {ids.catdata}")
+            print(f"catdata addr: {ids.catdata.address_}")
+            category_type = memory[ids.catdata.address_ + ids.CategoryData.SIZE * 0 + ids.CategoryData.category_type]
+            n_category_elements_child = memory[ids.catdata.address_ + ids.CategoryData.SIZE * 0 + ids.CategoryData.n_category_elements_child]
+            print(f"catdata type hex: {hex(category_type)}")
+            print(f"catdata n_category_elements_child hex: {hex(n_category_elements_child)}")
+    %}
+
+    tempvar n_elements: felt = catdata.n_category_elements_child;
+    if (exists != 0 and state.root_pubkey == pubkey and n_elements == 0) {
+        return (root = 1, exists = exists, result = index);
+    }
+    if (state.root_pubkey == pubkey) {
+        tempvar root = 1;
+        %{
+            print("[check_category_pubkey_authority] matching pubkey found for root.")
+            print(f"[check_category_pubkey_authority] root: {ids.root}, exists: {ids.exists}, index: {ids.index}")
+        %}
+        return (root = root, exists = exists, result = index);
+    } else {
+        if (exists != 0){
+            %{
+                print("[check_category_pubkey_authority] matching pubkey found for non-root.")
+            %}
+    
+            let (pubkey_child_exists) = search_tree_pubkey_recursive(
+                [cast(state.all_category + Category.SIZE * index + Category.data, CategoryData*)],
+                pubkey
+            );
+            return (root = 0, exists = pubkey_child_exists, result = index);
+        } else {
+            return (root = 0, exists = exists, result = -1);
+        }
+    }
+}
+
 // remaining_count should be internal value
 func category_id_exists_internal(category: Category*, n_category: felt, remaining_count: felt, category_id: felt) -> (exists: felt, result: felt) {
     if (remaining_count == 0) {

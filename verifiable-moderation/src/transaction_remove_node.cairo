@@ -32,6 +32,20 @@ from src.transaction import (
     update_state_category,
 )
 
+struct LoopVariables {
+    new_category_list: CategoryElement*,
+    new_category_list_index: felt,
+    category_list: CategoryElement*,
+    pubkey: felt,
+    auth_pubkey: felt,
+    authorized: felt,
+}
+
+struct ListWithLength {
+    list: CategoryElement*,
+    length: felt,
+}
+
 func assign_category_without_pubkey(src_category_list_length: felt, src_category_list: CategoryElement*, dst_category_list: CategoryElement*, pubkey: felt) -> () {
     if (src_category_list_length == 0){
         return ();
@@ -52,91 +66,96 @@ func assign_category_without_pubkey(src_category_list_length: felt, src_category
     );
 }
 
-// search for transaction issuer pubkey.
-// then, under the pubkey node, search for target pubkey and remove it ( `search_and_remove_node_from_state` )
-func remove_node_from_state_by_reference_recursive(
-    // current remaining length of category_elements_child
-    n_category_elements_child: felt,
-    // list of elements to search for
-    category_elements_child: CategoryElement*,
-    // list of new elements to copy to
-    new_category_elements_child: CategoryElement*,
-    // transaction issuer pubkey
-    pubkey: felt,
-    // target pubkey to delete
-    target_pubkey: felt,
-    result: felt,
-) -> (result: felt) {
-    alloc_locals;
-    if (n_category_elements_child == 0){
-        // you don't have to do anything in this case. just return given result.
-        return (result = result);
+
+func for_loop_inside(vars: LoopVariables, current: felt) -> LoopVariables {
+    tempvar category_list_current_authorized;
+    if (vars.category_list[current].pubkey == vars.auth_pubkey){
+        assert category_list_current_authorized = 1;
     }else{
-        // if result is already true, you don't have to do anything. just copy reference data and return given result.
-        if (result == 1) {
-            assert category_elements_child = new_category_elements_child;
-            return (result = result);
-        }else{
-            // if result is false, selectively copy reference or substitute new node value.
-            local result_pk: felt;
-            if (category_elements_child.pubkey == pubkey){
-                // remove child elements recursively under this element.
-                // but first you need to find it...
-                // copy `category_elements_child.category_elements_child` to `new_category_elements_child.category_elements_child`
-                // without removed element in `search_and_remove_node_from_state`.
-                search_and_remove_node_from_state_same_level(
-                    category_elements_child.n_category_elements_child,
-                    category_elements_child.category_elements_child,
-                    new_category_elements_child.category_elements_child,
-                    target_pubkey
-                );
-
-                // set result as true.
-                assert result_pk = 1;
-
-                return (result = result_pk);
-            }else{
-                // set result as false;
-                assert result_pk = 0;
-            }
-            // depth first search.
-            let (result2) =  remove_node_from_state_by_reference_recursive(
-                category_elements_child.n_category_elements_child,
-                category_elements_child.category_elements_child,
-                new_category_elements_child.category_elements_child,
-                pubkey,
-                target_pubkey,
-                0,
-            );
-            if (result2 == 1){
-                // copy other elements.
-                // 1) category_elements_child + 1, ... , category_elements_child + n_category_elements_child
-                copy_elements_by_assert_except_index(
-                    // you can use remaining count
-                    n_category_elements_child - 1,
-                    category_elements_child + CategoryElement.SIZE,
-                    new_category_elements_child + CategoryElement.SIZE,
-                    // copy everything?
-                    n_category_elements_child + 1
-                );
-                // you should also update brother nodes
-                return (result = result2);
-            }
-
-            let (result1) =  remove_node_from_state_by_reference_recursive(
-                n_category_elements_child - 1,
-                category_elements_child + CategoryElement.SIZE,
-                new_category_elements_child + CategoryElement.SIZE,
-                pubkey,
-                target_pubkey,
-                0,
-            );
-            // simply, copy information of this node to new array.
-            // 1) new_category_elements_child = category_elements_child;
-            assert new_category_elements_child = category_elements_child;
-            return (result = result1);
-        }
+        assert category_list_current_authorized = 0;
     }
+
+    tempvar new_category_list_index;
+    if (vars.category_list[current].pubkey == vars.pubkey){
+
+        if (vars.authorized == 1){
+            // you can safely remove if authorized
+            assert new_category_list_index = vars.new_category_list_index;
+        }else{
+            // permission error. not authorized and found pubkey.
+            assert 0 = 1;
+        }
+    }else{
+
+        tempvar authorized;
+        if (vars.authorized == 1){
+            assert authorized = 1;
+        }else{
+            assert authorized = category_list_current_authorized;
+        }
+
+        // ListWithLength
+        let filtered = remove_node_from_state_by_reference_recursive_noloop(
+            vars.category_list[current].category_list,
+            vars.category_list[current].category_list_length,
+            vars.pubkey,
+            vars.auth_pubkey,
+            authorized,
+        );
+
+        let new_list = CategoryElement(
+            pubkey = vars.category_list[current].pubkey,
+            n_category_elements_child = filtered.length,
+            category_elements_child = filtered.list,
+            depth = vars.category_list[current].depth,
+            width = vars.category_list[current].width,
+        );
+
+        assert vars.new_category_list[vars.new_category_list_index] = new_list;
+        assert new_category_list_index = vars.new_category_list_index + 1;
+    }
+
+    let new_vars = LoopVariables(
+        new_category_list = vars.new_category_list,
+        new_category_list_index = new_category_list_index,
+        category_list = vars.category_list,
+        pubkey = vars.pubkey,
+        auth_pubkey = vars.auth_pubkey,
+        authorized = vars.authorized,
+    );
+    return new_vars;
+}
+
+func for_loop(vars: LoopVariables, max: felt, current: felt) -> ListWithLength {
+    if (max == current) {
+        return vars;
+    }
+    let new_vars = for_loop_inside(vars, current);
+    return for_loop(new_vars, max, current + 1);
+}
+
+func remove_node_from_state_by_reference_recursive_noloop(
+    category_list: CategoryElement*,
+    category_list_length: felt,
+    pubkey: felt,
+    auth_pubkey: felt,
+    authorized: felt,
+) -> ListWithLength {
+    let (new_category_list: CategoryElement*) = alloc();
+    let new_category_list_index = 0;
+    let vars = LoopVariables(
+        new_category_list = new_category_list,
+        new_category_list_index = new_category_list_index,
+        category_list = category_list,
+        pubkey = pubkey,
+        auth_pubkey = auth_pubkey,
+        authorized = authorized,
+    );
+    let new_vars = for_loop(vars, category_list_length, 0);
+    return ListWithLength(
+        list = new_vars.new_category_list,
+        length = new_vars.new_category_list_index,
+    );
 }
 
 func verify_transaction_node_remove(state: State*, transaction: Transaction) -> (state: State*) {
@@ -174,7 +193,21 @@ func verify_transaction_node_remove(state: State*, transaction: Transaction) -> 
     
         }else{
             // search pubkey from tree object and remove.
-            // remove_node_from_state_by_reference_recursive
+            // remove_node_from_state_by_reference_recursive();
+            tempvar auth_pubkey = transaction.pubkey;
+            tempvar authorized = 0;
+            let (filtered: ListWithLength*) = remove_node_from_state_by_reference_recursive_noloop(
+                state.all_category,
+                state.all_category_length,
+                node_pubkey,
+                auth_pubkey,
+                authorized,
+            );
+            assert new_state.all_category = filtered.list;
+            assert new_state.n_all_category = filtered.length;
+            assert new_state.block_hash = state.block_hash;
+            assert new_state.root_pubkey = state.root_pubkey;
+            return (state = new_state);
         }
     }
 

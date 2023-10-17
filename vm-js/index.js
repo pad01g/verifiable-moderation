@@ -162,12 +162,11 @@ const main = () => {
                             }
                         ]
                     }
-
                 ]
             }
         ]
     }
-    const transaction = {pubkey: 123};
+    const transaction = { pubkey: 123 };
     const auth_pubkey = 2;
 
     const result = verify_transaction_node_remove(state, transaction, auth_pubkey);
