@@ -551,7 +551,7 @@ func assign_category_without_pubkey(src_category_list_length: felt, src_category
         pointer = src_category_list;
     }else{
         assert [dst_category_list] = [src_category_list];
-        pointer = src_category_list + CategoryElement.SIZE
+        pointer = src_category_list + CategoryElement.SIZE;
     }
     return assign_category_without_pubkey(
         src_category_list_length - 1,
@@ -561,64 +561,96 @@ func assign_category_without_pubkey(src_category_list_length: felt, src_category
     );
 }
 
-func search_and_remove_node_from_state(
+// remove target pubkey inside (recursive).
+func search_and_remove_node_from_state_same_level(
     // current remaining length of category_elements_child
     n_category_elements_child: felt,
     // list of elements to search for
     category_elements_child: CategoryElement*,
     // list of new elements to copy to
     new_category_elements_child: CategoryElement*,
+    target_pubkey: felt
+) -> () {
+    alloc_locals;
+
+    // this contains removed result from `category_elements_child.category_elements_child`
+    local (new_category_elements_child_2: CategoryElement*) = alloc();
+
+    // do depth-first-search here on current element.
+    search_and_remove_node_from_state_same_level(
+        category_elements_child.n_category_elements_child,
+        category_elements_child.category_elements_child,
+        new_category_elements_child_2,
+        target_pubkey
+    );
+
+    assert new_category_elements_child.category_elements_child = new_category_elements_child_2;
+
+    // this does not write memory
+    local (deleted: felt*) = alloc();
+    mark_deleted_node(
+        n_category_elements_child,
+        category_elements_child,
+        target_pubkey,
+        deleted
+    );
+    // now it must have deleted index
+
+    // copy except delete-index (it might not exist?).
+    copy_elements_by_assert_except_index(
+        category_elements_child.n_category_elements_child,
+        new_category_elements_child_2,
+        new_category_elements_child.category_elements_child,
+
+        // deleted index is calculated in following expression
+        n_category_elements_child - [deleted],
+    );
+
+    // // continue search-and-remove
+    // search_and_remove_node_from_state(
+    //     n_category_elements_child - 1,
+    //     category_elements_child + CategoryElement.SIZE,
+    //     new_category_elements_child + CategoryElement.SIZE,
+    //     target_pubkey
+    // );
+
+    return ();
+}
+
+// remove target pubkey inside.
+// it is called recursively
+func mark_deleted_node(
+    // current remaining length of category_elements_child
+    n_category_elements_child: felt,
+    // list of elements to search for
+    category_elements_child: CategoryElement*,
     target_pubkey: felt,
-    deleted: felt
+    // index of deleted element
+    deleted: felt*
 ) -> () {
 
     if (n_category_elements_child == 0) {
         return ();
     }
 
+    // is the current element a target?
     if (category_elements_child.pubkey == target_pubkey) {
-        // remove it if it is target pubkey
-        assert new_category_elements_child.category_elements_child = alloc();
-        assert new_category_elements_child.n_category_elements_child = 0;
-
-        // move to next element, do not traverse child
-        copy_elements_by_assert_except_index(
-            // you can use remaining count
-            n_category_elements_child - 1,
-            category_elements_child + CategoryElement.SIZE,
-            new_category_elements_child + CategoryElement.SIZE,
-            // copy everything?
-            n_category_elements_child + 1
-        );
-    
-    }else{
-        // check if elements are deleted.
-
-        // do traverse children
-        let (modified) = copy_elements_by_assert_except_index(
-            category_elements_child.n_category_elements_child + 1,
-            category_elements_child.category_elements_child,
-            new_category_elements_child.category_elements_child,
-            category_elements_child.n_category_elements_child + 1
-        );
-
-        // copy it if 
-        assert new_category_elements_child.category_elements_child = category_elements_child.category_elements_child;
-        assert new_category_elements_child.n_category_elements_child = category_elements_child.n_category_elements_child;
-
-        // move to next element
-        copy_elements_by_assert_except_index(
-            // you can use remaining count
-            n_category_elements_child - 1,
-            category_elements_child + CategoryElement.SIZE,
-            new_category_elements_child + CategoryElement.SIZE,
-            // copy everything?
-            n_category_elements_child + 1
-        );
-
+        // set deletion index in array
+        assert [deleted] = n_category_elements_child;
     }
+
+    mark_deleted_node(
+        n_category_elements_child - 1,
+        category_elements_child + CategoryElement.SIZE,
+        target_pubkey,
+        deleted
+    );
+
+    return ();
 }
 
+// search for transaction issuer pubkey.
+// then, under the pubkey node, search for target pubkey and remove it ( `search_and_remove_node_from_state` )
 func remove_node_from_state_by_reference_recursive(
     // current remaining length of category_elements_child
     n_category_elements_child: felt,
@@ -626,7 +658,9 @@ func remove_node_from_state_by_reference_recursive(
     category_elements_child: CategoryElement*,
     // list of new elements to copy to
     new_category_elements_child: CategoryElement*,
+    // transaction issuer pubkey
     pubkey: felt,
+    // target pubkey to delete
     target_pubkey: felt,
     result: felt,
 ) -> (result: felt) {
@@ -647,7 +681,7 @@ func remove_node_from_state_by_reference_recursive(
                 // but first you need to find it...
                 // copy `category_elements_child.category_elements_child` to `new_category_elements_child.category_elements_child`
                 // without removed element in `search_and_remove_node_from_state`.
-                search_and_remove_node_from_state(
+                search_and_remove_node_from_state_same_level(
                     category_elements_child.n_category_elements_child,
                     category_elements_child.category_elements_child,
                     new_category_elements_child.category_elements_child,
@@ -663,7 +697,7 @@ func remove_node_from_state_by_reference_recursive(
                 assert result_pk = 0;
             }
             // depth first search.
-            let (result2) =  remove_node_to_state_by_reference_recursive(
+            let (result2) =  remove_node_from_state_by_reference_recursive(
                 category_elements_child.n_category_elements_child,
                 category_elements_child.category_elements_child,
                 new_category_elements_child.category_elements_child,
@@ -686,7 +720,7 @@ func remove_node_from_state_by_reference_recursive(
                 return (result = result2);
             }
 
-            let (result1) =  remove_node_to_state_by_reference_recursive(
+            let (result1) =  remove_node_from_state_by_reference_recursive(
                 n_category_elements_child - 1,
                 category_elements_child + CategoryElement.SIZE,
                 new_category_elements_child + CategoryElement.SIZE,
