@@ -33,7 +33,7 @@ const for_loop_inside = (vars, current) => {
 
         const authorized = (vars.authorized ? true : category_list_current_authorized)
 
-        const filtered_list = remove_node_from_state_by_reference_recursive_noloop(
+        const {filtered_list, filtered_list_length} = remove_node_from_state_by_reference_recursive_noloop(
             vars.category_list[current].category_list,
             vars.category_list[current].category_list_length,
             vars.pubkey,
@@ -43,6 +43,7 @@ const for_loop_inside = (vars, current) => {
 
         const new_list = {
             pubkey: vars.category_list[current].pubkey,
+            category_list_length: filtered_list_length,
             category_list: filtered_list,
         }
 
@@ -87,21 +88,25 @@ const remove_node_from_state_by_reference_recursive_noloop = (
         authorized,
     }
     const new_vars = for_loop(vars, category_list_length, 0);
-    return new_vars.new_category_list;
+    return {
+        filtered_list: new_vars.new_category_list,
+        filtered_list_length: new_vars.new_category_list_index,
+    };
 }
 
 const verify_transaction_node_remove = (state, transaction, auth_pubkey) => {
     const new_state = { all_category: [] }
     const pubkey = transaction.pubkey;
     const authorized = false;
-    const category_list = remove_node_from_state_by_reference_recursive_noloop(
+    const {filtered_list, filtered_list_length} = remove_node_from_state_by_reference_recursive_noloop(
         state.all_category,
         state.all_category_length,
         pubkey,
         auth_pubkey,
         authorized,
     );
-    new_state.all_category = category_list
+    new_state.all_category = filtered_list
+    new_state.all_category_length = filtered_list_length
     return new_state;
 }
 
