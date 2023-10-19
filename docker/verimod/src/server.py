@@ -68,8 +68,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/plain; charset=utf-8')
         self.end_headers()
-        # self.wfile.write('GETメソッドを実装'.encode())
-        print("self.path:", self.path)
+        # print("self.path:", self.path)
         sys.stdout.flush()
         # query state and respond here
         try:
@@ -98,8 +97,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             print("Error: No state file found")
             raise e
             pass
-        # self.send_header('Content-type', 'application/json')
-        # self.end_headers()
         ret = json.dumps({"result": result})
         self.wfile.write(ret.encode('utf-8'))
 
