@@ -28,8 +28,10 @@ from src.consts import (
     CATEGORY_CATEGORY,    
 )
 
-from src.transaction import (
+from src.transaction_common import (
     update_state_category,
+    check_category_pubkey_authority,
+    assign_update_state_category_recursive,
 )
 
 func copy_elements_by_assert_except_index(
@@ -357,15 +359,4 @@ func verify_transaction_node_create(state: State*, transaction: Transaction) -> 
         return update_state_category(new_state, index, 1, child_element);
     }
     return (state = new_state);
-}
-
-func verify_transaction_category_create(state: State*, transaction: Transaction) -> (state: State*) {
-    alloc_locals;
-    let (new_state: State*) = alloc();
-    return (state = state);
-}
-func verify_transaction_category_remove(state: State*, transaction: Transaction) -> (state: State*) {
-    alloc_locals;
-    let (new_state: State*) = alloc();
-    return (state = state);
 }
