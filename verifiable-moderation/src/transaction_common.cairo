@@ -28,6 +28,11 @@ from src.consts import (
     CATEGORY_CATEGORY,    
 )
 
+struct CategoryIdExistsResult {
+    exists: felt,
+    result: felt,
+}
+
 func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: felt) -> (root: felt, exists: felt, result: felt) {
     alloc_locals;
 
@@ -45,7 +50,9 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
             print(f"[check_category_pubkey_authority] state.all_category data: {hex(category_data)}")
     %}
 
-    let (exists, index) = category_id_exists(state.all_category, state.n_all_category, category_id);
+    let res = category_id_exists(state, category_id);
+    let exists = res.exists;
+    let index = res.result;
 
     %{
         if True:
@@ -106,29 +113,6 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
             return (root = 0, exists = exists, result = -1);
         }
     }
-}
-
-// remaining_count should be internal value
-func category_id_exists_internal(category: Category*, n_category: felt, remaining_count: felt, category_id: felt) -> (exists: felt, result: felt) {
-    if (remaining_count == 0) {
-        return (exists = 0, result = 0);
-    }
-    %{
-        print(f"[category_id_exists] remaining_count: {ids.remaining_count}")
-        print(f"[category_id_exists] n_category: {ids.n_category}")
-        print(f"[category_id_exists] ids.category.address_: {ids.category.address_}")
-        print(f"[category_id_exists] ids.category.address_ + ids.Category.data: {hex(memory[ids.category.address_ + ids.Category.data])}")
-        print(f"[category_id_exists] ids.category.address_ + ids.Category.data + ids.CategoryData.category_type: {hex(memory[ids.category.address_ + ids.Category.data + ids.CategoryData.category_type])}")
-    %}
-    if (category.data.category_type == category_id) {
-        return (exists = 1, result = n_category - remaining_count);
-    } else {
-        return category_id_exists_internal(category + Category.SIZE, n_category, remaining_count - 1, category_id);
-    }
-}
-
-func category_id_exists(category: Category*, n_category: felt, category_id: felt) -> (exists: felt, result: felt) {
-    return category_id_exists_internal(category, n_category, n_category, category_id);
 }
 
 // check if element in certain level contains pubkey
@@ -212,4 +196,42 @@ func update_state_category(state: State*, category_index: felt, n_category_eleme
     // assign new_cat to `category_index` of new_state.n_all_category, while other categories are copied from `state.all_category`
     let (state_2: State*) = assign_update_state_category_recursive(new_state, state.all_category, category_index, new_cat, 0);
     return (state = state_2);
+}
+
+func category_id_exists_internal(category_list: Category*, n_category_list: felt, index: felt, category_id: felt) -> CategoryIdExistsResult{
+    if (n_category_list == index) {
+        // not found
+        let res = CategoryIdExistsResult(
+            exists = 0,
+            result = 0,
+        );
+        return res;
+    } else {
+        if (category_list[index].data.category_type == category_id) {
+            // found at `index`
+            let res = CategoryIdExistsResult(
+                exists = 1,
+                result = index,
+            );
+            return res;
+        } else {
+            // search next
+            return category_id_exists_internal(
+                category_list,
+                n_category_list,
+                index+1,
+                category_id
+            );
+        }
+    }
+}
+
+func category_id_exists(state: State*, category_id: felt) -> CategoryIdExistsResult {
+    let res = category_id_exists_internal(
+        state.all_category,
+        state.n_all_category,
+        0,
+        category_id
+    );
+    return res;
 }

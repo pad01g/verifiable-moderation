@@ -30,7 +30,6 @@ from src.consts import (
 
 from src.transaction_common import (
     check_category_pubkey_authority,
-    category_id_exists,
     search_tree_pubkey_recursive,
     update_state_category
 )

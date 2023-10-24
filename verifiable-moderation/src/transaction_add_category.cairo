@@ -29,50 +29,8 @@ from src.consts import (
 )
 from src.transaction_common import (
     check_category_pubkey_authority,
+    category_id_exists,
 )
-
-struct CategoryIdExistsResult {
-    exists: felt,
-    result: felt,
-}
-
-func category_id_exists_internal(category_list: Category*, n_category_list: felt, index: felt, category_id: felt) -> CategoryIdExistsResult{
-    if (n_category_list == index) {
-        // not found
-        let res = CategoryIdExistsResult(
-            exists = 0,
-            result = 0,
-        );
-        return res;
-    } else {
-        if (category_list[index].data.category_type == category_id) {
-            // found at `index`
-            let res = CategoryIdExistsResult(
-                exists = 1,
-                result = index,
-            );
-            return res;
-        } else {
-            // search next
-            return category_id_exists_internal(
-                category_list,
-                n_category_list,
-                index+1,
-                category_id
-            );
-        }
-    }
-}
-
-func category_id_exists(state: State*, category_id: felt) -> CategoryIdExistsResult {
-    let res = category_id_exists_internal(
-        state.all_category,
-        state.n_all_category,
-        0,
-        category_id
-    );
-    return res;
-}
 
 func append_category{
     hash_ptr: HashBuiltin*,

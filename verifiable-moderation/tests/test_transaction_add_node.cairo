@@ -51,8 +51,18 @@ func test_category_id_exists{syscall_ptr: felt*, range_check_ptr, pedersen_ptr: 
     assert category_data.category_type = CATEGORY_CATEGORY;
     assert category.data = [category_data];
 
-    let (exists_c, result_c) = category_id_exists(category, 1, CATEGORY_CATEGORY);
-    let (exists_b, result_b) = category_id_exists(category, 1, CATEGORY_BLOCK);
+    let (state: State*) = alloc();
+    assert state.n_all_category = 1;
+    assert state.all_category = category;
+    assert state.root_pubkey = 123;
+    assert state.block_hash = 456;
+
+    let res1 = category_id_exists(state, CATEGORY_CATEGORY);
+    let exists_c = res1.exists;
+    let result_c = res1.result;
+    let res2 = category_id_exists(state, CATEGORY_BLOCK);
+    let exists_b = res2.exists;
+    let result_b = res2.result;
     assert exists_c = 1;
     assert result_c = 0;
     assert exists_b = 0;
