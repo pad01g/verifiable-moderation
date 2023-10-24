@@ -28,20 +28,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./docker/verimod/src:/usr/src/verimod
-      # - ./docker/verimod/src:/usr/src/verimod_test
-      # - ./docker/verimod/src:/usr/
     container_name: verimod
-    # command: python3 /usr/src/verimod/server.py
-    ports:
-      - "8000:8000"
-  verimod_test:
-    build:
-      context: docker/verimod_test
-      dockerfile: Dockerfile
-    volumes:
-      - ./docker/verimod/src:/usr/src/verimod_test
-    container_name: verimod_test
-    # command: python3 /usr/src/verimod_test/server.py
     ports:
       - "8000:8000"
   filter-server:
