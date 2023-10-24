@@ -1,5 +1,5 @@
 %lang starknet
-from src.transaction import (
+from src.transaction_common import (
     category_id_exists,
     search_tree_pubkey_recursive,
     update_state_category,
@@ -30,7 +30,7 @@ from src.structs import (
 )
 
 @external
-func test_verify_transaction_node_create{syscall_ptr: felt*, range_check_ptr, pedersen_ptr: HashBuiltin*}() {
+func test_verify_transaction_category_remove{syscall_ptr: felt*, range_check_ptr, pedersen_ptr: HashBuiltin*}() {
     alloc_locals;
 
     let (category_element: CategoryElement*) = alloc();

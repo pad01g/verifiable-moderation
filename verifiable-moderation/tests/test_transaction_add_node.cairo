@@ -1,11 +1,13 @@
 %lang starknet
-from src.transaction import (
+from src.transaction_common import (
     category_id_exists,
     search_tree_pubkey_recursive,
     update_state_category,
     check_category_pubkey_authority,
-    add_node_to_state_by_reference,
+)
+from src.transaction_add_node import (
     verify_transaction_node_create,
+    add_node_to_state_by_reference,
 )
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.alloc import alloc
