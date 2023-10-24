@@ -7,4 +7,8 @@ docker/nostr-rs-relay/data/*
 verifiable-moderation.json
 env
 .DS_Store
+myenv/
+verimod_test/
+.python-version
+mytest/
 ```

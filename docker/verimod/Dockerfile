@@ -11,4 +11,4 @@ RUN pip install cairo-lang
 RUN git clone https://github.com/starkware-libs/starkex-resources/ /usr/src/cairolib
 RUN cd /usr/src/cairolib/crypto && python3 setup.py install
 
-CMD ["bash", "-c", "while sleep 5; do :; done"]
+CMD ["bash", "-c", "cd /usr/src/verimod; python3 server.py"]

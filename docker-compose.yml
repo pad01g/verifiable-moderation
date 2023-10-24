@@ -29,7 +29,8 @@ services:
     volumes:
       - ./docker/verimod/src:/usr/src/verimod
     container_name: verimod
-    command: python3 /usr/src/verimod/server.py
+    ports:
+      - "8000:8000"
   filter-server:
     build:
       context: docker/filter-server
