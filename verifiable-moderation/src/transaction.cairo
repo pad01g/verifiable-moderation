@@ -37,12 +37,19 @@ from src.transaction_common import (
 from src.transaction_add_node import (
     verify_transaction_node_create,
 )
-
 from src.transaction_remove_node import (
     verify_transaction_node_remove,
 )
+from src.transaction_add_category import (
+    verify_transaction_category_create,
+)
+from src.transaction_remove_category import (
+    verify_transaction_category_remove,
+)
 
-func verify_transaction(state: State*, transaction: Transaction) -> (state: State*) {
+func verify_transaction{
+    hash_ptr: HashBuiltin*,
+}(state: State*, transaction: Transaction) -> (state: State*) {
     // verify signature here.
     tempvar pubkey = transaction.pubkey;
     if ([transaction.command] == COMMAND_NODE_CREATE) {
@@ -54,16 +61,20 @@ func verify_transaction(state: State*, transaction: Transaction) -> (state: Stat
                 print(f"[verify_transaction] memory[ids.state.address_]: {memory[ids.state.address_]}")
         %}    
 
-        return verify_transaction_node_create(state, transaction);
+        let res = verify_transaction_node_create(state, transaction);
+        return res;
     }else{
         if ([transaction.command] == COMMAND_NODE_REMOVE){
-            return verify_transaction_node_remove(state, transaction);
+            let res = verify_transaction_node_remove(state, transaction);
+            return res;
         }else {
             if ([transaction.command] == COMMAND_CATEGORY_CREATE){
-                return verify_transaction_category_create(state, transaction);
+                let res = verify_transaction_category_create(state, transaction);
+                return res;
             }else{
                 if ([transaction.command] == COMMAND_CATEGORY_REMOVE){
-                    return verify_transaction_category_remove(state, transaction);
+                    let res = verify_transaction_category_remove(state, transaction);
+                    return res;
                 }else{
                     // raise error
                     %{
@@ -79,7 +90,9 @@ func verify_transaction(state: State*, transaction: Transaction) -> (state: Stat
     return (state = state);
 }
 
-func verify_transaction_recursive(state: State*, n_transactions: felt, transactions: Transaction*) -> (state: State*) {
+func verify_transaction_recursive{
+    hash_ptr: HashBuiltin*,
+}(state: State*, n_transactions: felt, transactions: Transaction*) -> (state: State*) {
     alloc_locals;
     if (n_transactions == 0){
         return (state = state);
@@ -97,6 +110,34 @@ func verify_transaction_recursive(state: State*, n_transactions: felt, transacti
         %}
 
         let (new_state: State*) = verify_transaction(state, transactions[0]);
+
+        local v3 = state.all_category[1].data.category_type;
+        local v4 = state.all_category[1].data.n_category_elements_child;
+        local v5;
+        if (v4 != 0){
+            assert v5 = state.all_category[1].data.category_elements_child[0].n_category_elements_child;
+        }else{
+            assert v5 = 0;
+        }
+
+        local v7 = new_state.all_category[1].data.category_type;
+        local v8 = new_state.all_category[1].data.n_category_elements_child;
+        local v9;
+        if (v8 != 0){
+            assert v9 = new_state.all_category[1].data.category_elements_child[0].n_category_elements_child;
+        }else{
+            assert v9 = 0;
+        }
+
+        %{
+            print(f"[verify_transaction_recursive] state.all_category[1].data.category_type: {hex(ids.v3)}")
+            print(f"[verify_transaction_recursive] state.all_category[1].data.n_category_elements_child: {hex(ids.v4)}")
+            print(f"[verify_transaction_recursive] state.all_category[1].data.category_elements_child[0].n_category_elements_child: {hex(ids.v5)}")
+            print(f"[verify_transaction_recursive] new_state.all_category[1].data.category_type: {hex(ids.v7)}")
+            print(f"[verify_transaction_recursive] new_state.all_category[1].data.n_category_elements_child: {hex(ids.v8)}")
+            print(f"[verify_transaction_recursive] new_state.all_category[1].data.category_elements_child[0].n_category_elements_child: {hex(ids.v9)}")
+        %}
+        
         return verify_transaction_recursive(new_state, n_transactions - 1, transactions + Transaction.SIZE);    
     }
 }

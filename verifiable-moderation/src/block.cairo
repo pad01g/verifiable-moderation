@@ -60,6 +60,28 @@ func update_block_recursive{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*
         return (state=state);
     }else{
         let (new_state) = update_block(state, blocks);
+        tempvar v1 = state.all_category[0].data.category_type;
+        tempvar v2 = state.all_category[0].data.n_category_elements_child;
+        tempvar v3 = state.all_category[1].data.category_type;
+        tempvar v4 = state.all_category[1].data.n_category_elements_child;
+        tempvar v5 = new_state.all_category[0].data.category_type;
+        tempvar v6 = new_state.all_category[0].data.n_category_elements_child;
+        tempvar v7 = new_state.all_category[1].data.category_type;
+        tempvar v8 = new_state.all_category[1].data.n_category_elements_child;
+        // tempvar v9 = new_state.all_category[2].data.category_type;
+        // tempvar v10 = new_state.all_category[2].data.n_category_elements_child;
+        %{
+            print(f"[update_block_recursive] state.all_category[0].data.category_type: {hex(ids.v1)}")
+            print(f"[update_block_recursive] state.all_category[0].data.n_category_elements_child: {hex(ids.v2)}")
+            print(f"[update_block_recursive] state.all_category[1].data.category_type: {hex(ids.v3)}")
+            print(f"[update_block_recursive] state.all_category[1].data.n_category_elements_child: {hex(ids.v4)}")
+            print(f"[update_block_recursive] new_state.all_category[0].data.category_type: {hex(ids.v5)}")
+            print(f"[update_block_recursive] new_state.all_category[0].data.n_category_elements_child: {hex(ids.v6)}")
+            print(f"[update_block_recursive] new_state.all_category[1].data.category_type: {hex(ids.v7)}")
+            print(f"[update_block_recursive] new_state.all_category[1].data.n_category_elements_child: {hex(ids.v8)}")
+            # print(f"[update_block_recursive] new_state.all_category[2].data.category_type: {hex(ids.v9)}")
+            # print(f"[update_block_recursive] new_state.all_category[2].data.n_category_elements_child: {hex(ids.v10)}")
+        %}
         return update_block_recursive(new_state, n_blocks - 1, blocks + Block.SIZE);    
     }
 }

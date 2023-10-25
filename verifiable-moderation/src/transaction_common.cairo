@@ -56,12 +56,12 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
 
     %{
         if True:
-            print(f"exists: {ids.exists}, index: {ids.index}")
-            print(f"state.all_category value: {memory[ids.state.all_category.address_]}, state.all_category ref: {ids.state.all_category}")
+            print(f"[check_category_pubkey_authority] exists: {ids.exists}, index: {ids.index}")
+            print(f"[check_category_pubkey_authority] state.all_category value: {memory[ids.state.all_category.address_]}, state.all_category ref: {ids.state.all_category}")
             category_hash = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.hash]
-            print(f"state.all_category hash: {hex(category_hash)}")
+            print(f"[check_category_pubkey_authority] state.all_category hash: {hex(category_hash)}")
             category_data = memory[ids.state.all_category.address_ + ids.Category.SIZE * 0 + ids.Category.data + ids.CategoryData.SIZE * 0 + ids.CategoryData.category_type]
-            print(f"state.all_category data: {hex(category_data)}")
+            print(f"[check_category_pubkey_authority] state.all_category data: {hex(category_data)}")
     %}
 
     tempvar cat: Category* = state.all_category + index * Category.SIZE;
@@ -100,8 +100,14 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
         return (root = root, exists = exists, result = index);
     } else {
         if (exists != 0){
+            tempvar v0 = state.all_category[index].data.n_category_elements_child;
+            tempvar v1 = state.all_category[index].hash;
+            // tempvar v2 = state.all_category[index].data.category_elements_child[0].pubkey;
             %{
-                print("[check_category_pubkey_authority] matching pubkey found for non-root.")
+                print(f"[check_category_pubkey_authority] matching pubkey {hex(ids.pubkey)} found for non-root.")
+                print(f"[check_category_pubkey_authority] n_category_elements_child: {ids.v0}")
+                print(f"[check_category_pubkey_authority] hash: {ids.v1}")
+                # print(f"[check_category_pubkey_authority] pubkey: {ids.v2}")
             %}
     
             let (pubkey_child_exists) = search_tree_pubkey_recursive(
@@ -117,16 +123,24 @@ func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: f
 
 // check if element in certain level contains pubkey
 func search_tree_pubkey_internal_recursive(element: CategoryElement*, n_element: felt, pubkey: felt) -> (result: felt) {
+    %{
+        print(f"[search_tree_pubkey_internal_recursive] n_element: {hex(ids.n_element)}")
+    %}
     if (n_element == 0) {
         return (result = 0);
     } else {
         if (element.pubkey == pubkey) {
             %{
                 print(f"[search_tree_pubkey_internal_recursive] matching pubkey found: {hex(ids.pubkey)}")
-                print(f"[search_tree_pubkey_internal_recursive] n_element: {hex(ids.n_element)}")
             %}
             return (result = 1);
         }else{
+            tempvar pk = element.pubkey;
+            tempvar n_category_elements_child = element.n_category_elements_child;
+            %{
+                print(f"[search_tree_pubkey_internal_recursive] non-matching pubkey: {hex(ids.pubkey)} {hex(ids.pk)}")
+                print(f"[search_tree_pubkey_internal_recursive] n_category_elements_child: {hex(ids.n_category_elements_child)}")
+            %}
             let (result) = search_tree_pubkey_internal_recursive(element.category_elements_child, element.n_category_elements_child, pubkey);
             if (result != 0) {
                 return (result = 1);
