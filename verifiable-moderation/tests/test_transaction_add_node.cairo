@@ -231,6 +231,8 @@ func test_add_node_to_state_by_reference{syscall_ptr: felt*, range_check_ptr, pe
     assert new_category_element.depth = 0;
     assert new_category_element.width = 0;
     assert new_category_element.pubkey = 1;
+    let (child: CategoryElement*) = alloc();
+    assert new_category_data.category_elements_child = child;
 
 
     add_node_to_state_by_reference(new_category_data, category_data, 0, new_category_element);
