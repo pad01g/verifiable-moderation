@@ -1,6 +1,5 @@
 %builtins pedersen ecdsa
 
-from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.hash_chain import hash_chain
 // maybe different signature?
 from starkware.cairo.common.signature import (

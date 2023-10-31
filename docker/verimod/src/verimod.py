@@ -2,7 +2,7 @@ import json
 import copy
 
 from starkware.crypto.signature.signature import (
-    pedersen_hash, private_to_stark_key, sign, verify, FIELD_PRIME)
+    private_to_stark_key, sign, verify, FIELD_PRIME)
 
 from starkware.cairo.common.hash_chain import (compute_hash_chain)
 
@@ -14,6 +14,9 @@ COMMAND_NODE_REMOVE = 4
 
 CATEGORY_BLOCK = FIELD_PRIME - 1 # = -1 in cairo
 CATEGORY_CATEGORY = FIELD_PRIME - 2 # = -2 in cairo
+
+def pedersen_hash(num: int) -> int:
+    return compute_hash_chain_with_length([num])
 
 # we prefer use of string over integer for ease of debugging.
 # for example, public keys can be expressed as integers and strings in python,
@@ -28,7 +31,7 @@ def get_block_hash(block):
     else:
         transactions_merkle_root = get_transactions_hash(block["transactions"])
         timestamp = block["timestamp"]
-        return pedersen_hash(transactions_merkle_root, timestamp)
+        return compute_hash_chain_with_length([transactions_merkle_root, timestamp])
 
 def compute_hash_chain_with_length(elements: [int]) -> int:
     return compute_hash_chain([len(elements)] + elements)
@@ -119,7 +122,7 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
             commandHex = [hex(x) for x in commandInt]
             prev_block_hash = get_block_hash(blocks[i-1])
             command_hash = get_command_hash(commandInt)
-            msg_hash = pedersen_hash(command_hash, prev_block_hash)
+            msg_hash = compute_hash_chain_with_length([command_hash, prev_block_hash])
             if i == 1: # first block
                 priv_key = root_priv_key
                 pub_key = root_pub_key
@@ -351,7 +354,7 @@ def apply_command_category_create(state, command, pubkey):
 
     # empty at first
     category_category_data_hash = pedersen_hash(0)
-    category_hash = pedersen_hash(category_id_int, category_category_data_hash)
+    category_hash = compute_hash_chain_with_length([category_id_int, category_category_data_hash])
 
     new_state["state"]["all_category"].append({
         "hash": hex(category_hash), # hash consists of `category_type` and `category_elements_child`
@@ -401,7 +404,7 @@ def apply_transaction_to_state(state, transaction):
     prev_block_hash = state["block_hash"]
 
     command_hash = get_command_hash(commandInt)
-    msg_hash = pedersen_hash(command_hash, int(prev_block_hash, 16))
+    msg_hash = compute_hash_chain_with_length([command_hash, int(prev_block_hash, 16)])
     correct_signature = verify(msg_hash, int(signature_r,16), int(signature_s, 16), int(pubkey, 16))
     if not correct_signature:
         # print(json.dumps(state, indent=4))
@@ -517,19 +520,19 @@ def make_initial_state(initial_block):
     # empty at first
     category_block_data_hash = pedersen_hash(0)
     category_block_node = CATEGORY_BLOCK
-    category_block_hash = pedersen_hash(category_block_node, category_block_data_hash)
+    category_block_hash = compute_hash_chain_with_length([category_block_node, category_block_data_hash])
 
     # empty at first
     category_category_data_hash = pedersen_hash(0)
     category_category_node = CATEGORY_CATEGORY
-    category_category_hash = pedersen_hash(category_category_node, category_category_data_hash)
+    category_category_hash = compute_hash_chain_with_length([category_category_node, category_category_data_hash])
 
     all_category_hash_int = compute_hash_chain_with_length([category_block_hash, category_category_hash])
     all_category_hash_hex = hex(all_category_hash_int)
 
     root_pubkey = initial_block["root_message"][0]["root_pubkey"]
 
-    all_hash = hex(pedersen_hash(int(root_pubkey,16), all_category_hash_int))
+    all_hash = hex(compute_hash_chain_with_length([int(root_pubkey,16), all_category_hash_int]))
 
     state = {
         "state": {
@@ -565,6 +568,7 @@ def recompute_child_hash(elements) -> int:
         child_hashes = []
         for element in elements:
             dfs_hash = recompute_child_hash(element["category_elements_child"])
+            # print(f"[recompute_child_hash] dfs_hash: {hex(dfs_hash)}")
             pubkey_int = int(element["pubkey"],16)
             child_hash = compute_hash_chain_with_length([
                 dfs_hash,
@@ -572,6 +576,7 @@ def recompute_child_hash(elements) -> int:
                 element["width"],
                 pubkey_int,
             ])
+            # print(f"[recompute_child_hash] child_hash: {hex(child_hash)}")
             child_hashes.append(child_hash)
         return compute_hash_chain_with_length(child_hashes)
 
@@ -581,7 +586,7 @@ def recompute_category_hash_by_reference(category):
     category_type_int = int(category["data"]["category_type"], 16)
     category_data_hash = recompute_child_hash(category["data"]["category_elements_child"])
 
-    category["hash"] = hex(pedersen_hash(category_type_int, category_data_hash))
+    category["hash"] = hex(compute_hash_chain_with_length([category_type_int, category_data_hash]))
 
 def recompute_state_hash(state):
     new_state = copy.deepcopy(state)
@@ -592,7 +597,7 @@ def recompute_state_hash(state):
     category_hash_list = list(map(lambda category: int(category["hash"], 16), new_state["state"]["all_category"]))
     all_category_hash = compute_hash_chain_with_length(category_hash_list)
     new_state["state"]["all_category_hash"] = hex(all_category_hash)
-    all_hash = hex(pedersen_hash(int(new_state["state"]["root_pubkey"], 16), all_category_hash))
+    all_hash = hex(compute_hash_chain_with_length([int(new_state["state"]["root_pubkey"], 16), all_category_hash]))
 
     return state, all_hash
 
@@ -627,5 +632,3 @@ def main():
     with open('verifiable-moderation-input.json', 'w') as f:
         json.dump(input_data, f, indent=4)
         f.write('\n')
-
-main()

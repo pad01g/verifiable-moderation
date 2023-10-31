@@ -1,5 +1,4 @@
 from starkware.cairo.common.alloc import alloc
-from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.hash_chain import hash_chain
 from starkware.cairo.common.memcpy import memcpy
 
@@ -37,7 +36,7 @@ func recompute_child_hash{
     %}
 
     if (n_category_elements == 0){
-        assert [child_hash_list] = 1;
+        // assert [child_hash_list] = 1;
         // assert [child_hash_list + 1] = 0;
         return ();
     }else{
@@ -56,7 +55,7 @@ func recompute_child_hash{
         tempvar n_category_elements_child = category_elements.n_category_elements_child;
         // `subarray` should have elements list. length of subarray is always equal to `n_category_elements_child`
         %{
-            print(f"[recompute_child_hash] subarray: {memory[ids.subarray]}")
+            # print(f"[recompute_child_hash] subarray: {memory[ids.subarray]}")
             print(f"[recompute_child_hash] category_elements.n_category_elements_child: {ids.n_category_elements_child}")
         %}
         let (hash_chain_input) = alloc();
@@ -66,7 +65,7 @@ func recompute_child_hash{
             assert [hash_chain_input+1] = 0;
         }else{
             assert [hash_chain_input] = n_category_elements_child;
-            memcpy(subarray, hash_chain_input+1, category_elements.n_category_elements_child);
+            memcpy(hash_chain_input+1, subarray, category_elements.n_category_elements_child);
         }
 
         let (dfs_hash) = hash_chain(hash_chain_input);
@@ -121,14 +120,18 @@ func recompute_category_hash_by_reference{
                 print(f"[recompute_category_hash_by_reference] hash_chain_input: {hex(memory[ids.hash_chain_input])}")
                 # print(f"hash_chain_input + 1: {hex(memory[ids.hash_chain_input + 1])}")
                 print(f"[recompute_category_hash_by_reference] subarray: {hex(memory[ids.subarray])}")
-                print(f"[recompute_category_hash_by_reference] subarray + 1: {hex(memory[ids.subarray + 1])}")
+                # print(f"[recompute_category_hash_by_reference] subarray + 1: {hex(memory[ids.subarray + 1])}")
                 print(f"[recompute_category_hash_by_reference] n_category_elements_child: {hex(ids.n_category_elements_child)}")
             %}
             memcpy(hash_chain_input+1, subarray, category.data.n_category_elements_child);
         }
 
         let (category_data_hash) = hash_chain(hash_chain_input);
-        let (category_hash) = hash2(category.data.category_type, category_data_hash);
+        let (hinput) = alloc();
+        assert [hinput] = 2;
+        assert [hinput+1] = category.data.category_type;
+        assert [hinput+2] = category_data_hash;
+        let (category_hash) = hash_chain(hinput);
         // assert category.hash = category_hash;
         assert [hash_list] = category_hash;
         return recompute_category_hash_by_reference(category + Category.SIZE, n_category - 1, hash_list + 1);
@@ -154,5 +157,13 @@ func recompute_state_hash{
     // need to add root_pubkey, n_all_category, block_hash too
 
     let (h) = hash_chain(hash_chain_input);
-    return h;
+
+    // compute hash with root_pubkey
+    let (hinput) = alloc();
+    assert [hinput] = 2;
+    assert [hinput+1] = state.root_pubkey;
+    assert [hinput+2] = h;
+
+    let (h2) =  hash_chain(hinput);
+    return h2;
 }

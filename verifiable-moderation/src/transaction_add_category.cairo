@@ -1,4 +1,3 @@
-from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.hash_chain import hash_chain
 // maybe different signature?
 from starkware.cairo.common.signature import (
@@ -40,7 +39,11 @@ func append_category{
     assert [hash_chain_input] = 1;
     assert [hash_chain_input+1] = 0;
     let (category_category_data_hash) = hash_chain(hash_chain_input);
-    let (category_hash) = hash2(category_id, category_category_data_hash);
+    let (hinput) = alloc();
+    assert [hinput] = 2;
+    assert [hinput+1] = category_id;
+    assert [hinput+2] = category_category_data_hash;
+    let (category_hash) = hash_chain(hinput);
     let (category_elements_child: CategoryElement*) = alloc();
     let category = Category(
         hash = category_hash,

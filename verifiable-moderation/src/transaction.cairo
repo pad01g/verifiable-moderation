@@ -1,4 +1,3 @@
-from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.hash_chain import hash_chain
 // maybe different signature?
 from starkware.cairo.common.signature import (
@@ -9,6 +8,7 @@ from starkware.cairo.common.cairo_builtins import (
     HashBuiltin,
     SignatureBuiltin,
 )
+from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.registers import get_fp_and_pc
 from src.structs import (
     State,
@@ -164,10 +164,15 @@ func calc_transactions_merkle_root_rec{hash_ptr: HashBuiltin*}(transaction: Tran
     let (command_ptr) = alloc();
     assert [command_ptr] = transaction.n_command;
     // assign transaction.command after [command_ptr + 1].
-    assign_felt_array(command_ptr+1, transaction.n_command, transaction.command);
+    // assign_felt_array(command_ptr+1, transaction.n_command, transaction.command);
+    memcpy(command_ptr+1, transaction.command, transaction.n_command);
 
     let (command_hash) = hash_chain(command_ptr);
-    let (msg_hash) = hash2(command_hash, transaction.prev_block_hash);
+    let (hinput) = alloc();
+    assert [hinput] = 2;
+    assert [hinput+1] = command_hash;
+    assert [hinput+2] = transaction.prev_block_hash;
+    let (msg_hash) = hash_chain(hinput);
     %{
         if False:
             print(f"command_ptr: {ids.command_ptr}")
