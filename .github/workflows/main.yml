@@ -1,0 +1,70 @@
+name: CI
+on: [push]
+jobs:
+  build:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: setup directory
+        run: |
+          python3 -m venv ~/cairo_venv
+          source ~/cairo_venv/bin/activate
+
+      - name: cache cairo
+        uses: actions/cache@v3
+        id: cairo-cache
+        with:
+          path: |
+            ~/.cache/pip
+            ~/cairo_venv
+          key: ${{ runner.os }}-pip-cairo-lang-venv
+
+      - name: install cairo
+        if: steps.cairo-cache.outputs.cache-hit != 'true'
+        run: |
+          source ~/cairo_venv/bin/activate
+          pip3 install cairo-lang
+
+      - name: cache protostar
+        uses: actions/cache@v3
+        id: protostar-cache
+        with:
+          path: |
+            ~/.protostar
+            ~/.bashrc
+          key: ${{ runner.os }}-protostar-install
+
+      - name: install protostar
+        if: steps.protostar-cache.outputs.cache-hit != 'true'
+        run: |
+          source ~/cairo_venv/bin/activate
+          curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash -s -- -v 0.14.0
+          echo "$HOME/.protostar/dist/protostar" >> $GITHUB_PATH
+
+      - name: check protostar
+        run: |
+          echo $PATH
+          protostar --help
+
+      - name: Test
+        run: |
+          source ~/cairo_venv/bin/activate
+          source ~/.bashrc
+          cd verifiable-moderation;
+          make test;
+
+      - name: Run
+        run: |
+          source ~/cairo_venv/bin/activate
+          source ~/.bashrc
+          cd verifiable-moderation;
+          cairo-run --version
+          make run
