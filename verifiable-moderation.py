@@ -2,7 +2,7 @@ import json
 import copy
 
 from starkware.crypto.signature.signature import (
-    pedersen_hash, private_to_stark_key, sign, verify, FIELD_PRIME)
+    private_to_stark_key, sign, verify, FIELD_PRIME)
 
 from starkware.cairo.common.hash_chain import (compute_hash_chain)
 

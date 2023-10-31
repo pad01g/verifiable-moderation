@@ -2,7 +2,7 @@ import urllib.request
 import json
 
 from starkware.crypto.signature.signature import (
-    pedersen_hash, private_to_stark_key, sign, verify, FIELD_PRIME)
+    private_to_stark_key, sign, verify, FIELD_PRIME)
 
 from starkware.cairo.common.hash_chain import (compute_hash_chain)
 from subprocess import Popen, PIPE
@@ -34,10 +34,10 @@ verimod_response = json.loads(r.decode('utf-8'))
 
 # check if retrieved filter has correct signature
 
-# pedersen_hash only accepts integer, so we have to convert variable length string into number here.
-# just run sha256 of string and take first 254 bits, then hash again by `pedersen_hash`
+# compute_hash_chain only accepts integer, so we have to convert variable length string into number here.
+# just run sha256 of string and take first 254 bits, then hash again by `compute_hash_chain`
 json_str_sha256 = sha256(json_str)
-msg_hash = pedersen_hash(json_str_sha256)
+msg_hash = compute_hash_chain([1, json_str_sha256])
 correct_signature = verify(msg_hash, int(signature_r,16), int(signature_s, 16), int(derived_pubkey, 16))
 
 # finally, run `noscl home` and filter contents by filter
