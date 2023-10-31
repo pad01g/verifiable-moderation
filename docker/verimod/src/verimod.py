@@ -207,6 +207,7 @@ def add_node_to_state_by_reference(data, pubkey: str, node) -> bool:
             current_width_sum = sum(map(lambda element: element["width"], child["category_elements_child"]))
             if node["width"] >= 1 and current_width_sum + node["width"] <= child["width"]:
                 child["category_elements_child"].append(node)
+                child["n_category_elements_child"] = len(child["category_elements_child"])
                 return True
             else:
                 return False
@@ -236,6 +237,7 @@ def apply_command_node_create(state, command: [int], pubkey: str):
         # or maybe category does not exist at all
         index = pubkey_auth["result"]
         child = {
+            "n_category_elements_child": 0,
             "category_elements_child": [],
             "depth": depth,
             "width": width,
@@ -243,6 +245,7 @@ def apply_command_node_create(state, command: [int], pubkey: str):
         }
         # add pubkey to root of category
         new_state["state"]["all_category"][index]["data"]["category_elements_child"].append(child)
+        new_state["state"]["all_category"][index]["data"]["n_category_elements_child"] = len(new_state["state"]["all_category"][index]["data"]["category_elements_child"])
 
     elif not pubkey_auth["exists"] and pubkey_auth["root"] and pubkey_auth["result"] is None:
         # root is trying to add node to non-existent category.
@@ -252,6 +255,7 @@ def apply_command_node_create(state, command: [int], pubkey: str):
         # category pubkey already exists and non-root pubkey is trying to add node
         # print(json.dumps(new_state))
         child = {
+            "n_category_elements_child": 0,
             "category_elements_child": [],
             "depth": depth,
             "width": width,
@@ -268,6 +272,7 @@ def apply_command_node_create(state, command: [int], pubkey: str):
         index = pubkey_auth["result"]
         # this line also updates new_state because of python object reference
         child = {
+            "n_category_elements_child": 0,
             "category_elements_child": [],
             "depth": depth,
             "width": width,
@@ -275,6 +280,7 @@ def apply_command_node_create(state, command: [int], pubkey: str):
         }
         # add pubkey to root of category
         new_state["state"]["all_category"][index]["data"]["category_elements_child"].append(child)
+        new_state["state"]["all_category"][index]["data"]["n_category_elements_child"] = len(new_state["state"]["all_category"][index]["data"]["category_elements_child"])
         # @todo update hash
 
     return new_state
@@ -285,6 +291,7 @@ def remove_node_from_state_by_reference(data, pubkey: str) -> bool:
         if child["pubkey"] == pubkey:
             # remove child from data["category_elements_child"]
             data["category_elements_child"] = [element for (i, element) in enumerate(data["category_elements_child"]) if i != child_index ]
+            data["n_category_elements_child"] = len(data["category_elements_child"])
             return True
         else:
             node_remove_result = remove_node_from_state_by_reference(child, pubkey)
@@ -308,6 +315,7 @@ def apply_command_node_remove(state, command, pubkey):
         # remove node from category root
         f = lambda node: node["pubkey"] != node_pubkey
         new_state["state"]["all_category"][index]["data"]["category_elements_child"] = list(filter(f, new_state["state"]["all_category"][index]["data"]["category_elements_child"]))
+        new_state["state"]["all_category"][index]["data"]["n_category_elements_child"] = len(new_state["state"]["all_category"][index]["data"]["category_elements_child"])
         # @todo update hash
     else:
         # search pubkey from tree object.
@@ -349,6 +357,7 @@ def apply_command_category_create(state, command, pubkey):
         "hash": hex(category_hash), # hash consists of `category_type` and `category_elements_child`
         "data": {
             "category_type": category_id_hex,
+            "n_category_elements_child": 0,
             "category_elements_child": [], # this could be another merkle tree
         }
     })

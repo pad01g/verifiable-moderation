@@ -33,7 +33,7 @@ func recompute_child_hash{
 }(category_elements: CategoryElement*, n_category_elements: felt, child_hash_list: felt*) -> () {
     alloc_locals;
     %{
-        print(f"n_category_elements: {ids.n_category_elements}")
+        print(f"[recompute_child_hash] n_category_elements: {ids.n_category_elements}")
     %}
 
     if (n_category_elements == 0){
@@ -42,7 +42,7 @@ func recompute_child_hash{
         return ();
     }else{
         %{
-            print(f"category_elements: {memory[ids.category_elements.address_]}")
+            print(f"[recompute_child_hash] category_elements: {memory[ids.category_elements.address_]}")
             # print(f"child_hash_list: {memory[ids.child_hash_list]}")
         %}
     
@@ -56,8 +56,8 @@ func recompute_child_hash{
         tempvar n_category_elements_child = category_elements.n_category_elements_child;
         // `subarray` should have elements list. length of subarray is always equal to `n_category_elements_child`
         %{
-            print(f"subarray: {memory[ids.subarray]}")
-            print(f"category_elements.n_category_elements_child: {ids.n_category_elements_child}")
+            print(f"[recompute_child_hash] subarray: {memory[ids.subarray]}")
+            print(f"[recompute_child_hash] category_elements.n_category_elements_child: {ids.n_category_elements_child}")
         %}
         let (hash_chain_input) = alloc();
 
@@ -71,7 +71,7 @@ func recompute_child_hash{
 
         let (dfs_hash) = hash_chain(hash_chain_input);
         %{
-            print(f"dfs_hash: {hex(ids.dfs_hash)}")
+            print(f"[recompute_child_hash] dfs_hash: {hex(ids.dfs_hash)}")
             # print(f"child_hash_list: {memory[ids.child_hash_list]}")
         %}
         
@@ -87,7 +87,7 @@ func recompute_child_hash{
 
         let (child_hash) = hash_chain(ptr);
         %{
-            print(f"child_hash: {hex(ids.child_hash)}")
+            print(f"[recompute_child_hash] child_hash: {hex(ids.child_hash)}")
         %}
 
         assert [child_hash_list] = child_hash;
@@ -118,11 +118,11 @@ func recompute_category_hash_by_reference{
         }else{
             assert [hash_chain_input] = category.data.n_category_elements_child;
             %{
-                print(f"hash_chain_input: {hex(memory[ids.hash_chain_input])}")
+                print(f"[recompute_category_hash_by_reference] hash_chain_input: {hex(memory[ids.hash_chain_input])}")
                 # print(f"hash_chain_input + 1: {hex(memory[ids.hash_chain_input + 1])}")
-                print(f"subarray: {hex(memory[ids.subarray])}")
-                print(f"subarray + 1: {hex(memory[ids.subarray + 1])}")
-                print(f"n_category_elements_child: {hex(ids.n_category_elements_child)}")
+                print(f"[recompute_category_hash_by_reference] subarray: {hex(memory[ids.subarray])}")
+                print(f"[recompute_category_hash_by_reference] subarray + 1: {hex(memory[ids.subarray + 1])}")
+                print(f"[recompute_category_hash_by_reference] n_category_elements_child: {hex(ids.n_category_elements_child)}")
             %}
             memcpy(hash_chain_input+1, subarray, category.data.n_category_elements_child);
         }
