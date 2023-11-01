@@ -47,6 +47,9 @@ jobs:
         run: |
           source ~/cairo_venv/bin/activate
           curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash -s -- -v 0.14.0
+
+      - name: add protostar to path
+        run: |
           echo "$HOME/.protostar/dist/protostar" >> $GITHUB_PATH
 
       - name: check protostar
