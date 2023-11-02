@@ -23,14 +23,14 @@ services:
       - ./docker/noscl-writer/config.json:/root/.config/nostr/config.json
     container_name: noscl-writer
   verimod:
-    build:
-      context: docker/verimod
-      dockerfile: Dockerfile
-    volumes:
-      - ./docker/verimod/src:/usr/src/verimod
-    container_name: verimod
-    ports:
-      - "8000:8000"
+      build:
+        context: docker/verimod
+        dockerfile: Dockerfile
+      volumes:
+        - ./docker/verimod/src:/usr/src/verimod
+      container_name: verimod
+      ports:
+        - "8000:8000"
   filter-server:
     build:
       context: docker/filter-server
