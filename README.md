@@ -32,7 +32,7 @@ spec of verifiable bbs (nostr) moderation in STARK-compressed format.
 $ python3 verifiable-moderation.py
 ```
 
-# run cairo program
+# compile and run cairo program
 
 ```
 make run
@@ -45,6 +45,10 @@ make run
 ```
 make test
 ```
+
+# generate and verify proofs
+
+use https://github.com/andrewmilson/sandstorm to generate and verify proofs. you should use `--num-queries=128` option for prover and `--required-security-bits=128` for verifier. Code at hash `cf8af1749624b59316ec6660b6797591bd1553f7` is confirmed to work.
 
 # see also
 

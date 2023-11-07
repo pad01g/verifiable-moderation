@@ -12,3 +12,5 @@ verimod_test/
 .python-version
 mytest/
 build
+air-private-input.json
+air-public-input.json
