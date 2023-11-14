@@ -27,11 +27,13 @@ def get_block_hash(block):
     root_messages = block["root_message"]
     if len(root_messages):
         root_message = root_messages[0]
-        return pedersen_hash(int(root_message["root_pubkey"],16))
+        h = pedersen_hash(int(root_message["root_pubkey"],16))
+        return h
     else:
         transactions_merkle_root = get_transactions_hash(block["transactions"])
         timestamp = block["timestamp"]
-        return compute_hash_chain_with_length([transactions_merkle_root, timestamp])
+        h = compute_hash_chain_with_length([transactions_merkle_root, timestamp])
+        return h
 
 def compute_hash_chain_with_length(elements: [int]) -> int:
     return compute_hash_chain([len(elements)] + elements)

@@ -31,20 +31,12 @@ func recompute_child_hash{
     hash_ptr: HashBuiltin*,
 }(category_elements: CategoryElement*, n_category_elements: felt, child_hash_list: felt*) -> () {
     alloc_locals;
-    %{
-        print(f"[recompute_child_hash] n_category_elements: {ids.n_category_elements}")
-    %}
 
     if (n_category_elements == 0){
         // assert [child_hash_list] = 1;
         // assert [child_hash_list + 1] = 0;
         return ();
-    }else{
-        %{
-            print(f"[recompute_child_hash] category_elements: {memory[ids.category_elements.address_]}")
-            # print(f"child_hash_list: {memory[ids.child_hash_list]}")
-        %}
-    
+    }else{    
         let (subarray) = alloc();
         // memory of subarray is written
         recompute_child_hash(
@@ -54,10 +46,6 @@ func recompute_child_hash{
         );
         tempvar n_category_elements_child = category_elements.n_category_elements_child;
         // `subarray` should have elements list. length of subarray is always equal to `n_category_elements_child`
-        %{
-            # print(f"[recompute_child_hash] subarray: {memory[ids.subarray]}")
-            print(f"[recompute_child_hash] category_elements.n_category_elements_child: {ids.n_category_elements_child}")
-        %}
         let (hash_chain_input) = alloc();
 
         if (category_elements.n_category_elements_child == 0){
@@ -69,11 +57,6 @@ func recompute_child_hash{
         }
 
         let (dfs_hash) = hash_chain(hash_chain_input);
-        %{
-            print(f"[recompute_child_hash] dfs_hash: {hex(ids.dfs_hash)}")
-            # print(f"child_hash_list: {memory[ids.child_hash_list]}")
-        %}
-        
         // Allocate an array.
         let (ptr) = alloc();
 
@@ -85,9 +68,6 @@ func recompute_child_hash{
         assert [ptr + 4] = category_elements.pubkey;
 
         let (child_hash) = hash_chain(ptr);
-        %{
-            print(f"[recompute_child_hash] child_hash: {hex(ids.child_hash)}")
-        %}
 
         assert [child_hash_list] = child_hash;
         return recompute_child_hash(
@@ -116,13 +96,6 @@ func recompute_category_hash_by_reference{
             assert [hash_chain_input+1] = 0;
         }else{
             assert [hash_chain_input] = category.data.n_category_elements_child;
-            %{
-                print(f"[recompute_category_hash_by_reference] hash_chain_input: {hex(memory[ids.hash_chain_input])}")
-                # print(f"hash_chain_input + 1: {hex(memory[ids.hash_chain_input + 1])}")
-                print(f"[recompute_category_hash_by_reference] subarray: {hex(memory[ids.subarray])}")
-                # print(f"[recompute_category_hash_by_reference] subarray + 1: {hex(memory[ids.subarray + 1])}")
-                print(f"[recompute_category_hash_by_reference] n_category_elements_child: {hex(ids.n_category_elements_child)}")
-            %}
             memcpy(hash_chain_input+1, subarray, category.data.n_category_elements_child);
         }
 
@@ -166,4 +139,51 @@ func recompute_state_hash{
 
     let (h2) =  hash_chain(hinput);
     return h2;
+}
+
+func get_block_hash{
+    hash_ptr: HashBuiltin*,
+}(block: Block*) -> felt {
+    alloc_locals;
+    if(block.n_root_message == 0){
+        let (hash_chain_input) = alloc();
+        assert [hash_chain_input] = block.n_transactions;
+        get_transactions_hash(block.n_transactions, block.transactions, hash_chain_input+1);
+        let (h) = hash_chain(hash_chain_input);
+        local timestamp = block.timestamp;
+
+        let (input) = alloc();
+        assert [input] = 2;
+        assert [input+1] = h;
+        assert [input+2] = timestamp;
+
+        let (h2) = hash_chain(input);
+        return h2;
+    }else{
+        let (hash_chain_input) = alloc();
+        assert [hash_chain_input] = 1;
+        assert [hash_chain_input+1] = block.root_message.root_pubkey;
+        let (h) = hash_chain(hash_chain_input);
+        return h;
+    }
+}
+
+func get_transactions_hash{
+    hash_ptr: HashBuiltin*,
+}(n_transactions: felt, transactions: Transaction*, out: felt*) -> () {
+
+    if (n_transactions == 0) {
+        return ();
+    }else{
+        let (hash_chain_input) = alloc();
+        assert [hash_chain_input] = 4;
+        assert [hash_chain_input+1] = transactions.msg_hash;
+        assert [hash_chain_input+2] = transactions.signature_r;
+        assert [hash_chain_input+3] = transactions.signature_s;
+        assert [hash_chain_input+4] = transactions.pubkey;
+
+        let (h) = hash_chain(hash_chain_input);
+        assert [out] = h;
+        return get_transactions_hash(n_transactions - 1, transactions + Transaction.SIZE, out + 1);
+    }
 }

@@ -47,19 +47,34 @@ from src.transaction_remove_category import (
     verify_transaction_category_remove,
 )
 
+func verify_tx_with_signature{
+    hash_ptr: HashBuiltin*,
+    ecdsa_ptr: SignatureBuiltin*
+}(state: State*, transaction: Transaction) -> (state: State*) {
+
+    let (hash_chain_input) = alloc();
+    assert [hash_chain_input] = 2;
+    assert [hash_chain_input+1] = transaction.command_hash;
+    assert [hash_chain_input+2] = state.block_hash;
+    let (tx_hash) = hash_chain(hash_chain_input);
+
+    tempvar bh = state.block_hash;
+    tempvar ch = transaction.command_hash;
+
+    verify_ecdsa_signature(
+        message=tx_hash,
+        public_key=transaction.pubkey,
+        signature_r=transaction.signature_r,
+        signature_s=transaction.signature_s,
+    );
+    return verify_transaction(state, transaction);
+}
+
 func verify_transaction{
     hash_ptr: HashBuiltin*,
+    ecdsa_ptr: SignatureBuiltin*
 }(state: State*, transaction: Transaction) -> (state: State*) {
-    // verify signature here.
-    tempvar pubkey = transaction.pubkey;
     if ([transaction.command] == COMMAND_NODE_CREATE) {
-
-        %{
-            if True:
-                print(f"[verify_transaction] ids.state: {ids.state}")
-                print(f"[verify_transaction] ids.state.address_: {ids.state.address_}")
-                print(f"[verify_transaction] memory[ids.state.address_]: {memory[ids.state.address_]}")
-        %}    
 
         let res = verify_transaction_node_create(state, transaction);
         return res;
@@ -77,11 +92,6 @@ func verify_transaction{
                     return res;
                 }else{
                     // raise error
-                    %{
-                        print(f"transaction.msg_hash: {hex(ids.transaction.msg_hash)}")
-                        print(f"transaction.command: {ids.transaction.command}")
-                        print(f"transaction.n_command: {ids.transaction.n_command}")
-                    %}
                     assert 0 = 1;
                 }
             } 
@@ -92,24 +102,14 @@ func verify_transaction{
 
 func verify_transaction_recursive{
     hash_ptr: HashBuiltin*,
+    ecdsa_ptr: SignatureBuiltin*
 }(state: State*, n_transactions: felt, transactions: Transaction*) -> (state: State*) {
     alloc_locals;
     if (n_transactions == 0){
         return (state = state);
     }else{
-        %{
-            if True:
-                print(f"[verify_transaction_recursive] {ids.n_transactions} ids.state: {ids.state}")
-                print(f"[verify_transaction_recursive] {ids.n_transactions} ids.state.address_: {ids.state.address_}")
-                print(f"[verify_transaction_recursive] {ids.n_transactions} memory[ids.state.address_]: {memory[ids.state.address_]}")
-                # 
-                # root_pubkey: felt,
-                # all_category_hash: felt,
-                print(f"[verify_transaction_recursive] {ids.n_transactions} root_pubkey: {hex(memory[ids.state.address_ + ids.State.root_pubkey ])}")
-                print(f"[verify_transaction_recursive] {ids.n_transactions} n_all_category: {hex(memory[ids.state.address_ + ids.State.n_all_category ])}")
-        %}
 
-        let (new_state: State*) = verify_transaction(state, transactions[0]);
+        let (new_state: State*) = verify_tx_with_signature(state, transactions[0]);
 
         local v3 = state.all_category[1].data.category_type;
         local v4 = state.all_category[1].data.n_category_elements_child;
@@ -128,16 +128,6 @@ func verify_transaction_recursive{
         }else{
             assert v9 = 0;
         }
-
-        %{
-            print(f"[verify_transaction_recursive] state.all_category[1].data.category_type: {hex(ids.v3)}")
-            print(f"[verify_transaction_recursive] state.all_category[1].data.n_category_elements_child: {hex(ids.v4)}")
-            print(f"[verify_transaction_recursive] state.all_category[1].data.category_elements_child[0].n_category_elements_child: {hex(ids.v5)}")
-            print(f"[verify_transaction_recursive] new_state.all_category[1].data.category_type: {hex(ids.v7)}")
-            print(f"[verify_transaction_recursive] new_state.all_category[1].data.n_category_elements_child: {hex(ids.v8)}")
-            print(f"[verify_transaction_recursive] new_state.all_category[1].data.category_elements_child[0].n_category_elements_child: {hex(ids.v9)}")
-        %}
-        
         return verify_transaction_recursive(new_state, n_transactions - 1, transactions + Transaction.SIZE);    
     }
 }
@@ -173,14 +163,6 @@ func calc_transactions_merkle_root_rec{hash_ptr: HashBuiltin*}(transaction: Tran
     assert [hinput+1] = command_hash;
     assert [hinput+2] = transaction.prev_block_hash;
     let (msg_hash) = hash_chain(hinput);
-    %{
-        if False:
-            print(f"command_ptr: {ids.command_ptr}")
-            print(f"command_ptr: {hex(memory[ids.command_ptr])}")
-            print(f"command_ptr: {hex(memory[ids.command_ptr + 1])}")
-            print(f"command_ptr: {hex(memory[ids.command_ptr + 2])}")
-            print(f"command_hash: {hex(ids.command_hash)}, msg_hash: {hex(ids.msg_hash)}, transaction.msg_hash: {hex(ids.transaction.msg_hash)}, transaction.prev_block_hash: {hex(ids.transaction.prev_block_hash)}")
-    %}
     assert msg_hash = transaction.msg_hash;
 
     // Allocate an array.

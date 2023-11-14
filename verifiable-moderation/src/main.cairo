@@ -1,10 +1,6 @@
 %builtins pedersen ecdsa
 
 from starkware.cairo.common.hash_chain import hash_chain
-// maybe different signature?
-from starkware.cairo.common.signature import (
-    verify_ecdsa_signature,
-)
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import (
     HashBuiltin,
@@ -79,6 +75,7 @@ func main{
             memory[base_addr + ids.Block.signature_r] = int(block["signature_r"], 16)
             memory[base_addr + ids.Block.signature_s] = int(block["signature_s"], 16)
             memory[base_addr + ids.Block.pubkey] = int(block["pubkey"], 16)
+            memory[base_addr + ids.Block.n_root_message] = len(block["root_message"])
 
             # assign transaction address value to reference
             memory[base_addr + ids.Block.transactions] = ids.transactions.address_ + ids.Transaction.SIZE * transactions_count

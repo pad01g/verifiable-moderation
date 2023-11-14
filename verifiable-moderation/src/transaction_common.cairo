@@ -1,8 +1,4 @@
 from starkware.cairo.common.hash_chain import hash_chain
-// maybe different signature?
-from starkware.cairo.common.signature import (
-    verify_ecdsa_signature,
-)
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import (
     HashBuiltin,
