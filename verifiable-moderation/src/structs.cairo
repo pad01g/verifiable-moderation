@@ -44,6 +44,7 @@ struct RootMessage {
     timestamp: felt,
     signature_r: felt,
     signature_s: felt,
+    root_pubkey: felt,
 }
 
 struct Transaction {

@@ -27,11 +27,17 @@ def get_block_hash(block):
     root_messages = block["root_message"]
     if len(root_messages):
         root_message = root_messages[0]
-        return pedersen_hash(int(root_message["root_pubkey"],16))
+        h = pedersen_hash(int(root_message["root_pubkey"],16))
+        print("[get_block_hash] root h: " + hex(h))
+        return h
     else:
         transactions_merkle_root = get_transactions_hash(block["transactions"])
         timestamp = block["timestamp"]
-        return compute_hash_chain_with_length([transactions_merkle_root, timestamp])
+        h = compute_hash_chain_with_length([transactions_merkle_root, timestamp])
+        print("[get_block_hash] non-root h: " + hex(h))
+        print("[get_block_hash] non-root timestamp: " + hex(timestamp))
+        print("[get_block_hash] non-root transactions_merkle_root: " + hex(transactions_merkle_root))
+        return h
 
 def compute_hash_chain_with_length(elements: [int]) -> int:
     return compute_hash_chain([len(elements)] + elements)
@@ -123,6 +129,9 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
             prev_block_hash = get_block_hash(blocks[i-1])
             command_hash = get_command_hash(commandInt)
             msg_hash = compute_hash_chain_with_length([command_hash, prev_block_hash])
+            print("[generate_blocks] command_hash: "+ hex(command_hash))
+            print("[generate_blocks] prev_block_hash: "+ hex(prev_block_hash))
+            print("[generate_blocks] msg_hash: "+ hex(msg_hash))
             if i == 1: # first block
                 priv_key = root_priv_key
                 pub_key = root_pub_key
@@ -402,6 +411,7 @@ def apply_transaction_to_state(state, transaction):
     command = transaction["command"]
     commandInt = list(map(lambda x: int(x, 16), command))
     prev_block_hash = state["block_hash"]
+    print("[apply_transaction_to_state] prev_block_hash: " + prev_block_hash)
 
     command_hash = get_command_hash(commandInt)
     msg_hash = compute_hash_chain_with_length([command_hash, int(prev_block_hash, 16)])
@@ -512,6 +522,7 @@ def apply_block_to_state(state, block):
         new_state = apply_transaction_to_state(new_state, transactions[i])
 
     new_state["block_hash"] = hex(get_block_hash(block))
+    print("[apply_block_to_state] block_hash: "+ new_state["block_hash"])
 
     return new_state
 
@@ -559,6 +570,8 @@ def make_initial_state(initial_block):
         },
         "block_hash": hex(get_block_hash(initial_block))
     }
+    print("[make_initial_state] get_block_hash: "+ hex(get_block_hash(initial_block)))
+    print("[make_initial_state] state.block_hash: "+ state["block_hash"])
     return state, all_hash
 
 def recompute_child_hash(elements) -> int:
@@ -619,7 +632,7 @@ def main():
     blocks = all_blocks[1:]
     initial_block = all_blocks[0]
     initial_state, initial_hash = make_initial_state(initial_block)
-    final_state, final_hash = make_final_state(initial_state, blocks)
+    final_state, final_hash = make_final_state(copy.deepcopy(initial_state), blocks)
 
     input_data = {
         "blocks": blocks,

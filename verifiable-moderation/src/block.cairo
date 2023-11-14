@@ -24,10 +24,12 @@ from src.consts import (
     CATEGORY_BLOCK,
     CATEGORY_CATEGORY,    
 )
-
 from src.transaction import (
     calc_transactions_merkle_root,
     verify_transaction_recursive,
+)
+from src.hash import (
+    get_block_hash,
 )
 
 // verify block hash and signature.
@@ -56,7 +58,23 @@ func update_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: S
     verify_block(state, block);
     // check contents of block (txs) are correct.
     let (new_state) = verify_transaction_recursive(state, block.n_transactions,  block.transactions);
-    return (state=new_state);
+
+    // you have to update state here so that it contains new block_hash
+    let block_hash = get_block_hash(block);
+    let (state_with_block_hash_update: State*) = alloc();
+    tempvar state_block_hash = state.block_hash;
+    %{
+        print("[update_block] old state block hash: "+ hex(ids.state_block_hash))
+        print("[update_block] current block hash: "+ hex(ids.block_hash))
+    %}
+    assert state_with_block_hash_update.block_hash = block_hash;
+    // assert state_with_block_hash_update.block_hash = state.block_hash;
+    assert state_with_block_hash_update.root_pubkey = new_state.root_pubkey;
+    assert state_with_block_hash_update.n_all_category = new_state.n_all_category;
+    // assert state_with_block_hash_update.all_category_hash = new_state.all_category_hash;
+    assert state_with_block_hash_update.all_category = new_state.all_category;
+
+    return (state=state_with_block_hash_update);
 }
 
 func update_block_recursive{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: State*, n_blocks: felt, blocks: Block*) -> (state: State*) {

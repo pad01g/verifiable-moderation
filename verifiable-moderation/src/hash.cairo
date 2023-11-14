@@ -167,3 +167,58 @@ func recompute_state_hash{
     let (h2) =  hash_chain(hinput);
     return h2;
 }
+
+func get_block_hash{
+    hash_ptr: HashBuiltin*,
+}(block: Block*) -> felt {
+    alloc_locals;
+    if(block.n_root_message == 0){
+        let (hash_chain_input) = alloc();
+        assert [hash_chain_input] = block.n_transactions;
+        get_transactions_hash(block.n_transactions, block.transactions, hash_chain_input+1);
+        let (h) = hash_chain(hash_chain_input);
+        local timestamp = block.timestamp;
+
+        let (input) = alloc();
+        assert [input] = 2;
+        assert [input+1] = h;
+        assert [input+2] = timestamp;
+
+        let (h2) = hash_chain(input);
+        %{
+            # print("[get_block_hash] non-root block_hash: " + hex(ids.h))
+            print("[get_block_hash] non-root timestamp: " + hex(ids.timestamp))
+            print("[get_block_hash] non-root h2: " + hex(ids.h2))
+        %}
+        return h2;
+    }else{
+        let (hash_chain_input) = alloc();
+        assert [hash_chain_input] = 1;
+        assert [hash_chain_input+1] = block.root_message.root_pubkey;
+        let (h) = hash_chain(hash_chain_input);
+        %{
+            print("[get_block_hash] root block_hash: " + hex(ids.h))
+        %}
+        return h;
+    }
+}
+
+func get_transactions_hash{
+    hash_ptr: HashBuiltin*,
+}(n_transactions: felt, transactions: Transaction*, out: felt*) -> () {
+
+    if (n_transactions == 0) {
+        return ();
+    }else{
+        let (hash_chain_input) = alloc();
+        assert [hash_chain_input] = 4;
+        assert [hash_chain_input+1] = transactions.msg_hash;
+        assert [hash_chain_input+2] = transactions.signature_r;
+        assert [hash_chain_input+3] = transactions.signature_s;
+        assert [hash_chain_input+4] = transactions.pubkey;
+
+        let (h) = hash_chain(hash_chain_input);
+        assert [out] = h;
+        return get_transactions_hash(n_transactions - 1, transactions + Transaction.SIZE, out + 1);
+    }
+}

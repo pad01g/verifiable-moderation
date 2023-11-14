@@ -47,11 +47,38 @@ from src.transaction_remove_category import (
     verify_transaction_category_remove,
 )
 
+func verify_tx_with_signature{
+    hash_ptr: HashBuiltin*,
+    ecdsa_ptr: SignatureBuiltin*
+}(state: State*, transaction: Transaction) -> (state: State*) {
+
+    let (hash_chain_input) = alloc();
+    assert [hash_chain_input] = 2;
+    assert [hash_chain_input+1] = transaction.command_hash;
+    assert [hash_chain_input+2] = state.block_hash;
+    let (tx_hash) = hash_chain(hash_chain_input);
+
+    tempvar bh = state.block_hash;
+    tempvar ch = transaction.command_hash;
+    %{
+        print("[verify_tx_with_signature] state.block_hash: "+ hex(ids.bh))
+        print("[verify_tx_with_signature] transaction.command_hash: "+ hex(ids.ch))
+        print("[verify_tx_with_signature] tx_hash: "+ hex(ids.tx_hash))
+    %}
+
+    verify_ecdsa_signature(
+        message=tx_hash,
+        public_key=transaction.pubkey,
+        signature_r=transaction.signature_r,
+        signature_s=transaction.signature_s,
+    );
+    return verify_transaction(state, transaction);
+}
+
 func verify_transaction{
     hash_ptr: HashBuiltin*,
+    ecdsa_ptr: SignatureBuiltin*
 }(state: State*, transaction: Transaction) -> (state: State*) {
-    // verify signature here.
-    tempvar pubkey = transaction.pubkey;
     if ([transaction.command] == COMMAND_NODE_CREATE) {
 
         %{
@@ -92,6 +119,7 @@ func verify_transaction{
 
 func verify_transaction_recursive{
     hash_ptr: HashBuiltin*,
+    ecdsa_ptr: SignatureBuiltin*
 }(state: State*, n_transactions: felt, transactions: Transaction*) -> (state: State*) {
     alloc_locals;
     if (n_transactions == 0){
@@ -109,7 +137,7 @@ func verify_transaction_recursive{
                 print(f"[verify_transaction_recursive] {ids.n_transactions} n_all_category: {hex(memory[ids.state.address_ + ids.State.n_all_category ])}")
         %}
 
-        let (new_state: State*) = verify_transaction(state, transactions[0]);
+        let (new_state: State*) = verify_tx_with_signature(state, transactions[0]);
 
         local v3 = state.all_category[1].data.category_type;
         local v4 = state.all_category[1].data.n_category_elements_child;
