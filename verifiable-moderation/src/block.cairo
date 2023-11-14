@@ -63,15 +63,9 @@ func update_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state: S
     let block_hash = get_block_hash(block);
     let (state_with_block_hash_update: State*) = alloc();
     tempvar state_block_hash = state.block_hash;
-    %{
-        print("[update_block] old state block hash: "+ hex(ids.state_block_hash))
-        print("[update_block] current block hash: "+ hex(ids.block_hash))
-    %}
     assert state_with_block_hash_update.block_hash = block_hash;
-    // assert state_with_block_hash_update.block_hash = state.block_hash;
     assert state_with_block_hash_update.root_pubkey = new_state.root_pubkey;
     assert state_with_block_hash_update.n_all_category = new_state.n_all_category;
-    // assert state_with_block_hash_update.all_category_hash = new_state.all_category_hash;
     assert state_with_block_hash_update.all_category = new_state.all_category;
 
     return (state=state_with_block_hash_update);
