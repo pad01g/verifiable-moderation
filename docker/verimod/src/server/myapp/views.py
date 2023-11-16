@@ -1,4 +1,4 @@
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlparse, parse_qs
 from .verimod import (generate_key_pair, generate_blocks, make_initial_state, make_final_state)
@@ -37,7 +37,7 @@ def handle_request(request):
     elif request.method == "POST":
         return handle_post(request)
     else:
-        return HttpResponseBadRequest("Invalid method")
+        return HttpResponse("Welcome to verifiable moderation!")
 
 def handle_get(request):
     logging.info("Received GET request.")
