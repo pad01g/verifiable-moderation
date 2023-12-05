@@ -70,7 +70,8 @@ func main{
             base_addr = ids.blocks.address_ + ids.Block.SIZE * block_index
             block = program_input["blocks"][block_index]
             memory[base_addr + ids.Block.n_transactions] = len(block["transactions"])
-            memory[base_addr + ids.Block.transactions_merkle_root] = int(block["transactions_merkle_root"], 16)
+            if len(block["transactions"]) > 0:
+                memory[base_addr + ids.Block.transactions_merkle_root] = int(block["transactions_merkle_root"], 16)
             memory[base_addr + ids.Block.timestamp] = block["timestamp"]
             memory[base_addr + ids.Block.signature_r] = int(block["signature_r"], 16)
             memory[base_addr + ids.Block.signature_s] = int(block["signature_s"], 16)
@@ -112,12 +113,10 @@ func main{
             for root_message_index in range(len(block["root_message"])):
                 root_message_base_addr = ids.root_messages.address_ + ids.RootMessage.SIZE * (root_messages_count + root_message_index)
                 root_message = block["root_message"][root_message_index]
-                memory[root_message_base_addr] = root_message
+                memory[root_message_base_addr + ids.RootMessage.prev_block_hash] = int(root_message["prev_block_hash"], 16)
+                memory[root_message_base_addr + ids.RootMessage.root_pubkey] = int(root_message["root_pubkey"], 16)
             # update root messages count data
             root_messages_count += len(block["root_message"])
-
-
-        
     %}
     // states
     %{

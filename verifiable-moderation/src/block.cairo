@@ -25,23 +25,28 @@ from src.consts import (
     CATEGORY_CATEGORY,    
 )
 from src.transaction import (
-    calc_transactions_merkle_root,
     verify_transaction_recursive,
+)
+from src.transaction_common import (
+    check_category_pubkey_authority
 )
 from src.hash import (
     get_block_hash,
+    calc_transactions_merkle_root,
 )
 
 // verify block hash and signature.
 func verify_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state:State*, block: Block*){
+    alloc_locals;
     // check block authenticity except for transaction validity.
-    let transactions_merkle_root_recalc = calc_transactions_merkle_root(block.transactions, block.n_transactions);
-    assert block.transactions_merkle_root = transactions_merkle_root_recalc;
-    let (hash_chain_input) = alloc();
-    assert [hash_chain_input] = 2;
-    assert [hash_chain_input+1] = transactions_merkle_root_recalc;
-    assert [hash_chain_input+2] = block.timestamp;
-    let (block_hash) = hash_chain(hash_chain_input);
+    let (root, exists, result) = check_category_pubkey_authority(state, CATEGORY_BLOCK, block.pubkey);
+    if (exists == 0){
+        if (root == 0){
+            assert 1 = 0;
+        }
+    }
+
+    let block_hash = get_block_hash(block);
     verify_ecdsa_signature(
         message=block_hash,
         public_key=block.pubkey,

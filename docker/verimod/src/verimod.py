@@ -27,8 +27,14 @@ def get_block_hash(block):
     root_messages = block["root_message"]
     if len(root_messages):
         root_message = root_messages[0]
-        h = pedersen_hash(int(root_message["root_pubkey"],16))
-        return h
+        root_pubkey = int(root_message["root_pubkey"],16)
+        if root_pubkey == 0:
+            prev_block_hash = int(root_message["prev_block_hash"],16)
+            h = pedersen_hash(prev_block_hash)
+            return h
+        else:
+            h = pedersen_hash(root_pubkey)
+            return h
     else:
         transactions_merkle_root = get_transactions_hash(block["transactions"])
         timestamp = block["timestamp"]
@@ -56,153 +62,6 @@ def get_transactions_hash(transactions):
         transaction_hashes.append(compute_hash_chain_with_length(numlist))
     # return pedersen_hash(*transaction_hashes)
     return compute_hash_chain_with_length(transaction_hashes)
-
-def generate_key_pair():
-
-    # Generate key pairs.
-    priv_keys = []
-    pub_keys = []
-
-    root_priv_key = 1234567
-    root_pub_key = private_to_stark_key(root_priv_key)
-
-    for i in range(10):
-        priv_key = 123456 * i + 654321  # See "Safety note" below.
-        priv_keys.append(priv_key)
-
-        pub_key = private_to_stark_key(priv_key)
-        pub_keys.append(pub_key)
-
-    return (priv_keys, pub_keys, root_priv_key, root_pub_key)
-
-def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
-    initial_block = {
-        "root_message": [{"root_pubkey": hex(root_pub_key)}],
-        "signature_r": None,
-        "signature_s": None,
-    }
-    blocks = [initial_block]
-    blocks_num = 4 # initial block is included in count
-    txs_num = 4
-    new_category_id = 1
-    for i in range(1,blocks_num):
-        transactions = []
-        for j in range(txs_num):
-            if i == 1: # first block
-                if j == 0:
-                    # create new category
-                    commandInt = [COMMAND_CATEGORY_CREATE, new_category_id]
-                elif j == 1:
-                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_BLOCK, 2, 3, pub_keys[0]]
-                elif j == 2:
-                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_CATEGORY, 1, 2, pub_keys[1]]
-                else:
-                    commandInt = [COMMAND_NODE_CREATE, new_category_id, 1, 2, pub_keys[2]]
-
-            elif i == 2: # second block
-                # add nodes under category
-                if j == 0:
-                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_BLOCK, 1, 2, pub_keys[3]]
-                elif j == 1:
-                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_BLOCK, 0, 1, pub_keys[4]]
-                elif j == 2:
-                    commandInt = [COMMAND_NODE_CREATE, CATEGORY_CATEGORY, 0, 1, pub_keys[5]]
-                else:
-                    commandInt = [COMMAND_NODE_CREATE, new_category_id, 0, 1, pub_keys[6]]
-
-            else: # third block
-                # remove nodes and categories
-                if j == 0:
-                    commandInt = [COMMAND_NODE_REMOVE, CATEGORY_BLOCK, pub_keys[4]]
-                elif j == 1:
-                    commandInt = [COMMAND_NODE_REMOVE, CATEGORY_BLOCK, pub_keys[3]]
-                elif j == 2:
-                    commandInt = [COMMAND_NODE_REMOVE, CATEGORY_CATEGORY, pub_keys[5]]
-                else:
-                    commandInt = [COMMAND_CATEGORY_REMOVE, new_category_id]
-
-            commandHex = [hex(x) for x in commandInt]
-            prev_block_hash = get_block_hash(blocks[i-1])
-            command_hash = get_command_hash(commandInt)
-            msg_hash = compute_hash_chain_with_length([command_hash, prev_block_hash])
-            if i == 1: # first block
-                priv_key = root_priv_key
-                pub_key = root_pub_key
-
-            elif i == 2: # second block
-                if j == 0:
-                    priv_key = priv_keys[0]
-                    pub_key = pub_keys[0]
-                elif j == 1:
-                    priv_key = priv_keys[3]
-                    pub_key = pub_keys[3]
-                elif j == 2:
-                    priv_key = priv_keys[1]
-                    pub_key = pub_keys[1]
-                else:
-                    priv_key = priv_keys[2]
-                    pub_key = pub_keys[2]
-
-            else: # third block
-                if j == 0:
-                    priv_key = priv_keys[3] # remove node 4
-                    pub_key = pub_keys[3]
-                elif j == 1:
-                    priv_key = priv_keys[0] # remove node 3
-                    pub_key = pub_keys[0]
-                elif j == 2:
-                    priv_key = priv_keys[1] # remove node 5
-                    pub_key = pub_keys[1]
-                else:
-                    priv_key = priv_keys[1] # node 1 can remove entire category `new_category_id`
-                    pub_key = pub_keys[1]
-
-            r, s = sign(
-                msg_hash=msg_hash,
-                priv_key=priv_key
-            )
-
-            transactions.append({
-                "command": commandHex,
-                "prev_block_hash": hex(prev_block_hash),
-                "command_hash": hex(command_hash),
-                "msg_hash": hex(msg_hash),
-                "signature_r": hex(r),
-                "signature_s": hex(s),
-                "pubkey": hex(pub_key),
-            })
-
-        transactions_merkle_root = get_transactions_hash(transactions)
-        block = {
-            "transactions": transactions,
-            "transactions_merkle_root": hex(transactions_merkle_root),
-            "timestamp": i,
-            "root_message": [],
-            "signature_r": None,
-            "signature_s": None,
-        }
-        # block signing is done by non-root node after second block
-        if i == 1: # first block
-            block_priv_key = root_priv_key
-            block_pub_key = root_pub_key
-        elif i == 2: # second block
-            block_priv_key = priv_keys[0]
-            block_pub_key = pub_keys[0]
-        else: # third block
-            block_priv_key = priv_keys[0]
-            block_pub_key = pub_keys[0]
-
-        r, s = sign(
-            msg_hash=get_block_hash(block),
-            priv_key=block_priv_key
-        )
-        block["signature_r"] = hex(r)
-        block["signature_s"] = hex(s)
-        block["pubkey"] = hex(block_pub_key)
-
-        blocks.append(block)
-
-    return blocks
 
 def add_node_to_state_by_reference(data, pubkey: str, node) -> bool:
     for child in data["category_elements_child"]:
@@ -493,27 +352,35 @@ def apply_block_to_state(state, block):
     correct_signature = verify(block_hash, int(signature_r,16), int(signature_s, 16), int(pubkey, 16))
     if not correct_signature:
         raise Exception("block signature is incorrect: " + hex(block_hash))
-    
-    # verify block first, does block producer have authority in CATEGORY_BLOCK?
-    pubkey_auth = check_category_pubkey_authority(state, hex(CATEGORY_BLOCK), pubkey)
-    if not pubkey_auth["exists"] and not pubkey_auth["root"]:
-        print(json.dumps(pubkey), json.dumps(pubkey_auth), json.dumps(state))
-        raise Exception("public key does not have authority over block creation")
-    elif not pubkey_auth["exists"] and pubkey_auth["root"]:
-        # this is fine, block was produced by root
-        pass
+
+    # in case it is root message
+    if len(block["root_message"]) > 0:
+        root_pubkey = state["state"]["root_pubkey"]
+        if (pubkey != root_pubkey):
+            raise Exception(f"the root message is published by non-root pubkey: {pubkey}, actual root pubkey is {root_pubkey}")
+        new_state = copy.deepcopy(state)
+        new_state["block_hash"] = hex(get_block_hash(block))
+
     else:
-        # this is also fine, block is verified.
-        pass
+        # verify block first, does block producer have authority in CATEGORY_BLOCK?
+        pubkey_auth = check_category_pubkey_authority(state, hex(CATEGORY_BLOCK), pubkey)
+        if not pubkey_auth["exists"] and not pubkey_auth["root"]:
+            print(json.dumps(pubkey), json.dumps(pubkey_auth), json.dumps(state))
+            raise Exception("public key does not have authority over block creation")
+        elif not pubkey_auth["exists"] and pubkey_auth["root"]:
+            # this is fine, block was produced by root
+            pass
+        else:
+            # this is also fine, block is verified.
+            pass
 
+        # get transaction
+        transactions = block["transactions"]
+        new_state = copy.deepcopy(state)
+        for i in range(len(transactions)):
+            new_state = apply_transaction_to_state(new_state, transactions[i])
 
-    # get transaction
-    transactions = block["transactions"]
-    new_state = copy.deepcopy(state)
-    for i in range(len(transactions)):
-        new_state = apply_transaction_to_state(new_state, transactions[i])
-
-    new_state["block_hash"] = hex(get_block_hash(block))
+        new_state["block_hash"] = hex(get_block_hash(block))
 
     return new_state
 
@@ -613,24 +480,3 @@ def make_final_state(initial_state, blocks):
     new_state, all_hash = recompute_state_hash(new_state)
 
     return new_state, all_hash
-
-def main():
-    priv_keys, pub_keys, root_priv_key, root_pub_key = generate_key_pair()
-
-    all_blocks = generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key)
-    blocks = all_blocks[1:]
-    initial_block = all_blocks[0]
-    initial_state, initial_hash = make_initial_state(initial_block)
-    final_state, final_hash = make_final_state(initial_state, blocks)
-
-    input_data = {
-        "blocks": blocks,
-        "initial_state": initial_state,
-        "initial_hash": initial_hash,
-        "final_state": final_state,
-        "final_hash": final_hash,
-    }
-
-    with open('verifiable-moderation-input.json', 'w') as f:
-        json.dump(input_data, f, indent=4)
-        f.write('\n')
