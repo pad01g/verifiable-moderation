@@ -17,3 +17,4 @@ air-private-input.json
 air-public-input.json
 docker/verimod/src/server/block.example.json
 docker/verimod/src/server/db.sqlite3
+verifiable-moderation.proof
