@@ -18,6 +18,7 @@ RUN pip install -r requirements.txt
 
 COPY src/ /app/
 
+# run migration
 RUN python3 ./server/manage.py migrate
 
 RUN python3 ./cli/generate-input.py ./cairo/verifiable-moderation-input.json
@@ -26,4 +27,4 @@ RUN python3 ./cli/generate-input.py ./cairo/verifiable-moderation-input.json
 RUN cp ./cairo/verifiable-moderation-input.json ./server/config.json
 RUN cat ./cairo/verifiable-moderation-input.json | jq '{ "block": .blocks[0] }' > ./server/block.example.json
 
-CMD ["bash", "-c", "python3 ./server/manage.py migrate; python3 ./server/manage.py runserver 0.0.0.0:8000"]
+CMD ["python3", "./server/manage.py", "runserver", "0.0.0.0:8000"]
