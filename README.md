@@ -4,10 +4,6 @@ spec of verifiable bbs (nostr) moderation in STARK-compressed format.
 
 # description
 
- - verifiable-moderation.py
-   - python source of the program.
- - src/verifiable-moderation
-   - stark source of the program. it uses cairo v0. it should be upgraded to v1.
  - docker/admin
    - add/remove authority for verimod key. admin delegates moderation rights to filter-server.
  - docker/filter-server
@@ -25,30 +21,6 @@ spec of verifiable bbs (nostr) moderation in STARK-compressed format.
    - nostr server
  - docker/verimod
    - independent daemon server program to check authority of specific public key (e.g. for filter-server).
-
-# prepare parameters for cairo v0
-
-```
-$ python3 verifiable-moderation.py
-```
-
-# compile and run cairo program
-
-```
-make run
-```
-
-# run cairo tests
-
-- install protostar from https://github.com/software-mansion/protostar . at least v0.14 works.
-
-```
-make test
-```
-
-# generate and verify proofs
-
-use https://github.com/andrewmilson/sandstorm to generate and verify proofs. you should use `--num-queries=128` option for prover and `--required-security-bits=128` for verifier. Code at hash `cf8af1749624b59316ec6660b6797591bd1553f7` is confirmed to work.
 
 # see also
 
