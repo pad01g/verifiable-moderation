@@ -1,5 +1,4 @@
-import json
-import copy
+import json, copy, sys
 
 from starkware.crypto.signature.signature import (
     private_to_stark_key, sign, verify, FIELD_PRIME)
@@ -207,7 +206,12 @@ def main():
         "final_hash": final_hash,
     }
 
-    with open('verifiable-moderation/verifiable-moderation-input.json', 'w') as f:
+    if len(sys.argv) > 1:
+        input_file_path = sys.argv[1]
+    else:
+        input_file_path = '../cairo/verifiable-moderation-input.json'
+
+    with open(input_file_path, 'w') as f:
         json.dump(input_data, f, indent=4)
         f.write('\n')
 

@@ -1,6 +1,7 @@
 .PHONY: test build
 
 run:
+	python3 ../cli/generate-input.py ./verifiable-moderation-input.json &&
 	cairo-compile src/main.cairo \
 		--proof_mode \
 		--output verifiable-moderation.json \

@@ -5,6 +5,7 @@ rfc6979/dist
 __pycache__
 docker/nostr-rs-relay/data/*
 verifiable-moderation.json
+verifiable-moderation-input.json
 env
 .DS_Store
 myenv/
