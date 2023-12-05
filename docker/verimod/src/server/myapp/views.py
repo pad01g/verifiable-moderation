@@ -1,7 +1,7 @@
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlparse, parse_qs
-from .verimod import ( make_initial_state, make_final_state)
+from verimod.verimod import ( make_initial_state, make_final_state)
 import json
 import logging
 
@@ -15,7 +15,7 @@ def check_category_elements_child(pubkey, category_elements_child):
     return False
 
 class StateHandler:
-    def __init__(self, config_file="/app/config.json"):
+    def __init__(self, config_file="/app/server/config.json"):
         try:
             with open(config_file) as f:
                 d = json.load(f)

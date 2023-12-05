@@ -1,12 +1,18 @@
-import json
-import copy
+import json, copy, os, sys
 
 from starkware.crypto.signature.signature import (
     private_to_stark_key, sign, verify, FIELD_PRIME)
 
 from starkware.cairo.common.hash_chain import (compute_hash_chain)
 
-from docker.verimod.src.verimod import (
+# Get the current script's directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Get the parent directory by going one level up
+parent_dir = os.path.dirname(current_dir)
+# Add the parent directory to sys.path
+sys.path.append(parent_dir + "/module")
+
+from verimod.verimod import (
     make_initial_state,
     make_final_state,
     get_block_hash,
@@ -207,7 +213,12 @@ def main():
         "final_hash": final_hash,
     }
 
-    with open('verifiable-moderation/verifiable-moderation-input.json', 'w') as f:
+    if len(sys.argv) > 1:
+        input_file_path = sys.argv[1]
+    else:
+        input_file_path = '../cairo/verifiable-moderation-input.json'
+
+    with open(input_file_path, 'w') as f:
         json.dump(input_data, f, indent=4)
         f.write('\n')
 

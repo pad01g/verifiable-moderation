@@ -61,13 +61,13 @@ jobs:
         run: |
           source ~/cairo_venv/bin/activate
           source ~/.bashrc
-          cd verifiable-moderation;
+          cd docker/verimod/src/cairo;
           make test;
 
       - name: Run
         run: |
           source ~/cairo_venv/bin/activate
           source ~/.bashrc
-          cd verifiable-moderation;
+          cd docker/verimod/src/cairo;
           cairo-run --version
           make run
