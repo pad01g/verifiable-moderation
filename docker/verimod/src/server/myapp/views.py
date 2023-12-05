@@ -1,7 +1,7 @@
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlparse, parse_qs
-from .verimod import (generate_key_pair, generate_blocks, make_initial_state, make_final_state)
+from .verimod import ( make_initial_state, make_final_state)
 import json
 import logging
 
