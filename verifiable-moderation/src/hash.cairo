@@ -145,11 +145,14 @@ func get_block_hash{
     hash_ptr: HashBuiltin*,
 }(block: Block*) -> felt {
     alloc_locals;
-    if(block.n_root_message == 0){
-        let (hash_chain_input) = alloc();
-        assert [hash_chain_input] = block.n_transactions;
-        get_transactions_hash(block.n_transactions, block.transactions, hash_chain_input+1);
-        let (h) = hash_chain(hash_chain_input);
+    if (block.n_root_message == 0){
+        // let (hash_chain_input) = alloc();
+        // assert [hash_chain_input] = block.n_transactions;
+        // get_transactions_hash(block.n_transactions, block.transactions, hash_chain_input+1);
+        // let (h) = hash_chain(hash_chain_input);
+
+        let h = calc_transactions_merkle_root(block.transactions, block.n_transactions);
+
         local timestamp = block.timestamp;
 
         let (input) = alloc();
@@ -160,30 +163,79 @@ func get_block_hash{
         let (h2) = hash_chain(input);
         return h2;
     }else{
-        let (hash_chain_input) = alloc();
-        assert [hash_chain_input] = 1;
-        assert [hash_chain_input+1] = block.root_message.root_pubkey;
-        let (h) = hash_chain(hash_chain_input);
-        return h;
+        let root_pubkey = block.root_message.root_pubkey;
+        if (root_pubkey == 0){
+            let (hash_chain_input) = alloc();
+            assert [hash_chain_input] = 1;
+            assert [hash_chain_input+1] = block.root_message.prev_block_hash;
+            let (h) = hash_chain(hash_chain_input);
+            return h;
+        }else{
+            let (hash_chain_input) = alloc();
+            assert [hash_chain_input] = 1;
+            assert [hash_chain_input+1] = block.root_message.root_pubkey;
+            let (h) = hash_chain(hash_chain_input);
+            return h;
+        }
     }
 }
 
-func get_transactions_hash{
-    hash_ptr: HashBuiltin*,
-}(n_transactions: felt, transactions: Transaction*, out: felt*) -> () {
-
-    if (n_transactions == 0) {
-        return ();
+func assign_felt_array(addr: felt*, n_element: felt, element: felt*) -> felt* {
+    if (n_element == 0){
+        return addr;
     }else{
-        let (hash_chain_input) = alloc();
-        assert [hash_chain_input] = 4;
-        assert [hash_chain_input+1] = transactions.msg_hash;
-        assert [hash_chain_input+2] = transactions.signature_r;
-        assert [hash_chain_input+3] = transactions.signature_s;
-        assert [hash_chain_input+4] = transactions.pubkey;
-
-        let (h) = hash_chain(hash_chain_input);
-        assert [out] = h;
-        return get_transactions_hash(n_transactions - 1, transactions + Transaction.SIZE, out + 1);
+        assert [addr] = [element];
+        return assign_felt_array(addr + 1, n_element - 1, element + 1);
     }
+}
+
+func calc_transactions_merkle_root_rec{hash_ptr: HashBuiltin*}(transaction: Transaction*, transaction_hash: felt*, n_transaction: felt) -> felt* {
+    alloc_locals;
+    // local felt_array: felt*;
+    let (felt_array: felt*) = alloc();
+    if (n_transaction == 0){
+        return (felt_array);
+    }
+    // verify transaction.msg_hash
+
+    // allocate array for hash chain of command
+    let (command_ptr) = alloc();
+    assert [command_ptr] = transaction.n_command;
+    // assign transaction.command after [command_ptr + 1].
+    memcpy(command_ptr+1, transaction.command, transaction.n_command);
+
+    let (command_hash) = hash_chain(command_ptr);
+    let (hinput) = alloc();
+    assert [hinput] = 2;
+    assert [hinput+1] = command_hash;
+    assert [hinput+2] = transaction.prev_block_hash;
+    let (msg_hash) = hash_chain(hinput);
+    assert msg_hash = transaction.msg_hash;
+
+    // Allocate an array.
+    let (ptr) = alloc();
+
+    // Populate values in the array.
+    assert [ptr] = 4;
+    assert [ptr + 1] = transaction.msg_hash;
+    assert [ptr + 2] = transaction.signature_r;
+    assert [ptr + 3] = transaction.signature_s;
+    assert [ptr + 4] = transaction.pubkey;
+
+    let (h) = hash_chain(ptr);
+    assert transaction_hash[0] = h;
+    return calc_transactions_merkle_root_rec(transaction + Transaction.SIZE, transaction_hash + 1, n_transaction - 1);
+}
+
+func calc_transactions_merkle_root{hash_ptr: HashBuiltin*}(transactions: Transaction*, n_transactions: felt) -> felt {
+    alloc_locals;
+    let (transaction_hashes: felt*) = alloc();
+    calc_transactions_merkle_root_rec(transactions, transaction_hashes, n_transactions);
+
+    let (transaction_hashes_ptr) = alloc();
+    assert [transaction_hashes_ptr] = n_transactions;
+    assign_felt_array(transaction_hashes_ptr+1, n_transactions, transaction_hashes);
+
+    let (h) = hash_chain(transaction_hashes_ptr);
+    return h;
 }
