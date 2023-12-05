@@ -53,6 +53,12 @@ func verify_block{hash_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*}(state:St
         signature_r=block.signature_r,
         signature_s=block.signature_s,
     );
+
+    // in case it's root message
+    if (block.n_root_message != 0) {
+        assert root = 1;
+    }
+
     return ();
 }
 
