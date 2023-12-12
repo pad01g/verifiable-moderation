@@ -22,6 +22,13 @@ spec of verifiable bbs (nostr) moderation in STARK-compressed format.
  - docker/verimod
    - independent daemon server program to check authority of specific public key (e.g. for filter-server).
 
+# run scenario test script
+
+```
+docker compose up
+bash ./scripts/integration-test.sh
+```
+
 # see also
 
  - https://martin.kleppmann.com/2021/01/13/decentralised-content-moderation.html

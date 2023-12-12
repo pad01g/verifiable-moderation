@@ -8,7 +8,7 @@ python3 keygen.py
 
 ```
 {
-    "private_key": "0x261f1e71f64c063745058da3ec2affa0fa8792cdc818e778c34bed06340fb12",
+    "private_key": "0x172bb1",
     "filter_words": [],
     "password": "pass1234word"
 }

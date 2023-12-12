@@ -26,7 +26,7 @@ def main():
     merged = dict()
     merged.update(template_config)
     # take first 3 blocks
-    src_input["blocks"] = src_input["blocks"][0:3]
+    src_input["blocks"] = src_input["blocks"][0:4]
     merged.update(src_input)
 
     with open(config_path, 'w') as f:

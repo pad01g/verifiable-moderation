@@ -5,6 +5,8 @@ from verimod.verimod import ( make_initial_state, make_final_state)
 import json
 import logging
 
+logger = logging.getLogger('development')
+
 def check_category_elements_child(pubkey, category_elements_child):
     for element in category_elements_child:
         if element["pubkey"] == pubkey:
@@ -25,7 +27,7 @@ class StateHandler:
             # self.state = [value for key, value in d.items() if "state" in key]
             # self.state.append(self.final_state)
         except Exception as e:
-            logging.error(f"Error: No state file found. Exception: {e}")
+            logger.error(f"Error: No state file found. Exception: {e}")
             raise e
 
 handler = StateHandler()
@@ -40,7 +42,7 @@ def handle_request(request):
         return HttpResponse("Welcome to verifiable moderation!")
 
 def handle_get(request):
-    logging.info("Received GET request.")
+    logger.info("Received GET request.")
     parsed = urlparse(request.get_full_path())
     params = parse_qs(parsed.query)
 
@@ -48,32 +50,45 @@ def handle_get(request):
         category_type = params["category_type"][0]
         pubkey = params["pubkey"][0]
         result = False
+        logger.info(f"category_type: {category_type}, pubkey: {pubkey}")
+        category_type_list = list(map(lambda x: x["data"]["category_type"], handler.state["state"]["all_category"]))
+        logger.info(f"category_type_list: {category_type_list}")
         for category in handler.state["state"]["all_category"]:
             if category["data"]["category_type"] == category_type:
                 category_elements_child = category["data"]["category_elements_child"]
-                if check_category_elements_child(pubkey, category_elements_child):
+                check_result = check_category_elements_child(pubkey, category_elements_child)
+                logger.info(f"category_type: {category_type}, check_result: {check_result}")
+                if check_result:
                     result = True
                     break
+
+        if "root_pubkey" in params:
+            root_pubkey = params["root_pubkey"][0]
+            state_root_pubkey = handler.state["state"]["root_pubkey"]
+            if root_pubkey != state_root_pubkey:
+                result = False
+                logger.error(f"Error: parameter root_pubkey {root_pubkey} and state root_pubkey {state_root_pubkey} is different.")
+
         return JsonResponse({"result": result})
     except Exception as e:
-        logging.error(f"Error while handling GET request. Exception: {e}")
+        logger.error(f"Error while handling GET request. Exception: {e}")
         return HttpResponseBadRequest("Error processing request")
 
 @csrf_exempt
 def handle_post(request):
-    logging.info("Received POST request.")
+    logger.info("Received POST request.")
     try:
         new_block_json = json.loads(request.body.decode('utf-8'))
         new_block = new_block_json["block"]
     except Exception as e:
-        logging.error(f"Error: Invalid block. Exception: {e}")
+        logger.error(f"Error: Invalid block. Exception: {e}")
         return HttpResponseBadRequest("Error: Invalid block")
 
     try:
         newstate = make_final_state(handler.state, [new_block])[0]
         handler.state = newstate
     except Exception as e:
-        logging.error(f"Error: Invalid block processing. Exception: {e}")
+        logger.error(f"Error: Invalid block processing. Exception: {e}")
         return HttpResponseBadRequest("Error: Invalid block")
 
     return JsonResponse({"result": "ok"})

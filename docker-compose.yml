@@ -14,6 +14,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./docker/noscl-reader/config.json:/root/.config/nostr/config.json
+      - ./docker/noscl-reader/src:/root/src
     container_name: noscl-reader
   noscl-writer:
     build:
@@ -21,24 +22,26 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./docker/noscl-writer/config.json:/root/.config/nostr/config.json
+      - ./docker/noscl-writer/src:/root/src
     container_name: noscl-writer
   verimod:
-      build:
-        context: docker/verimod
-        dockerfile: Dockerfile
-      volumes:
-        - ./docker/verimod/src:/usr/src/verimod
-      container_name: verimod
-      ports:
-        - "8000:8000"
+    build:
+      context: docker/verimod
+      dockerfile: Dockerfile
+    volumes:
+      - ./docker/verimod/src:/usr/src/verimod
+    container_name: verimod
+    ports:
+      - "8000:8000"
   filter-server:
     build:
       context: docker/filter-server
       dockerfile: Dockerfile
     volumes:
-      - ./docker/filter-server/src:/usr/src/filter-server
+      - ./docker/filter-server/src:/usr/src/filter-server/src
+      - ./docker/filter-server/config.json:/usr/src/filter-server/config.json
     container_name: filter-server
-    command: python3 /usr/src/filter-server/server.py
+    command: python3 /usr/src/filter-server/src/server.py --config /usr/src/filter-server/config.json
   admin:
     build:
       context: docker/admin
