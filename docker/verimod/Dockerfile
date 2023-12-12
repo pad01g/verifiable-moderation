@@ -29,7 +29,7 @@ RUN python3 ./cli/generate-config.py ./cairo/verifiable-moderation-input.json ./
 RUN python3 ./server/manage.py migrate
 
 # generate block.json
-RUN cat ./cairo/verifiable-moderation-input.json | jq '{ "block": .blocks[3] }' > ./server/block.good.json
-RUN cat ./cairo/verifiable-moderation-input.json | jq '{ "block": .blocks[2] }' > ./server/block.bad.json
+RUN cat ./cairo/verifiable-moderation-input.json | jq '{ "block": .blocks[4] }' > ./server/block.good.json
+RUN cat ./cairo/verifiable-moderation-input.json | jq '{ "block": .blocks[3] }' > ./server/block.bad.json
 
 CMD ["python3", "./server/manage.py", "runserver", "0.0.0.0:8000"]

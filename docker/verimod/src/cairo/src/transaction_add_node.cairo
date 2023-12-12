@@ -88,6 +88,8 @@ func add_node_to_state_by_reference_recursive(
                     assert new_category_elements_child.category_elements_child = child;
                     assert new_category_elements_child.n_category_elements_child = 1;
                 }else{
+                    // copy reference from old array to new array
+                    assert new_category_elements_child.category_elements_child = category_elements_child.category_elements_child;
                     assert new_category_elements_child.n_category_elements_child = category_elements_child.n_category_elements_child + 1;
                 }
                 assert new_category_elements_child.category_elements_child[category_elements_child.n_category_elements_child] = [node];

@@ -41,6 +41,7 @@ def generate_key_pair():
         priv_keys.append(priv_key)
 
         pub_key = private_to_stark_key(priv_key)
+        # print(f"pub_key {i}: {hex(pub_key)}")
         pub_keys.append(pub_key)
 
     return (priv_keys, pub_keys, root_priv_key, root_pub_key)
@@ -52,7 +53,7 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
         "signature_s": None,
     }
     blocks = [initial_block]
-    blocks_num = 4 # initial block is included in count
+    blocks_num = 5 # initial block is included in count
     txs_num = 4
     new_category_id = 1
     for i in range(1,blocks_num):
@@ -80,7 +81,7 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
                 else:
                     commandInt = [COMMAND_NODE_CREATE, new_category_id, 0, 1, pub_keys[6]]
 
-            else: # third block
+            elif i == 3: # third block
                 # remove nodes and categories
                 if j == 0:
                     commandInt = [COMMAND_NODE_REMOVE, CATEGORY_BLOCK, pub_keys[4]]
@@ -90,6 +91,16 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
                     commandInt = [COMMAND_NODE_REMOVE, CATEGORY_CATEGORY, pub_keys[5]]
                 else:
                     commandInt = [COMMAND_CATEGORY_REMOVE, new_category_id]
+            else: # fourth block
+                if j == 0:
+                    # create new category
+                    commandInt = [COMMAND_CATEGORY_CREATE, new_category_id]
+                elif j == 1:
+                    commandInt = [COMMAND_NODE_CREATE, new_category_id, 2, 2, pub_keys[9]]
+                elif j == 2:
+                    commandInt = [COMMAND_NODE_CREATE, new_category_id, 1, 1, pub_keys[7]]
+                else:
+                    commandInt = [COMMAND_NODE_CREATE, new_category_id, 1, 1, pub_keys[8]]
 
             commandHex = [hex(x) for x in commandInt]
             prev_block_hash = get_block_hash(blocks[i-1])
@@ -113,7 +124,7 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
                     priv_key = priv_keys[2]
                     pub_key = pub_keys[2]
 
-            else: # third block
+            elif i == 3: # third block
                 if j == 0:
                     priv_key = priv_keys[3] # remove node 4
                     pub_key = pub_keys[3]
@@ -126,6 +137,19 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
                 else:
                     priv_key = priv_keys[1] # node 1 can remove entire category `new_category_id`
                     pub_key = pub_keys[1]
+            else: # fourth block
+                if j == 0:
+                    priv_key = root_priv_key
+                    pub_key = root_pub_key
+                elif j == 1:
+                    priv_key = root_priv_key
+                    pub_key = root_pub_key
+                elif j == 2:
+                    priv_key = priv_keys[9]
+                    pub_key = pub_keys[9]
+                else:
+                    priv_key = priv_keys[9]
+                    pub_key = pub_keys[9]
 
             r, s = sign(
                 msg_hash=msg_hash,
@@ -158,7 +182,7 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
         elif i == 2: # second block
             block_priv_key = priv_keys[0]
             block_pub_key = pub_keys[0]
-        else: # third block
+        else: # third block, fourth block
             block_priv_key = priv_keys[0]
             block_pub_key = pub_keys[0]
 
@@ -172,7 +196,7 @@ def generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key):
 
         blocks.append(block)
 
-    # 4th block
+    # 5th block
     # add last block with root message
     last_block = {
         "transactions": [],
@@ -202,7 +226,9 @@ def main():
     all_blocks = generate_blocks(priv_keys, pub_keys, root_priv_key, root_pub_key)
     blocks = all_blocks[1:]
     initial_block = all_blocks[0]
+    # print(initial_block)
     initial_state, initial_hash = make_initial_state(initial_block)
+    # print(initial_state, initial_hash)
     final_state, final_hash = make_final_state(initial_state, blocks)
 
     input_data = {
@@ -212,6 +238,7 @@ def main():
         "final_state": final_state,
         "final_hash": final_hash,
     }
+    print(json.dumps(input_data, indent=4))
 
     if len(sys.argv) > 1:
         input_file_path = sys.argv[1]

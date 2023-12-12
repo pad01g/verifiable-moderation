@@ -28,6 +28,7 @@ struct CategoryIdExistsResult {
     result: felt,
 }
 
+// check if `pubkey` exists within category `category_id``.
 func check_category_pubkey_authority(state: State*, category_id: felt, pubkey: felt) -> (root: felt, exists: felt, result: felt) {
     alloc_locals;
 
