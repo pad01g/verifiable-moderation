@@ -57,8 +57,9 @@ kwargs = {
 with Popen(["noscl", "home"], **kwargs) as process:
     while True:
         output = process.stdout.readline()
-        if output in filters:
-            # censor contents
-            pass
-        else:
-            print(output)
+        for word in filters:
+            if word in output:
+                # censor contents
+                print("[CENSORED]")
+            else:
+                print(output)
