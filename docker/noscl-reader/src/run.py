@@ -8,7 +8,7 @@ from starkware.cairo.common.hash_chain import (compute_hash_chain)
 from subprocess import Popen, PIPE
 
 
-trusted_root_pubkey=""
+trusted_root_pubkey="0x2f3b7aa96f717634e886860acbae543025c6f534637844b012c2ee467f19477"
 
 # get filter from filter-server
 
@@ -18,6 +18,7 @@ r = urllib.request.urlopen(req).read()
 cont = json.loads(r.decode('utf-8'))
 
 derived_pubkey = cont["pubkey"]
+# just for debug, assertion is not needed
 assert "0x23592b2754186e35f970c72eea16d46df2570bc68e6ee3069d8aa68d1a1707a" == derived_pubkey
 signature_r = cont["signature_r"]
 signature_s = cont["signature_s"]

@@ -22,12 +22,30 @@ spec of verifiable bbs (nostr) moderation in STARK-compressed format.
  - docker/verimod
    - independent daemon server program to check authority of specific public key (e.g. for filter-server).
 
-# run scenario test script
+# proof-of-concept
+
+Let's launch components by the following command in first terminal.
 
 ```
+# first terminal
 docker compose up
-bash ./scripts/integration-test.sh
 ```
+
+Then, open another terminal and run following command.
+
+```
+# second terminal
+docker compose exec -it noscl-reader python3 /root/src/run.py
+```
+
+Then, open third terminal and run following command. Under the hood, it fetches filter from filter server and verify its integrity by requesting `verimod` server.
+
+```
+# third terminal
+docker compose exec -it noscl-writer bash /root/src/run.sh
+```
+
+Finally, type anything and hit Enter on third terminal. The message will be sent to second terminal. If the message contains censored word, it will be replaced and displayed on second terminal.
 
 # see also
 
