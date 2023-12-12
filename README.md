@@ -31,14 +31,14 @@ Let's launch components by the following command in first terminal.
 docker compose up
 ```
 
-Then, open another terminal and run following command.
+Then, open another terminal and run following command. Under the hood, it fetches filter from filter server and verify its integrity by requesting `verimod` server.
 
 ```
 # second terminal
 docker compose exec -it noscl-reader python3 /root/src/run.py
 ```
 
-Then, open third terminal and run following command. Under the hood, it fetches filter from filter server and verify its integrity by requesting `verimod` server.
+Then, open third terminal and run following command. `noscl-writer` just pipes anything into nostr stream.
 
 ```
 # third terminal
