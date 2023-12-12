@@ -40,7 +40,7 @@ assert verimod_response["result"] == True
 # just run sha256 of string and take first 254 bits, then hash again by `compute_hash_chain`
 # json_str_sha256 = sha256(json_str)
 msg_hash = hashlib.sha224(json_str.encode())
-correct_signature = verify(msg_hash, int(signature_r,16), int(signature_s, 16), int(derived_pubkey, 16))
+correct_signature = verify(int.from_bytes(msg_hash.digest(), byteorder='big'), int(signature_r,16), int(signature_s, 16), int(derived_pubkey, 16))
 
 assert correct_signature == True
 print(f"filter is verified: {filters}")
