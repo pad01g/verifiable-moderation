@@ -46,16 +46,16 @@ contract MyToken is ERC20 {
     }
 
     function castVote(bool _voteYes) public {
-        require(vote.isOpen, "No vote in progress.");
-        require(stringsEquals(vote.target[msg.sender], "NO"), "Already YES.");
-        require(balanceOf(msg.sender) > 0, "No tokens to vote.");
+    require(vote.isOpen, "No vote in progress.");
+    require(stringsEquals(vote.target[msg.sender], "") || !stringsEquals(vote.target[msg.sender], "YES"), "Already voted.");
+    require(balanceOf(msg.sender) > 0, "No tokens to vote.");
 
-        if (_voteYes) {
-            vote.yesCount += balanceOf(msg.sender);
-        } else {
-            vote.noCount += balanceOf(msg.sender);
-        }
-
+    if (_voteYes) {
+        vote.yesCount += balanceOf(msg.sender);
         vote.target[msg.sender] = "YES";
+    } else {
+        vote.noCount += balanceOf(msg.sender);
+        vote.target[msg.sender] = "NO";
+    }
     }
 }
