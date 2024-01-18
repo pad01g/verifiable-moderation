@@ -28,12 +28,14 @@ contract MyToken is ERC20 {
     }
 
     Vote private vote;
+    string private currentQuestion;
 
-    function startVote() public {
+    function startVote(string memory question) public {
         require(!vote.isOpen, "Vote already in progress.");
         vote.isOpen = true;
         vote.yesCount = 0;
         vote.noCount = 0;
+        currentQuestion = question;
     }
 
     function endVote() public returns (bool) {
@@ -55,5 +57,10 @@ contract MyToken is ERC20 {
         vote.noCount += balanceOf(msg.sender);
         vote.target[msg.sender] = "NO";
     }
+    }
+
+    function getCurrentQuestion() public view returns (string memory) {
+        require(vote.isOpen, "No vote in progress.");
+        return currentQuestion;
     }
 }
