@@ -25,10 +25,12 @@ contract MyToken is ERC20 {
         uint256 yesCount;
         uint256 noCount;
         mapping(address => string) target;
+        mapping(address => string) tmpTarget;
     }
 
     Vote private vote;
     string private currentQuestion;
+    address[] private voters;
 
     function startVote(string memory question) public {
         require(!vote.isOpen, "Vote already in progress.");
@@ -36,27 +38,39 @@ contract MyToken is ERC20 {
         vote.yesCount = 0;
         vote.noCount = 0;
         currentQuestion = question;
+        delete voters;
     }
 
     function endVote() public returns (bool) {
         require(vote.isOpen, "No vote in progress.");
+        bool result = vote.yesCount > vote.noCount;
         vote.isOpen = false;
-
-        return vote.yesCount > vote.noCount;
+        if (result) {
+            for (uint i = 0; i < voters.length; i++) {
+                vote.target[voters[i]] = vote.tmpTarget[voters[i]];
+            }
+        }
+        for (uint i = 0; i < voters.length; i++) {
+            delete vote.tmpTarget[voters[i]];
+        }
+        delete voters;
+        return result;
     }
 
     function castVote(bool _voteYes) public {
-    require(vote.isOpen, "No vote in progress.");
-    require(stringsEquals(vote.target[msg.sender], "") || !stringsEquals(vote.target[msg.sender], "YES"), "Already voted.");
-    require(balanceOf(msg.sender) > 0, "No tokens to vote.");
+        require(vote.isOpen, "No vote in progress.");
+        require(stringsEquals(vote.tmpTarget[msg.sender], ""), "Already voted.");
+        require(balanceOf(msg.sender) > 0, "No tokens to vote.");
 
-    if (_voteYes) {
-        vote.yesCount += balanceOf(msg.sender);
-        vote.target[msg.sender] = "YES";
-    } else {
-        vote.noCount += balanceOf(msg.sender);
-        vote.target[msg.sender] = "NO";
-    }
+        voters.push(msg.sender);
+
+        if (_voteYes) {
+            vote.yesCount += balanceOf(msg.sender);
+            vote.tmpTarget[msg.sender] = "YES";
+        } else {
+            vote.noCount += balanceOf(msg.sender);
+            vote.tmpTarget[msg.sender] = "NO";
+        }
     }
 
     function getCurrentQuestion() public view returns (string memory) {
