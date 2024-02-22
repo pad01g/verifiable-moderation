@@ -6,20 +6,33 @@ from starkware.crypto.signature.signature import (
 
 from starkware.cairo.common.hash_chain import (compute_hash_chain)
 from subprocess import Popen, PIPE
+from web3 import Web3
+import json
+
+with open("config_contract.json") as f:
+    config = json.load(f)
+project_id = config["project_id"]
+contract_address = config["contract_address"]
 
 
-trusted_root_pubkey="0x2f3b7aa96f717634e886860acbae543025c6f534637844b012c2ee467f19477"
+infura_http_url = f'https://goerli.infura.io/v3/{project_id}'
+web3 = Web3(Web3.HTTPProvider(infura_http_url))
+
+contract_abi = [] 
+
+contract = web3.eth.contract(address=contract_address, abi=contract_abi)
+
+trusted_root_pubkey = contract.functions.trustedRootPubkey().call()
 
 # get filter from filter-server
 
-url = 'http://filter-server:8000/'
-req = urllib.request.Request(url)
+SERVER_URL = 'http://filter-server:8000/'
+req = urllib.request.Request(SERVER_URL)
 r = urllib.request.urlopen(req).read()
 cont = json.loads(r.decode('utf-8'))
 
 derived_pubkey = cont["pubkey"]
 # just for debug, assertion is not needed
-assert "0x23592b2754186e35f970c72eea16d46df2570bc68e6ee3069d8aa68d1a1707a" == derived_pubkey
 signature_r = cont["signature_r"]
 signature_s = cont["signature_s"]
 json_str = cont["json_str"]
