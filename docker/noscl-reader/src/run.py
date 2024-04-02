@@ -9,20 +9,24 @@ from subprocess import Popen, PIPE
 from web3 import Web3
 import json
 
-with open("config_contract.json") as f:
+with open("/root/config_contract.json") as f:
     config = json.load(f)
 project_id = config["project_id"]
 contract_address = config["contract_address"]
 
 
-infura_http_url = f'https://goerli.infura.io/v3/{project_id}'
+infura_http_url = f'https://sepolia.infura.io/v3/{project_id}'
 web3 = Web3(Web3.HTTPProvider(infura_http_url))
 
-contract_abi = [] 
+contract_abi = []
 
 contract = web3.eth.contract(address=contract_address, abi=contract_abi)
 
-trusted_root_pubkey = contract.functions.trustedRootPubkey().call()
+try:
+    trusted_root_pubkey = contract.call().currentQuestion()
+except Exception as e:
+    # default value
+    trusted_root_pubkey = "0x2f3b7aa96f717634e886860acbae543025c6f534637844b012c2ee467f19477"
 
 # get filter from filter-server
 
