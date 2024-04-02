@@ -13,6 +13,7 @@ services:
       context: docker/noscl-reader
       dockerfile: Dockerfile
     volumes:
+      - ./docker/noscl-reader/config_contract.json:/root/config_contract.json
       - ./docker/noscl-reader/config.json:/root/.config/nostr/config.json
       - ./docker/noscl-reader/src:/root/src
     container_name: noscl-reader
